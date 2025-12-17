@@ -1,11 +1,13 @@
+/* index.css - MODIFICADO (elimina los colores fijos) */
 :root {
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light;
-  color: #213547;
-  background-color: #ffffff;
+  /* ELIMINA estas líneas que estaban forzando colores */
+  /* color-scheme: light; */
+  /* color: #213547; */
+  /* background-color: #ffffff; */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -23,6 +25,7 @@ body {
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
+  /* ELIMINA esto: background-color: #ffffff; */
 }
 
 #root {

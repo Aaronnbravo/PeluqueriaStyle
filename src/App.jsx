@@ -11,7 +11,6 @@ import Header from './components/common/Header'
 import ConfirmationPage from './components/client/ConfirmationPage'
 import InstallPrompt from './components/common/InstallPrompt'
 import { Spinner, Container } from 'react-bootstrap'
-import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css'
 
 // Componente de Loading

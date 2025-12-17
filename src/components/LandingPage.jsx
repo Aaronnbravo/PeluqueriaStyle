@@ -12,16 +12,14 @@ import corte3 from '../images/cortes/corte3.jpeg'
 import corte4 from '../images/cortes/corte4.jpeg'
 import corte5 from '../images/cortes/corte5.jpeg'
 import corte6 from '../images/cortes/corte6.jpeg'
-import corte7 from '../images/cortes/corte7.jpeg'
-import corte8 from '../images/cortes/corte8.jpeg'
-import corte9 from '../images/cortes/corte9.jpeg'
+
 
 function LandingPage() {
   const navigate = useNavigate()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   
-  const images = [corte1, corte2, corte3, corte4, corte5, corte6, corte7, corte8, corte9]
+  const images = [corte1, corte2, corte3, corte4, corte5, corte6]
 
   // Detectar cambios en el tamaño de la pantalla
   useEffect(() => {
@@ -71,48 +69,49 @@ function LandingPage() {
 
   return (
     <div className="landing-page">
-      {/* HERO SECTION */}
-      <section id="inicio" className="hero-area">
-        <Container>
-          <Row className={`align-items-center hero-row ${isMobile ? 'mobile-hero' : ''}`}>
-            <Col lg={6} className="hero-content">
-              <h1 className={`hero-main-title animate-fade-up ${isMobile ? 'mobile-title' : ''}`}>
-                PISO STYLE
-              </h1>
-              <h2 className={`hero-subtitle animate-fade-up animate-delay-1 ${isMobile ? 'mobile-subtitle' : ''}`}>
-                Barbershop
-              </h2>
-              <p className={`hero-description animate-fade-up animate-delay-2 ${isMobile ? 'mobile-description' : ''}`}>
-                Más que un corte, una experiencia
-              </p>
-              <div className={`hero-buttons animate-fade-up animate-delay-2 ${isMobile ? 'mobile-buttons' : ''}`}>
-                <button
-                  className="btn-primary-custom"
-                  onClick={() => navigate('/login')}
-                >
-                  {isMobile ? 'RESERVAR' : 'RESERVA AHORA'}
-                </button>
-                <button
-                  className="btn-outline-custom"
-                  onClick={() => scrollToSection('servicios')}
-                >
-                  {isMobile ? 'SERVICIOS' : 'VER SERVICIOS'}
-                </button>
-              </div>
-            </Col>
+     {/* HERO SECTION */}
+<section id="inicio" className="hero-area">
+  <Container>
+    <Row className={`align-items-center hero-row ${isMobile ? 'mobile-hero' : ''}`}>
+      <Col lg={6} className="hero-content">
+        <h1 className={`hero-main-title animate-fade-up ${isMobile ? 'mobile-title' : ''}`}>
+          <span className="piso-text">PISO</span>{' '}
+          <span className="style-text">STYLE</span>
+        </h1>
+        <h2 className={`hero-subtitle animate-fade-up animate-delay-1 ${isMobile ? 'mobile-subtitle' : ''}`}>
+          Barber Shop
+        </h2>
+        <p className={`hero-description animate-fade-up animate-delay-2 ${isMobile ? 'mobile-description' : ''}`}>
+          Más que un corte, una experiencia
+        </p>
+        <div className={`hero-buttons animate-fade-up animate-delay-2 ${isMobile ? 'mobile-buttons' : ''}`}>
+          <button
+            className="btn-primary-custom"
+            onClick={() => navigate('/login')}
+          >
+            {isMobile ? 'RESERVAR' : 'RESERVA AHORA'}
+          </button>
+          <button
+            className="btn-outline-custom"
+            onClick={() => scrollToSection('servicios')}
+          >
+            {isMobile ? 'SERVICIOS' : 'VER SERVICIOS'}
+          </button>
+        </div>
+      </Col>
 
-            <Col lg={6} className="hero-image">
-              <div className={`hero-image-container animate-fade-right ${isMobile ? 'mobile-hero-image' : ''}`}>
-                <img
-                  src={heroImage}
-                  alt="Ian Castillo Peluquería - Barber Shop"
-                  className="hero-real-image"
-                />
-              </div>
-            </Col>
-          </Row>
-        </Container>
-      </section>
+      <Col lg={6} className="hero-image">
+        <div className={`hero-image-container animate-fade-right ${isMobile ? 'mobile-hero-image' : ''}`}>
+          <img
+            src={heroImage}
+            alt="PisoStyle Peluquería - Barber Shop"
+            className="hero-real-image"
+          />
+        </div>
+      </Col>
+    </Row>
+  </Container>
+</section>
 
       {/* QUIÉNES SOMOS */}
       <section id="sobre-nosotros" className="about-section">
@@ -294,7 +293,7 @@ function LandingPage() {
                     {/* Mapa de Google Maps */}
                     <div className={`map-container ${isMobile ? 'mobile-map' : ''}`}>
                       <iframe
-                        src="https://www.google.com/maps/dir//Jujuy+1442,+B7600+Mar+del+Plata,+Provincia+de+Buenos+Aires/@-37.9932285,-57.5558136,448m/data=!3m1!1e3!4m17!1m8!3m7!1s0x9584dc0020049749:0xd6ff33910c8a224a!2sJujuy+1442,+B7600+Mar+del+Plata,+Provincia+de+Buenos+Aires!3b1!8m2!3d-37.9932328!4d-57.5532387!16s%2Fg%2F11vj2jzb3_!4m7!1m0!1m5!1m1!1s0x9584dc0020049749:0xd6ff33910c8a224a!2m2!1d-57.5532387!2d-37.9932328?entry=ttu&g_ep=EgoyMDI1MTIwOS4wIKXMDSoASAFQAw%3D%3D"
+                        src="https://www.google.com/maps/place/Piso+Style+Barber+Shop/@-37.9932285,-57.555819,17z/data=!3m1!4b1!4m6!3m5!1s0x9584dd6aeb3030c7:0xed3c3c83467650d1!8m2!3d-37.9932328!4d-57.5532387!16s%2Fg%2F11vhxj6775?entry=ttu&g_ep=EgoyMDI1MTIwOS4wIKXMDSoASAFQAw%3D%3D"
                         width="100%"
                         height={isMobile ? "200" : "300"}
                         style={{ border: 0, borderRadius: '8px' }}
@@ -309,7 +308,7 @@ function LandingPage() {
                     <div className="text-center mt-4">
                       <Button
                         className={`btn-google-maps-custom ${isMobile ? 'mobile-map-btn' : ''}`}
-                        href="https://www.google.com/maps/search/?api=1&query=Jujuy+1442, B7600 Mar del Plata, Provincia de Buenos Aires"
+                        href="https://www.google.com/maps/place/Piso+Style+Barber+Shop/@-37.9932285,-57.555819,17z/data=!3m1!4b1!4m6!3m5!1s0x9584dd6aeb3030c7:0xed3c3c83467650d1!8m2!3d-37.9932328!4d-57.5532387!16s%2Fg%2F11vhxj6775?entry=ttu&g_ep=EgoyMDI1MTIwOS4wIKXMDSoASAFQAw%3D%3D"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
