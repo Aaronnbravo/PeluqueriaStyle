@@ -6,10 +6,10 @@
   background-attachment: scroll;
   min-height: 100vh;
   position: relative;
-  padding-top: 100px; /* ← ESPACIO para la navbar */
+  padding-top: 100px;
   background-image: url('../../images/login/background.jpg');
   display: flex;
-  align-items: flex-start; /* ← Cambiado de center a flex-start */
+  align-items: flex-start;
   justify-content: center;
 }
 
@@ -31,23 +31,23 @@
   font-weight: bold;
 }
 
-/* Card SIN borde rojo por defecto, SOLO al hover */
+/* Card SIN borde violeta por defecto, SOLO al hover */
 .login-card {
   border: 5px solid transparent !important;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+  box-shadow: 0 10px 30px rgba(185, 94, 199, 0.15) !important; /* VIOLETA sutil */
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.95);
-  min-height: 550px; /* ← Reducido ligeramente */
+  min-height: 550px;
   display: flex;
   align-items: center;
   transition: all 0.3s ease;
-  margin-top: 20px; /* ← Espacio extra desde arriba */
+  margin-top: 20px;
 }
 
 .login-card:hover {
-  border-color: #dc3545 !important;
-  box-shadow: 0 15px 40px rgba(211, 8, 8, 0.3) !important;
+  border-color: #b95ec7 !important; /* VIOLETA */
+  box-shadow: 0 15px 40px rgba(185, 94, 199, 0.25) !important; /* VIOLETA */
 }
 
 .login-card-body {
@@ -92,20 +92,20 @@
 }
 
 .login-input:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: #b95ec7 !important; /* VIOLETA */
+  box-shadow: 0 0 0 0.2rem rgba(185, 94, 199, 0.25) !important; /* VIOLETA */
   color: #333 !important;
 }
 
 .login-input:hover {
-  border-color: #dc3545 !important;
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+  border-color: #b95ec7 !important; /* VIOLETA */
+  box-shadow: 0 0 0 0.2rem rgba(185, 94, 199, 0.25) !important; /* VIOLETA */
   color: #333 !important;
 }
 
 .login-button {
   width: 100%;
-  background: #007bff !important;
+  background: #b95ec7 !important; /* VIOLETA */
   border: none;
   border-radius: 8px;
   padding: 12px;
@@ -114,14 +114,14 @@
   transition: all 0.3s ease;
   margin-bottom: 1rem;
   color: white;
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(185, 94, 199, 0.3); /* VIOLETA */
 }
 
 .login-button:hover {
-  background: #dc3545 !important;
+  background: #cf7ddb !important; /* VIOLETA hover */
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4) !important;
-  border-color: #dc3545;
+  box-shadow: 0 8px 25px rgba(185, 94, 199, 0.4) !important; /* VIOLETA */
+  border-color: #b95ec7;
 }
 
 .login-button:disabled {
@@ -136,7 +136,7 @@
 }
 
 .login-link {
-  color: #667eea !important;
+  color: #b95ec7 !important; /* VIOLETA */
   text-decoration: none;
   padding: 0 !important;
   margin: 0 !important;
@@ -147,7 +147,7 @@
 }
 
 .login-link:hover {
-  color: #764ba2 !important;
+  color: #cf7ddb !important; /* VIOLETA hover */
   text-decoration: underline !important;
 }
 
@@ -156,7 +156,7 @@
   border-radius: 8px;
   padding: 15px;
   margin-top: 1.5rem;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #b95ec7; /* VIOLETA */
 }
 
 .login-demo-info code {
@@ -174,7 +174,7 @@
 /* ===== RESPONSIVE CORREGIDO ===== */
 @media (max-width: 768px) {
   .login-container {
-    padding-top: 80px !important; /* ← ESPACIO para navbar móvil */
+    padding-top: 80px !important;
     background-attachment: scroll;
     align-items: flex-start;
     padding-bottom: 20px;
@@ -213,6 +213,7 @@
     margin-top: 5px;
   }
 }
+
 /* Grupo de input de contraseña */
 .password-input-group {
   position: relative;
@@ -253,6 +254,6 @@
 }
 
 .remember-checkbox .form-check-input:checked {
-  background-color: #C41E3A;
-  border-color: #C41E3A;
+  background-color: #b95ec7; /* VIOLETA */
+  border-color: #b95ec7; /* VIOLETA */
 }

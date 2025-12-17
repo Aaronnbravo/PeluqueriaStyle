@@ -1,420 +1,403 @@
-  /* ===== VARIABLES CSS ===== */
-  :root {
-    --color-primary: #FFFFFF;
-    --color-secondary: #F8F9FA;
-    --color-dark: #E9ECEF;
-    --color-darker: #DEE2E6;
-    --color-accent: #C41E3A;
-    --color-accent-light: #D63349;
-    --color-text: #000000;
-    --color-text-light: #495057;
-    --color-white: #FFFFFF;
-    --color-border: #CED4DA;
-    --color-navbar: #1A1A1A;
-    --color-navbar-text: #FFFFFF;
-    --color-button-primary: #007bff;
-    --color-button-hover: #C41E3A;
-    --color-shadow-blue: rgba(0, 123, 255, 0.15);
-  }
+/* ===== VARIABLES CSS ===== */
+:root {
+  --color-primary: #FFFFFF;
+  --color-secondary: #F8F9FA;
+  --color-dark: #E9ECEF;
+  --color-darker: #DEE2E6;
+  --color-accent: #b95ec7;           /* VIOLETA en lugar de rojo */
+  --color-accent-light: #cf7ddb;     /* VIOLETA claro */
+  --color-text: #000000;
+  --color-text-light: #495057;
+  --color-white: #FFFFFF;
+  --color-border: #CED4DA;
+  --color-navbar: #0a0a0a;           /* Negro como el main */
+  --color-navbar-text: #FFFFFF;
+  --color-button-primary: #b95ec7;   /* VIOLETA */
+  --color-button-hover: #cf7ddb;     /* VIOLETA hover */
+  --color-shadow-violet: rgba(185, 94, 199, 0.15); /* Sombra violeta */
+}
 
-  /* ===== RESET PARA GARANTIZAR CENTRADO ===== */
-  .auth-container * {
-    box-sizing: border-box;
-  }
+/* ===== RESET PARA GARANTIZAR CENTRADO ===== */
+.auth-container * {
+  box-sizing: border-box;
+}
 
-  /* ===== FONDO CON RAYAS DIAGONALES INVERTIDAS ===== */
+/* ===== FONDO CON RAYAS DIAGONALES INVERTIDAS ===== */
+.auth-container {
+  min-height: 100vh;
+  background-color: var(--color-primary);
+  background-image: 
+    linear-gradient(-45deg, rgba(185, 94, 199, 0.03) 25%, transparent 25%), /* VIOLETA */
+    linear-gradient(45deg, rgba(185, 94, 199, 0.03) 25%, transparent 25%),    /* VIOLETA */
+    linear-gradient(-45deg, transparent 75%, rgba(185, 94, 199, 0.03) 75%),   /* VIOLETA */
+    linear-gradient(45deg, transparent 75%, rgba(185, 94, 199, 0.03) 75%),    /* VIOLETA */
+    linear-gradient(-45deg, rgba(30, 58, 95, 0.03) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(30, 58, 95, 0.03) 25%, transparent 25%),
+    linear-gradient(-45deg, transparent 75%, rgba(30, 58, 95, 0.03) 75%),
+    linear-gradient(45deg, transparent 75%, rgba(30, 58, 95, 0.03) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px, 0 0, 0 10px, 10px -10px, -10px 0px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  margin: 0;
+  position:relative;
+  min-height: 100vh;
+}
+
+/* ===== LOGO FIJO ===== */
+.auth-logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+.logo-link {
+  text-decoration: none;
+  display: block;
+}
+
+.logo-image {
+  height: 50px;
+  width: auto;
+  transition: all 0.3s ease;
+}
+
+.logo-image:hover {
+  transform: scale(1.05);
+}
+
+.logo-text {
+  color: #b95ec7; /* VIOLETA */
+  font-weight: bold;
+  font-size: 1.4rem;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+/* ===== OVERRIDE COMPLETO DE BOOTSTRAP PARA CENTRADO ===== */
+.auth-page-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  position: relative;
+  z-index: 2;
+}
+
+.auth-page-container .row {
+  width: 100% !important;
+  max-width: 400px !important;
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.auth-page-container .row .col {
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+/* ===== CARD CON SOMBRA VIOLETA Y EFECTO BORDE VIOLETA ===== */
+.auth-card {
+  border: none !important;
+  border-radius: 20px !important;
+  box-shadow: 0 25px 50px var(--color-shadow-violet) !important; /* Sombra violeta */
+  background: #FFFFFF !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  max-width: 400px !important;
+  position: relative !important;
+  border: 2px solid transparent !important;
+  margin: 0 auto !important;
+}
+
+/* Sombra violeta permanente */
+.auth-card {
+  box-shadow: 0 20px 40px rgba(185, 94, 199, 0.15) !important; /* VIOLETA */
+}
+
+/* Efecto borde violeta al hacer hover */
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(185, 94, 199, 0.1), transparent); /* VIOLETA */
+  transition: left 0.6s ease;
+  z-index: 1;
+}
+
+.auth-card:hover::before {
+  left: 100%;
+}
+
+.auth-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 35px 70px rgba(185, 94, 199, 0.2) !important; /* VIOLETA */
+  border: 2px solid #b95ec7 !important; /* VIOLETA */
+}
+
+/* ===== CONTENIDO DE LA CARD ===== */
+.auth-card .card-body {
+  position: relative;
+  z-index: 2;
+  background: #FFFFFF;
+  padding: 3rem 2.5rem !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+/* ===== TÍTULOS ===== */
+.auth-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  text-align: center;
+  width: 100%;
+}
+
+.auth-subtitle {
+  font-size: 1rem;
+  color: #495057;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+/* ===== FORMULARIOS ===== */
+.auth-form {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.auth-label {
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  display: block;
+  width: 100%;
+}
+
+.auth-input {
+  border: 2px solid #DEE2E6 !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+  font-size: 1rem !important;
+  transition: all 0.3s ease !important;
+  background: #FFFFFF !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.auth-input:focus {
+  border-color: #b95ec7 !important; /* VIOLETA */
+  box-shadow: 0 0 0 3px rgba(185, 94, 199, 0.1) !important; /* VIOLETA */
+  outline: none !important;
+}
+
+/* ===== BOTÓN VIOLETA QUE SE VUELVE VIOLETA MÁS CLARO AL HOVER ===== */
+.auth-button {
+  background: #b95ec7 !important; /* VIOLETA */
+  border: 2px solid #b95ec7 !important; /* VIOLETA */
+  color: #FFFFFF !important;
+  font-weight: 600;
+  padding: 16px 20px !important;
+  border-radius: 12px !important;
+  font-size: 1.1rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  width: 100% !important;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-button:hover:not(:disabled) {
+  background: #cf7ddb !important; /* VIOLETA hover */
+  border-color: #cf7ddb !important; /* VIOLETA hover */
+  color: #FFFFFF !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(185, 94, 199, 0.3); /* VIOLETA */
+}
+
+.auth-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ===== ALERTAS ===== */
+.auth-alert {
+  border-radius: 12px;
+  border: none;
+  background: rgba(185, 94, 199, 0.1); /* VIOLETA */
+  color: #b95ec7; /* VIOLETA */
+  font-weight: 500;
+  padding: 12px 16px;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  text-align: center;
+}
+
+/* ===== TEXTO DE ENLACE ===== */
+.auth-link-text {
+  color: #495057;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+.auth-link {
+  color: #b95ec7 !important; /* VIOLETA */
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.auth-link:hover {
+  color: #cf7ddb !important; /* VIOLETA hover */
+  text-decoration: underline;
+}
+
+/* ===== INFO DEMO ===== */
+.auth-demo-info {
+  padding: 1rem;
+  background: rgba(248, 249, 250, 0.8);
+  border-radius: 12px;
+  border: 1px solid #DEE2E6;
+  margin-top: 1.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.auth-demo-info small {
+  color: #495057;
+  font-family: 'Inter', sans-serif;
+}
+
+.auth-demo-info code {
+  background: rgba(185, 94, 199, 0.1); /* VIOLETA */
+  color: #b95ec7; /* VIOLETA */
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* ===== RESPONSIVE - CENTRADO ABSOLUTO ===== */
+@media (max-width: 768px) {
   .auth-container {
-    min-height: 100vh;
-    background-color: var(--color-primary);
-    background-image: 
-      linear-gradient(-45deg, rgba(196, 30, 58, 0.03) 25%, transparent 25%),
-      linear-gradient(45deg, rgba(196, 30, 58, 0.03) 25%, transparent 25%),
-      linear-gradient(-45deg, transparent 75%, rgba(196, 30, 58, 0.03) 75%),
-      linear-gradient(45deg, transparent 75%, rgba(196, 30, 58, 0.03) 75%),
-      linear-gradient(-45deg, rgba(30, 58, 95, 0.03) 25%, transparent 25%),
-      linear-gradient(45deg, rgba(30, 58, 95, 0.03) 25%, transparent 25%),
-      linear-gradient(-45deg, transparent 75%, rgba(30, 58, 95, 0.03) 75%),
-      linear-gradient(45deg, transparent 75%, rgba(30, 58, 95, 0.03) 75%);
-    background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px, 0 0, 0 10px, 10px -10px, -10px 0px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    margin: 0;
-    position:relative;
-    min-height: 100vh;
+    padding: 15px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding-top: 80px !important;
   }
-
-  /* ===== LOGO FIJO ===== */
+  
   .auth-logo {
-    position: absolute;
+    position: fixed;
     top: 20px;
     left: 20px;
-    z-index: 1000;
   }
-
-  .logo-link {
-    text-decoration: none;
-    display: block;
-  }
-
-  .logo-image {
-    height: 50px;
-    width: auto;
-    transition: all 0.3s ease;
-  }
-
-  .logo-image:hover {
-    transform: scale(1.05);
-  }
-
-  .logo-text {
-    color: #C41E3A;
-    font-weight: bold;
-    font-size: 1.4rem;
-    font-family: 'Montserrat', sans-serif;
-    letter-spacing: 1px;
-    margin: 0;
-  }
-
-  /* ===== OVERRIDE COMPLETO DE BOOTSTRAP PARA CENTRADO ===== */
-  .auth-page-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    position: relative;
-    z-index: 2;
-  }
-
+  
   .auth-page-container .row {
-    width: 100% !important;
-    max-width: 400px !important;
-    margin: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
+    max-width: 100% !important;
   }
-
-  .auth-page-container .row .col {
-    padding: 0 !important;
-    margin: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100% !important;
-  }
-
-  /* ===== CARD CON SOMBRA AZUL Y EFECTO BORDE ROJO ===== */
+  
   .auth-card {
-    border: none !important;
-    border-radius: 20px !important;
-    box-shadow: 0 25px 50px var(--color-shadow-blue) !important;
-    background: #FFFFFF !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    overflow: hidden !important;
-    width: 100% !important;
-    max-width: 400px !important;
-    position: relative !important;
-    border: 2px solid transparent !important;
+    max-width: 100% !important;
     margin: 0 auto !important;
   }
-
-  /* Sombra azul permanente */
-  .auth-card {
-    box-shadow: 0 20px 40px rgba(0, 123, 255, 0.15) !important;
-  }
-
-  /* Efecto borde rojo al hacer hover */
-  .auth-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(196, 30, 58, 0.1), transparent);
-    transition: left 0.6s ease;
-    z-index: 1;
-  }
-
-  .auth-card:hover::before {
-    left: 100%;
-  }
-
-  .auth-card:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 35px 70px rgba(196, 30, 58, 0.2) !important;
-    border: 2px solid #C41E3A !important;
-  }
-
-  /* ===== CONTENIDO DE LA CARD ===== */
+  
   .auth-card .card-body {
-    position: relative;
-    z-index: 2;
-    background: #FFFFFF;
-    padding: 3rem 2.5rem !important;
-    width: 100% !important;
-    margin: 0 !important;
+    padding: 2.5rem 2rem !important;
   }
-
-  /* ===== TÍTULOS ===== */
+  
   .auth-title {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #000000;
-    margin-bottom: 0.5rem;
-    font-family: 'Montserrat', sans-serif;
-    text-align: center;
-    width: 100%;
+    font-size: 1.8rem;
   }
+}
 
+@media (max-width: 576px) {
+  .auth-container {
+    padding: 10px !important;
+    padding-top: 70px !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .auth-logo {
+    top: 15px;
+    left: 15px;
+  }
+  
+  .logo-image {
+    height: 35px;
+  }
+  
+  .logo-text {
+    font-size: 1.2rem;
+  }
+  
+  .auth-title {
+    font-size: 1.6rem;
+  }
+  
   .auth-subtitle {
-    font-size: 1rem;
-    color: #495057;
-    font-family: 'Inter', sans-serif;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    width: 100%;
-  }
-
-  /* ===== FORMULARIOS ===== */
-  .auth-form {
-    margin-top: 2rem;
-    width: 100%;
-  }
-
-  .auth-label {
-    font-weight: 600;
-    color: #000000;
-    margin-bottom: 0.5rem;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.95rem;
-    display: block;
-    width: 100%;
-  }
-
-  .auth-input {
-    border: 2px solid #DEE2E6 !important;
-    border-radius: 12px !important;
-    padding: 14px 16px !important;
-    font-size: 1rem !important;
-    transition: all 0.3s ease !important;
-    background: #FFFFFF !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  .auth-input:focus {
-    border-color: #C41E3A !important;
-    box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1) !important;
-    outline: none !important;
-  }
-
-  /* ===== BOTÓN AZUL QUE SE VUELVE ROJO AL HOVER ===== */
-  .auth-button {
-    background: #007bff !important;
-    border: 2px solid #007bff !important;
-    color: #FFFFFF !important;
-    font-weight: 600;
-    padding: 16px 20px !important;
-    border-radius: 12px !important;
-    font-size: 1.1rem !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    width: 100% !important;
-    cursor: pointer;
-    font-family: 'Montserrat', sans-serif;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .auth-button:hover:not(:disabled) {
-    background: #C41E3A !important;
-    border-color: #C41E3A !important;
-    color: #FFFFFF !important;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(196, 30, 58, 0.3);
-  }
-
-  .auth-button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none !important;
-  }
-
-  /* ===== ALERTAS ===== */
-  .auth-alert {
-    border-radius: 12px;
-    border: none;
-    background: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-    font-weight: 500;
-    padding: 12px 16px;
-    margin-bottom: 1.5rem;
-    width: 100%;
-    text-align: center;
-  }
-
-  /* ===== TEXTO DE ENLACE ===== */
-  .auth-link-text {
-    color: #495057;
-    font-family: 'Inter', sans-serif;
-    text-align: center;
-    margin: 1.5rem 0;
-    width: 100%;
-  }
-
-  .auth-link {
-    color: #C41E3A !important;
-    text-decoration: none;
-    font-weight: 600;
-    padding: 0;
-    border: none;
-    background: none;
-    cursor: pointer;
-  }
-
-  .auth-link:hover {
-    color: #D63349 !important;
-    text-decoration: underline;
-  }
-
-  /* ===== INFO DEMO ===== */
-  .auth-demo-info {
-    padding: 1rem;
-    background: rgba(248, 249, 250, 0.8);
-    border-radius: 12px;
-    border: 1px solid #DEE2E6;
-    margin-top: 1.5rem;
-    text-align: center;
-    width: 100%;
-  }
-
-  .auth-demo-info small {
-    color: #495057;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .auth-demo-info code {
-    background: rgba(196, 30, 58, 0.1);
-    color: #C41E3A;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-weight: 600;
     font-size: 0.9rem;
   }
-
-  /* ===== ANIMACIONES ===== */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  
+  .auth-card .card-body {
+    padding: 2rem 1.5rem !important;
   }
-
-  .animate-fade-up {
-    animation: fadeInUp 0.6s ease-out;
+  
+  .auth-input {
+    padding: 12px 14px !important;
+    font-size: 0.95rem !important;
   }
-
-  /* ===== RESPONSIVE - CENTRADO ABSOLUTO ===== */
-  @media (max-width: 768px) {
-    .auth-container {
-      padding: 15px !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding-top: 80px !important;
-    }
-    
-    .auth-logo {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-    }
-    
-    .auth-page-container .row {
-      max-width: 100% !important;
-    }
-    
-    .auth-card {
-      max-width: 100% !important;
-      margin: 0 auto !important;
-    }
-    
-    .auth-card .card-body {
-      padding: 2.5rem 2rem !important;
-    }
-    
-    .auth-title {
-      font-size: 1.8rem;
-    }
+  
+  .auth-button {
+    padding: 14px 16px !important;
+    font-size: 1rem !important;
   }
-
-  @media (max-width: 576px) {
-    .auth-container {
-      padding: 10px !important;
-      padding-top: 70px !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-    
-    .auth-logo {
-      top: 15px;
-      left: 15px;
-    }
-    
-    .logo-image {
-      height: 35px;
-    }
-    
-    .logo-text {
-      font-size: 1.2rem;
-    }
-    
-    .auth-title {
-      font-size: 1.6rem;
-    }
-    
-    .auth-subtitle {
-      font-size: 0.9rem;
-    }
-    
-    .auth-card .card-body {
-      padding: 2rem 1.5rem !important;
-    }
-    
-    .auth-input {
-      padding: 12px 14px !important;
-      font-size: 0.95rem !important;
-    }
-    
-    .auth-button {
-      padding: 14px 16px !important;
-      font-size: 1rem !important;
-    }
-  }
-
-  /* ===== OVERRIDE AGGRESIVO PARA GARANTIZAR CENTRADO ===== */
-  .container.mt-5 {
-    margin-top: 0 !important;
-  }
-
-  .row.justify-content-center {
-    justify-content: center !important;
-    margin: 0 !important;
-  }
-
-  .col-md-6, .col-lg-4 {
-    padding: 0 !important;
-    margin: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-  }
+}
