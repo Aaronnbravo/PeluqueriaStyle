@@ -1,0 +1,1327 @@
+/* ===== VARIABLES CSS ===== */
+:root {
+  --color-primary: #f8f9fa;
+  --color-navbar: #343a40;
+  --color-navbar-text: #ffffff;
+  --color-accent: #C41E3A;
+  --color-accent-hover: #a0162c;
+  --color-accent-light: rgba(196, 30, 58, 0.1);
+  --color-accent-medium: rgba(196, 30, 58, 0.15);
+  --color-accent-dark: rgba(196, 30, 58, 0.2);
+  --color-border: #dee2e6;
+  --color-white: #ffffff;
+  --color-text: #212529;
+  --color-text-light: #6c757d;
+  --color-success: #198754;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-info: #0dcaf0;
+  --color-secondary: #6c757d;
+  
+  /* Sombras consistentes */
+  --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+  --shadow-heavy: 0 12px 35px rgba(0, 0, 0, 0.15);
+  --shadow-accent: 0 8px 20px rgba(196, 30, 58, 0.15);
+  --shadow-accent-heavy: 0 12px 35px rgba(196, 30, 58, 0.2);
+  
+  /* Transiciones naturales */
+  --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ===== ESTILOS GENERALES ===== */
+.admin-dashboard {
+  background-color: var(--color-primary);
+  background-image: url('../../images/login/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+/* Overlay para mejor legibilidad */
+.admin-dashboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.92);
+  z-index: 0;
+  transition: var(--transition-normal);
+}
+
+.admin-dashboard > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== NAVBAR ===== */
+.admin-navbar {
+  background: var(--color-navbar);
+  border-bottom: 3px solid var(--color-accent);
+  padding: 0.75rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-light);
+  transition: var(--transition-normal);
+}
+
+.admin-navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  color: var(--color-navbar-text);
+  font-family: 'Montserrat', sans-serif;
+  white-space: nowrap;
+  transition: var(--transition-normal);
+}
+
+.admin-logo {
+  height: 45px !important;
+  width: auto !important;
+  max-height: 45px;
+  object-fit: contain;
+  transition: var(--transition-bounce);
+}
+
+.admin-logo:hover {
+  transform: scale(1.05) rotate(-2deg);
+}
+
+/* Navegación Desktop */
+.admin-navbar-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.admin-nav-btn {
+  background: none;
+  border: none;
+  color: var(--color-navbar-text);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  transition: var(--transition-normal);
+  position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-nav-btn:hover {
+  color: var(--color-accent);
+  transform: translateY(-2px);
+  background: var(--color-accent-light);
+}
+
+.admin-nav-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--color-accent);
+  transition: var(--transition-normal);
+  transform: translateX(-50%);
+}
+
+.admin-nav-btn:hover::after {
+  width: 80%;
+}
+
+.admin-nav-btn.active {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.admin-nav-btn.active::after {
+  width: 80%;
+  background: var(--color-accent);
+}
+
+/* Botón de cerrar sesión */
+.logout-btn {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.logout-btn:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(196, 30, 58, 0.3);
+}
+
+/* ===== NAVEGACIÓN MOBILE ===== */
+.mobile-nav {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  padding: 0.5rem;
+  border: 2px solid var(--color-border);
+  backdrop-filter: blur(10px);
+  width: 100%;
+  justify-content: space-around;
+  transition: var(--transition-normal);
+}
+
+.mobile-nav-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+  min-width: 70px;
+  transition: var(--transition-normal);
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-nav-btn:hover {
+  background: var(--color-accent-light);
+  transform: translateY(-2px);
+}
+
+.mobile-nav-btn.active {
+  background: var(--color-accent);
+  color: white;
+  transform: scale(1.05);
+}
+
+.mobile-nav-btn i {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  transition: var(--transition-fast);
+}
+
+.mobile-nav-btn small {
+  font-size: 0.7rem;
+  display: block;
+  font-weight: 600;
+}
+
+/* Botón logout móvil */
+.mobile-logout-btn {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem;
+  min-width: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.mobile-logout-btn:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-2px);
+}
+
+.mobile-logout-btn i {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-logout-btn small {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.admin-content {
+  padding: 1.5rem 0;
+  flex: 1;
+}
+
+.admin-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem 1rem;
+  background: var(--color-white);
+  border-radius: 12px;
+  border: 2px solid var(--color-border);
+  box-shadow: var(--shadow-medium);
+  transition: var(--transition-bounce);
+}
+
+.admin-header:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: var(--shadow-accent-heavy);
+  border-color: var(--color-accent);
+}
+
+.admin-header h1 {
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+}
+
+.admin-header p {
+  color: var(--color-text-light);
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== ESTADÍSTICAS ===== */
+.admin-stats-row {
+  margin-top: 1rem;
+}
+
+.admin-stat-card {
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  transition: var(--transition-bounce);
+  text-align: center;
+  height: 100%;
+  background: var(--color-white);
+  cursor: pointer;
+  padding: 1rem;
+}
+
+.admin-stat-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: var(--shadow-accent);
+}
+
+.admin-stat-icon {
+  font-size: 1.5rem;
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+  transition: var(--transition-normal);
+}
+
+.admin-stat-card h3,
+.admin-stat-card h4,
+.admin-stat-card h5,
+.admin-stat-card h6 {
+  color: var(--color-text);
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  margin-bottom: 0.25rem;
+  transition: var(--transition-fast);
+}
+
+.admin-stat-card p {
+  color: var(--color-text-light);
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 0;
+}
+
+/* ===== CONTENIDO DE PESTAÑAS ===== */
+.admin-tab-content {
+  background: var(--color-white);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid var(--color-border);
+  box-shadow: var(--shadow-medium);
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transition: var(--transition-normal);
+}
+
+.admin-tab-content:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== FOOTER ===== */
+.admin-footer {
+  background: var(--color-navbar);
+  color: var(--color-navbar-text);
+  padding: 1.5rem 0;
+  margin-top: 3rem;
+  transition: var(--transition-normal);
+}
+
+.admin-footer-logo {
+  height: 60px;
+  width: auto;
+  margin-bottom: 0.5rem;
+  object-fit: contain;
+  transition: var(--transition-normal);
+}
+
+.admin-footer-logo:hover {
+  transform: scale(1.05);
+}
+
+.admin-footer-text {
+  color: var(--color-navbar-text);
+  opacity: 0.8;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 0;
+}
+
+.admin-footer-copyright {
+  color: var(--color-navbar-text);
+  opacity: 0.7;
+  margin-bottom: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===== BOTÓN FLOTANTE PARA SUBIR ===== */
+.scroll-to-top-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+  transition: var(--transition-bounce);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px) scale(0.8);
+  z-index: 9999;
+  outline: none;
+}
+
+.scroll-to-top-btn.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.scroll-to-top-btn:hover {
+  background: var(--color-accent-hover);
+  transform: scale(1.15) translateY(-5px);
+  box-shadow: 0 10px 30px rgba(196, 30, 58, 0.6);
+}
+
+.scroll-to-top-btn:active {
+  transform: scale(0.9);
+  transition: transform 0.1s ease;
+}
+
+/* Animación de pulso */
+.scroll-to-top-btn::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: pulse 2s infinite;
+  z-index: -1;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+}
+
+/* Efecto de onda al hacer hover */
+.scroll-to-top-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: transparent;
+  transition: var(--transition-normal);
+}
+
+.scroll-to-top-btn:hover::after {
+  box-shadow: 0 0 0 10px rgba(196, 30, 58, 0.2);
+}
+
+/* ===== ESTILOS PARA CALENDARIO Y COMPONENTES ===== */
+
+/* Badges - Cambiar primary a accent */
+.badge.bg-primary,
+.bg-primary {
+  background-color: var(--color-accent) !important;
+  color: white !important;
+}
+
+.badge.bg-primary:hover {
+  background-color: var(--color-accent-hover) !important;
+}
+
+/* Botones en calendario - CORREGIDO: texto blanco */
+.btn-outline-primary {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white !important;
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  color: white !important;
+}
+
+/* Botón "Iniciar atención" - CORREGIDO: ahora con texto blanco */
+.btn-info,
+.btn-outline-info {
+  background-color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: white !important;
+}
+
+.btn-info:hover,
+.btn-outline-info:hover {
+  background-color: var(--color-accent-hover) !important;
+  border-color: var(--color-accent-hover) !important;
+  color: white !important;
+}
+
+/* Botón danger ahora también usa accent */
+.btn-danger {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white !important;
+}
+
+.btn-danger:hover {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  color: white !important;
+}
+
+.btn-outline-danger {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white !important;
+}
+
+/* Estados mantienen sus colores originales para diferenciación */
+.badge.bg-success,
+.btn-success,
+.bg-success {
+  background-color: var(--color-success) !important;
+  color: white !important;
+}
+
+.badge.bg-warning,
+.btn-warning,
+.bg-warning {
+  background-color: var(--color-warning) !important;
+  color: #212529 !important; /* Texto oscuro para mejor contraste en amarillo */
+}
+
+.badge.bg-danger,
+.bg-danger {
+  background-color: var(--color-danger) !important;
+  color: white !important;
+}
+
+.badge.bg-info,
+.btn-outline-info.bg-info,
+.bg-info {
+  background-color: var(--color-info) !important;
+  color: #212529 !important; /* Texto oscuro para mejor contraste en celeste */
+}
+
+/* ===== ESTILOS PARA CALENDARIO GOOGLE ===== */
+.calendar-grid {
+  background: var(--color-white);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.calendar-header {
+  background: var(--color-accent);
+  color: white;
+  padding: 12px;
+  margin: 0;
+  border-bottom: 2px solid var(--color-accent-hover);
+}
+
+.calendar-time-slot {
+  padding: 10px;
+  margin: 0;
+  border-bottom: 1px solid var(--color-border);
+  transition: var(--transition-fast);
+}
+
+.calendar-time-slot:hover {
+  background-color: var(--color-accent-light);
+}
+
+.time-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-badge {
+  font-size: 0.9rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+  transition: var(--transition-normal);
+  color: white !important;
+}
+
+.time-badge.bg-danger {
+  background-color: var(--color-accent) !important;
+}
+
+.time-badge.bg-danger:hover {
+  background-color: var(--color-accent-hover) !important;
+  transform: scale(1.05);
+}
+
+.time-badge.bg-secondary {
+  background-color: var(--color-text-light) !important;
+}
+
+.appointment-column {
+  padding: 0 15px;
+}
+
+.time-slot-empty {
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  transition: var(--transition-normal);
+}
+
+.time-slot-empty:hover {
+  background: var(--color-accent-light);
+  transform: translateX(5px);
+}
+
+.agendar-btn {
+  transition: var(--transition-normal) !important;
+  color: white !important;
+}
+
+.agendar-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(196, 30, 58, 0.3);
+  color: white !important;
+}
+
+/* ===== ESTILOS PARA APPOINTMENT CARDS ===== */
+.appointment-card {
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  border-radius: 8px;
+  margin-bottom: 4px;
+  padding: 12px;
+  border-left: 4px solid var(--color-accent);
+}
+
+.appointment-card:hover {
+  transform: translateX(8px);
+  box-shadow: var(--shadow-medium);
+}
+
+.appointment-content {
+  transition: var(--transition-fast);
+}
+
+/* ===== ESTILOS PARA CURRENT APPOINTMENT ===== */
+.current-appointment-card {
+  border: 2px solid var(--color-accent);
+  box-shadow: var(--shadow-accent);
+  transition: var(--transition-bounce);
+  margin-bottom: 2rem;
+}
+
+.current-appointment-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-accent-heavy);
+}
+
+.current-appointment-card .card-header {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  border-bottom: 3px solid white;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Botones en current appointment - CORREGIDO: texto blanco */
+.btn-info {
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover)) !important;
+  border: none !important;
+  color: white !important;
+  transition: var(--transition-normal) !important;
+}
+
+.btn-info:hover {
+  background: linear-gradient(to right, var(--color-accent-hover), #8a1225) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(196, 30, 58, 0.4);
+  color: white !important;
+}
+
+.btn-success {
+  transition: var(--transition-normal) !important;
+  color: white !important;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4);
+  color: white !important;
+}
+
+/* ===== ESTILOS PARA ESTADOS EN CALENDARIO ===== */
+.status-pending {
+  background-color: rgba(255, 193, 7, 0.15) !important;
+  border-left: 4px solid var(--color-warning);
+}
+
+.status-confirmed {
+  background-color: var(--color-accent-light) !important;
+  border-left: 4px solid var(--color-accent);
+}
+
+.status-in-progress {
+  background-color: rgba(13, 202, 240, 0.2) !important;
+  border-left: 4px solid var(--color-info);
+  animation: pulse-glow 2s infinite;
+}
+
+.status-completed {
+  background-color: rgba(25, 135, 84, 0.15) !important;
+  border-left: 4px solid var(--color-success);
+}
+
+.status-cancelled {
+  background-color: rgba(220, 53, 69, 0.15) !important;
+  border-left: 4px solid var(--color-danger);
+}
+
+.status-default {
+  background-color: rgba(108, 117, 125, 0.1) !important;
+  border-left: 4px solid var(--color-secondary);
+}
+
+/* Animación para turno en progreso */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(13, 202, 240, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(13, 202, 240, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(13, 202, 240, 0.5);
+  }
+}
+
+/* ===== ESTILOS PARA TABLAS ===== */
+.table tbody tr {
+  transition: var(--transition-fast);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-accent-light);
+  transform: translateX(3px);
+}
+
+/* Botones de acción en tablas */
+.btn-group .btn {
+  transition: var(--transition-normal);
+}
+
+.btn-group .btn:hover {
+  transform: translateY(-2px);
+  color: white !important;
+}
+
+/* Botones outline en tablas */
+.btn-outline-success:hover,
+.btn-outline-warning:hover,
+.btn-outline-info:hover,
+.btn-outline-danger:hover,
+.btn-outline-dark:hover {
+  color: white !important;
+}
+
+/* ===== ESTILOS PARA MANUAL APPOINTMENT ===== */
+.search-btn,
+.confirm-btn {
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover));
+  border: none;
+  color: white !important;
+  transition: var(--transition-bounce) !important;
+}
+
+.search-btn:hover,
+.confirm-btn:hover {
+  background: linear-gradient(to right, var(--color-accent-hover), #8a1225);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+  color: white !important;
+}
+
+.search-btn:disabled {
+  opacity: 0.6;
+  transform: none !important;
+}
+
+/* Cards en manual appointment */
+.user-card,
+.service-select-card {
+  transition: var(--transition-bounce);
+  border: 2px solid transparent;
+}
+
+.user-card:hover,
+.service-select-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-accent);
+}
+
+.service-select-card.selected {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent-light);
+}
+
+.selected-user-card {
+  border: 2px solid var(--color-accent);
+  background: linear-gradient(135deg, rgba(196, 30, 58, 0.05), rgba(160, 22, 44, 0.1));
+}
+
+/* Botón outline secondary */
+.btn-outline-secondary {
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--color-accent-light);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* ===== CORRECCIÓN ESPECÍFICA PARA EL BOTÓN "INICIAR ATENCIÓN" ===== */
+/* Esta regla asegura que el botón tenga texto blanco en todos los estados */
+button.btn-info,
+button[class*="btn-info"],
+.btn.btn-info,
+.btn-outline-info.btn,
+.btn-info.btn {
+  color: white !important;
+}
+
+button.btn-info:hover,
+button[class*="btn-info"]:hover,
+.btn.btn-info:hover,
+.btn-outline-info.btn:hover,
+.btn-info.btn:hover {
+  color: white !important;
+}
+
+/* ===== RESPONSIVE BREAKPOINTS ===== */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .admin-navbar-brand {
+    font-size: 1rem;
+  }
+  
+  .admin-logo {
+    height: 40px !important;
+  }
+  
+  .admin-nav-btn {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .admin-header {
+    padding: 1.25rem;
+  }
+  
+  .admin-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .scroll-to-top-btn {
+    width: 55px;
+    height: 55px;
+    font-size: 1.3rem;
+  }
+  
+  .calendar-header {
+    padding: 10px;
+  }
+  
+  .time-badge {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+}
+
+/* Mobile Large */
+@media (max-width: 768px) {
+  .admin-navbar-content {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .admin-navbar-brand {
+    font-size: 1rem;
+  }
+
+  .admin-logo {
+    height: 35px !important;
+  }
+
+  .admin-navbar-nav {
+    display: none;
+  }
+
+  .mobile-nav {
+    display: flex;
+  }
+
+  .admin-header {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .admin-header p {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .admin-stat-icon {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .admin-content {
+    padding: 0.5rem 0;
+  }
+
+  .admin-tab-content {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+
+  .admin-footer {
+    padding: 1rem 0;
+  }
+
+  .admin-footer-logo {
+    height: 50px;
+  }
+
+  .scroll-to-top-btn {
+    width: 50px;
+    height: 50px;
+    bottom: 20px;
+    right: 20px;
+    font-size: 1.2rem;
+  }
+  
+  .scroll-to-top-btn::before {
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+  }
+  
+  .calendar-grid {
+    border-radius: 8px;
+  }
+  
+  .calendar-time-slot {
+    padding: 8px;
+  }
+  
+  .appointment-card {
+    padding: 8px;
+  }
+  
+  .time-badge {
+    font-size: 0.75rem;
+  }
+}
+
+/* Mobile Small */
+@media (max-width: 576px) {
+  .admin-navbar {
+    padding: 0.5rem 0;
+  }
+
+  .admin-navbar-brand {
+    font-size: 0.9rem;
+  }
+
+  .admin-logo {
+    height: 30px !important;
+  }
+
+  .mobile-nav-btn,
+  .mobile-logout-btn {
+    padding: 0.4rem 0.5rem;
+    min-width: 60px;
+  }
+
+  .mobile-nav-btn i,
+  .mobile-logout-btn i {
+    font-size: 0.9rem;
+  }
+
+  .mobile-nav-btn small,
+  .mobile-logout-btn small {
+    font-size: 0.65rem;
+  }
+
+  .admin-header {
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .admin-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .admin-header p {
+    font-size: 0.8rem;
+  }
+
+  .admin-stats-row {
+    margin-top: 0.5rem;
+  }
+
+  .admin-stat-card {
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+
+  .admin-stat-icon {
+    font-size: 1rem;
+  }
+
+  .admin-tab-content {
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .admin-footer-logo {
+    height: 40px;
+  }
+
+  .admin-footer-text,
+  .admin-footer-copyright {
+    font-size: 0.8rem;
+  }
+
+  .scroll-to-top-btn {
+    bottom: 15px;
+    right: 15px;
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+  }
+  
+  .calendar-header {
+    font-size: 0.9rem;
+  }
+  
+  .appointment-card {
+    padding: 6px;
+  }
+  
+  .status-pending,
+  .status-confirmed,
+  .status-in-progress,
+  .status-completed,
+  .status-cancelled {
+    border-left-width: 3px;
+  }
+}
+
+/* Mobile Extra Small */
+@media (max-width: 375px) {
+  .admin-navbar-brand {
+    font-size: 0.8rem;
+  }
+
+  .admin-logo {
+    height: 25px !important;
+  }
+
+  .mobile-nav {
+    gap: 0.25rem;
+  }
+
+  .mobile-nav-btn,
+  .mobile-logout-btn {
+    padding: 0.35rem 0.4rem;
+    min-width: 55px;
+  }
+
+  .mobile-nav-btn i,
+  .mobile-logout-btn i {
+    font-size: 0.8rem;
+  }
+
+  .mobile-nav-btn small,
+  .mobile-logout-btn small {
+    font-size: 0.6rem;
+  }
+
+  .admin-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .admin-stat-icon {
+    font-size: 0.9rem;
+  }
+  
+  .calendar-header {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+  
+  .time-column {
+    padding-right: 5px;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (max-width: 768px) {
+  .admin-nav-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .admin-stat-card {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Scroll suave para móviles */
+@media (max-width: 768px) {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  .admin-content {
+    overflow-x: hidden;
+  }
+}
+
+/* Optimización para touch */
+@media (max-width: 768px) {
+  .admin-nav-btn,
+  .admin-stat-card,
+  .mobile-nav-btn,
+  .mobile-logout-btn,
+  .scroll-to-top-btn,
+  .appointment-card,
+  .btn,
+  .user-card,
+  .service-select-card {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .admin-stat-card:active,
+  .scroll-to-top-btn:active,
+  .btn:active,
+  .appointment-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* Efectos de hover para las cards de estadísticas */
+.admin-stat-card.clickable {
+  cursor: pointer;
+}
+
+.admin-stat-card.clickable:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: var(--shadow-accent-heavy);
+  border-color: var(--color-accent);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Transiciones mejoradas para el contenido */
+.admin-tab-content {
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Fade in para contenido */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Animaciones para cards que aparecen */
+.card {
+  animation: slideUpFade 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efecto de carga sutil para botones */
+.btn-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: loadingShimmer 1.5s infinite;
+}
+
+@keyframes loadingShimmer {
+  100% {
+    left: 100%;
+  }
+}
+
+/* Mejoras para inputs y selects */
+.form-control,
+.form-select {
+  transition: var(--transition-normal);
+  border: 2px solid var(--color-border);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 0.25rem rgba(196, 30, 58, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Spinner animations */
+.spinner-border {
+  animation: spinnerRotate 0.75s linear infinite;
+}
+
+@keyframes spinnerRotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}

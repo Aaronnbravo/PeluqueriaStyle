@@ -1,0 +1,377 @@
+/* Register.css - COMPACTO Y RESPONSIVE */
+.register-container {
+  background-image: url('../../images/login/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  padding: 160px 15px 40px 15px; /* ← MÁS SEPARACIÓN: 160px */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .register-container {
+    padding: 140px 12px 30px 12px; /* ← 140px */
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .register-container {
+    padding: 130px 10px 20px 10px; /* ← 130px */
+  }
+}
+
+@media (max-width: 360px) {
+  .register-container {
+    padding: 120px 8px 15px 8px; /* ← 120px */
+  }
+}
+/* CARD MÁS COMPACTA */
+.register-card {
+  border: 3px solid transparent !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.98) !important;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.register-card:hover {
+  border-color: #dc3545 !important;
+  box-shadow: 0 12px 35px rgba(211, 8, 8, 0.2) !important;
+  transform: translateY(-2px);
+}
+
+.register-card-body {
+  padding: 2rem 1.5rem !important;
+}
+
+/* TÍTULOS MÁS PEQUEÑOS */
+.register-title {
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  font-size: 1.5rem;
+}
+
+.register-subtitle {
+  color: #666;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* BARRA DE PROGRESO */
+.progress {
+  height: 6px;
+  background-color: #e9ecef;
+}
+
+.progress-bar {
+  background-color: #dc3545;
+  transition: width 0.5s ease;
+}
+
+/* PASOS MÁS COMPACTOS */
+.register-step {
+  padding: 0.5rem 0;
+}
+
+.step-title {
+  color: #333;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+}
+
+/* FORMULARIOS MÁS COMPACTOS */
+.form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+}
+
+.form-text {
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+}
+
+/* BOTONES DE NAVEGACIÓN MEJORADOS */
+.navigation-buttons {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-button {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 120px;
+  height: 42px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  flex: 1;
+  max-width: 140px;
+}
+
+/* Botón Anterior */
+.prev-button {
+  background: transparent !important;
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+}
+
+.prev-button:hover {
+  background: #dc3545 !important;
+  color: white !important;
+  transform: translateY(-1px);
+}
+
+/* Botón Siguiente */
+.next-button {
+  background: #007bff !important;
+  border-color: #007bff !important;
+}
+
+.next-button:hover {
+  background: #0056b3 !important;
+  border-color: #0056b3 !important;
+  transform: translateY(-1px);
+}
+
+/* Botón Enviar */
+.submit-button {
+  background: #28a745 !important;
+  border-color: #28a745 !important;
+  min-width: 160px;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #218838 !important;
+  border-color: #218838 !important;
+  transform: translateY(-1px);
+}
+
+/* SUGERENCIA DE CONTRASEÑA */
+.password-suggestion {
+  text-align: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.suggestion-text {
+  font-size: 0.8rem;
+}
+
+.suggestion-text code {
+  background: #e9ecef;
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #495057;
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
+/* ENLACES */
+.register-link-text {
+  margin: 0.5rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.register-link {
+  color: #667eea !important;
+  text-decoration: none;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.register-link:hover {
+  color: #764ba2 !important;
+  text-decoration: underline !important;
+}
+
+/* CHECKBOX */
+.form-check-input:checked {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .register-container {
+    padding: 100px 12px 30px 12px;
+    align-items: flex-start;
+  }
+  
+  .register-card-body {
+    padding: 1.5rem 1.25rem !important;
+  }
+  
+  .register-card {
+    margin: 0;
+    border-radius: 12px !important;
+  }
+  
+  .register-title {
+    font-size: 1.3rem;
+  }
+  
+  .step-title {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .button-group {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .nav-button {
+    min-width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+  
+  .form-control, .form-select {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .register-container {
+    padding: 90px 10px 20px 10px;
+  }
+  
+  .register-card-body {
+    padding: 1.25rem 1rem !important;
+  }
+  
+  .register-title {
+    font-size: 1.25rem;
+  }
+  
+  .register-subtitle {
+    font-size: 0.85rem;
+  }
+  
+  .step-title {
+    font-size: 0.95rem;
+  }
+  
+  .form-label {
+    font-size: 0.85rem;
+  }
+  
+  .nav-button {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    height: 38px;
+  }
+  
+  .navigation-buttons {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+  }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .register-container {
+    padding: 80px 8px 15px 8px;
+  }
+  
+  .register-card-body {
+    padding: 1rem 0.75rem !important;
+  }
+  
+  .button-group {
+    gap: 6px;
+  }
+  
+  .nav-button {
+    padding: 7px 14px;
+    font-size: 0.8rem;
+    height: 36px;
+  }
+}
+
+/* Asegurar que los selects en fila se vean bien en móvil */
+@media (max-width: 576px) {
+  .row.g-2 > [class*="col-"] {
+    margin-bottom: 8px;
+  }
+  
+  .row.g-2 > [class*="col-"]:last-child {
+    margin-bottom: 0;
+  }
+}
+/* Grupo de input de contraseña */
+.password-input-group {
+  position: relative;
+  display: flex;
+}
+
+.password-input-group .form-control {
+  padding-right: 50px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  z-index: 3;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle-btn:hover {
+  background: #e9ecef;
+}
+
+/* Checkbox personalizado */
+.remember-checkbox .form-check-input:checked {
+  background-color: #C41E3A;
+  border-color: #C41E3A;
+}
