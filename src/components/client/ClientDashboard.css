@@ -1,30 +1,41 @@
-/* ClientDashboard.css - ESTILOS COMPLETOS PARA CLIENTE */
+/* ClientDashboard.css - ESTILOS COMPLETOS PARA CLIENTE - CORREGIDO */
+
+/* Importar la fuente ENGINE */
+@font-face {
+  font-family: 'Engine';
+  src: url('../../assets/fonts/ENGINE.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 .client-dashboard-container {
   padding-top: 140px !important;
   min-height: 100vh;
-  background-image: url('../../images/login/background.jpg'); /* ← AGREGAR ESTA LÍNEA */
-  background-size: cover; /* ← AGREGAR */
-  background-position: center; /* ← AGREGAR */
-  background-repeat: no-repeat; /* ← AGREGAR */
-  background-attachment: fixed; /* ← AGREGAR */
+  background-image: url('../../images/login/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .welcome-alert {
-  border-left: 5px solid #C41E3A !important;
+  border-left: 5px solid #8a2be2 !important;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
   border: 2px solid #e9ecef !important;
   border-radius: 15px !important;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
   margin-bottom: 2rem !important;
   margin-top: 1rem !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
 }
 
 .welcome-alert h3 {
-  color: #C41E3A !important;
-  font-weight: 700 !important;
+  color: #8a2be2 !important;
+  font-weight: 800 !important;
   margin-bottom: 0.5rem !important;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1) !important;
 }
 
 .welcome-alert p {
@@ -38,29 +49,34 @@
 .appointment-calendar-card {
   border: 3px solid #e9ecef !important;
   border-radius: 20px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important; /* Shadowbox más leve */
   transition: all 0.4s ease-in-out !important;
-  background: white !important;
+  background: rgba(255, 255, 255, 0.95) !important; /* Fondo semi-transparente */
+  backdrop-filter: blur(5px) !important; /* Efecto de desenfoque */
+  overflow: hidden !important;
 }
 
 .appointment-calendar-card:hover {
-  border-color: #C41E3A !important;
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(196, 30, 58, 0.15) !important;
+  border-color: #8a2be2 !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 30px rgba(138, 43, 226, 0.15) !important;
 }
 
 .calendar-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
-  border-bottom: 3px solid #C41E3A !important;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%) !important;
+  border-bottom: 3px solid #8a2be2 !important;
   text-align: center !important;
   border-radius: 20px 20px 0 0 !important;
+  padding: 1.2rem 1.5rem !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important;
 }
 
 .calendar-header h5 {
-  color: #C41E3A !important;
-  font-weight: 700 !important;
-  font-family: 'Montserrat', sans-serif;
+  color: #8a2be2 !important;
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
   margin-bottom: 0.5rem !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1) !important;
 }
 
 .week-navigation {
@@ -72,14 +88,14 @@
 
 .week-display {
   color: #495057 !important;
-  font-weight: 600 !important;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 0.95rem !important;
 }
 
 .nav-btn {
-  border: 2px solid #C41E3A !important;
-  color: #C41E3A !important;
+  border: 2px solid #8a2be2 !important;
+  color: #8a2be2 !important;
   font-weight: bold !important;
   width: 35px !important;
   height: 35px !important;
@@ -88,12 +104,14 @@
   align-items: center !important;
   justify-content: center !important;
   transition: all 0.3s ease !important;
+  box-shadow: 0 3px 8px rgba(138, 43, 226, 0.15) !important;
 }
 
 .nav-btn:hover {
-  background: #C41E3A !important;
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
   color: white !important;
-  transform: scale(1.1);
+  transform: scale(1.1) rotate(5deg) !important;
+  box-shadow: 0 5px 12px rgba(138, 43, 226, 0.3) !important;
 }
 
 /* Botones de día */
@@ -107,17 +125,18 @@
   justify-content: center !important;
   border: 2px solid transparent !important;
   font-family: 'Montserrat', sans-serif !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
 }
 
 .day-button:hover:not(:disabled) {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(196, 30, 58, 0.2) !important;
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow: 0 8px 20px rgba(138, 43, 226, 0.15) !important;
 }
 
 .day-button.selected {
-  border-color: #C41E3A !important;
-  transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(196, 30, 58, 0.3) !important;
+  border-color: #8a2be2 !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.25) !important;
 }
 
 .day-content {
@@ -127,28 +146,30 @@
 
 .day-name {
   font-size: 0.75rem !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   text-transform: uppercase !important;
   color: inherit !important;
   margin-bottom: 0.2rem !important;
-  font-family: 'Montserrat', sans-serif !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
 }
 
 .day-number {
-  font-size: 1.3rem !important;
-  font-weight: 700 !important;
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
   color: inherit !important;
   line-height: 1 !important;
-  font-family: 'Montserrat', sans-serif !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1) !important;
 }
 
 .day-month {
-  font-size: 0.7rem !important;
+  font-size: 0.75rem !important;
   color: inherit !important;
-  opacity: 0.8 !important;
+  opacity: 0.9 !important;
   text-transform: uppercase !important;
   margin-bottom: 0.2rem !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-weight: 600 !important;
 }
 
 .day-status {
@@ -157,60 +178,63 @@
 
 .day-status small {
   font-size: 0.65rem !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
 }
 
 /* Estados de los días */
 .day-button.btn-outline-primary {
-  border-color: #C41E3A !important;
-  color: #C41E3A !important;
-  background: rgba(196, 30, 58, 0.05) !important;
+  border-color: #8a2be2 !important;
+  color: #8a2be2 !important;
+  background: rgba(138, 43, 226, 0.08) !important;
 }
 
 .day-button.btn-primary {
-  background: #C41E3A !important;
-  border-color: #C41E3A !important;
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
+  border-color: #8a2be2 !important;
   color: white !important;
 }
 
 .day-button.btn-danger {
-  background: #D63349 !important;
-  border-color: #D63349 !important;
+  background: linear-gradient(135deg, #dc3545 0%, #e35d6a 100%) !important;
+  border-color: #dc3545 !important;
   color: white !important;
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2) !important;
 }
 
 .day-button.btn-outline-secondary {
   border-color: #ced4da !important;
   color: #6c757d !important;
   background: #f8f9fa !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
 }
 
-/* Días pasados */
+/* Días pasados - NO ROJO, mantener gris */
 .day-button.past-day {
-  background: #f8f9fa !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
   border-color: #dee2e6 !important;
   color: #6c757d !important;
-  opacity: 0.5 !important;
+  opacity: 0.7 !important;
   cursor: not-allowed !important;
   transform: none !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
 }
 
 .day-button.past-day:hover {
   transform: none !important;
-  box-shadow: none !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
   border-color: #dee2e6 !important;
 }
 
 .day-button:disabled {
-  opacity: 0.5 !important;
+  opacity: 0.6 !important;
   cursor: not-allowed !important;
 }
 
 /* Horarios */
 .time-selection h6 {
   color: #495057 !important;
-  font-weight: 600 !important;
-  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 700 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
   margin-bottom: 1rem !important;
 }
 
@@ -219,54 +243,58 @@
   border-radius: 10px !important;
   transition: all 0.3s ease !important;
   border: 2px solid transparent !important;
-  font-size: 0.9rem !important;
-  font-weight: 600 !important;
-  font-family: 'Montserrat', sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
 }
 
 .time-slot:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 5px 15px rgba(196, 30, 58, 0.2) !important;
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow: 0 8px 18px rgba(138, 43, 226, 0.15) !important;
 }
 
 .time-slot.btn-outline-primary {
-  border-color: #C41E3A !important;
-  color: #C41E3A !important;
-  background: rgba(196, 30, 58, 0.05) !important;
+  border-color: #8a2be2 !important;
+  color: #8a2be2 !important;
+  background: rgba(138, 43, 226, 0.08) !important;
 }
 
 .time-slot.btn-outline-primary:hover:not(:disabled) {
-  background: #C41E3A !important;
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
   color: white !important;
 }
 
 .time-slot.btn-primary {
-  background: #C41E3A !important;
-  border-color: #C41E3A !important;
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
+  border-color: #8a2be2 !important;
   color: white !important;
-  transform: scale(1.05);
+  transform: scale(1.05) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.25) !important;
 }
 
 .time-slot.btn-outline-danger {
   border-color: #dc3545 !important;
   color: #dc3545 !important;
-  background: rgba(220, 53, 69, 0.05) !important;
+  background: rgba(220, 53, 69, 0.08) !important;
   text-decoration: line-through;
-  opacity: 0.7;
+  opacity: 0.8;
+  box-shadow: 0 3px 8px rgba(220, 53, 69, 0.15) !important;
 }
 
 /* Horarios pasados */
 .time-slot.past-time {
-  background: #f8f9fa !important;
-  border-color: #dee2e6 !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  border-color: #ced4da !important;
   color: #6c757d !important;
-  opacity: 0.5 !important;
+  opacity: 0.7 !important;
   text-decoration: line-through;
   cursor: not-allowed !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
 }
 
 .time-slot:disabled {
-  opacity: 0.5 !important;
+  opacity: 0.6 !important;
   cursor: not-allowed !important;
 }
 
@@ -274,30 +302,41 @@
 .services-payment-card {
   border: 3px solid #e9ecef !important;
   border-radius: 20px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
   transition: all 0.4s ease-in-out !important;
-  background: white !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(5px) !important;
+  overflow: hidden !important;
 }
 
 .services-payment-card:hover {
-  border-color: #C41E3A !important;
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(196, 30, 58, 0.15) !important;
+  border-color: #8a2be2 !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 30px rgba(138, 43, 226, 0.15) !important;
 }
 
 .services-payment-card .card-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
-  border-bottom: 3px solid #C41E3A !important;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%) !important;
+  border-bottom: 3px solid #8a2be2 !important;
   font-weight: 600;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
   border-radius: 20px 20px 0 0 !important;
+  padding: 1.2rem 1.5rem !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important;
+}
+
+.services-payment-card .card-header h5 {
+  color: #8a2be2 !important;
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  margin-bottom: 0 !important;
 }
 
 .services-label,
 .payment-label {
   color: #495057 !important;
-  font-weight: 600 !important;
-  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 700 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
   font-size: 1.1rem !important;
   margin-bottom: 1rem !important;
   display: block;
@@ -305,7 +344,7 @@
 
 /* Tarjetas de Servicios */
 .service-card {
-  background: white !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   border: 2px solid #e9ecef !important;
   border-radius: 12px !important;
   padding: 1rem !important;
@@ -316,32 +355,39 @@
   position: relative !important;
   min-height: 80px !important;
   margin-bottom: 0.75rem !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
 }
 
 .service-card:hover {
   transform: translateY(-3px) !important;
-  border-color: #C41E3A !important;
-  box-shadow: 0 5px 15px rgba(196, 30, 58, 0.15) !important;
+  border-color: #8a2be2 !important;
+  box-shadow: 0 8px 18px rgba(138, 43, 226, 0.15) !important;
 }
 
 .service-card.selected {
-  border-color: #C41E3A !important;
-  background: rgba(196, 30, 58, 0.05) !important;
+  border-color: #8a2be2 !important;
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.05) 0%, rgba(185, 94, 199, 0.03) 100%) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 3px 10px rgba(196, 30, 58, 0.1) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.2) !important;
+}
+
+.service-card.selected:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 22px rgba(138, 43, 226, 0.25) !important;
 }
 
 .service-icon {
   font-size: 1.5rem !important;
   margin-right: 1rem !important;
   flex-shrink: 0 !important;
-  color: #C41E3A !important;
+  color: #8a2be2 !important;
   width: 40px;
   text-align: center;
 }
 
 .service-content {
   flex-grow: 1 !important;
+  min-width: 0;
 }
 
 .service-name {
@@ -350,30 +396,31 @@
   font-family: 'Montserrat', sans-serif !important;
   margin-bottom: 0.5rem !important;
   font-size: 1rem !important;
+  word-break: break-word;
+  line-height: 1.3;
 }
 
 .service-details {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .service-price {
-  color: #C41E3A !important;
-  font-weight: 700 !important;
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 1.1rem !important;
+  color: #8a2be2 !important;
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 1.2rem !important;
+  white-space: nowrap;
 }
 
 .service-duration {
   color: #6c757d !important;
   font-size: 0.9rem !important;
   font-family: 'Inter', sans-serif !important;
-}
-
-/* Eliminar el checkmark */
-.service-check {
-  display: none !important;
+  white-space: nowrap;
 }
 
 /* Resumen */
@@ -381,12 +428,30 @@
   border: 2px solid #e9ecef !important;
   border-radius: 12px !important;
   transition: all 0.3s ease !important;
-  background: #f8f9fa !important;
+  background: rgba(248, 249, 250, 0.9) !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+  backdrop-filter: blur(5px) !important;
 }
 
 .summary-card:hover {
-  border-color: #C41E3A !important;
+  border-color: #8a2be2 !important;
   transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.15) !important;
+}
+
+.summary-card .card-header {
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.9) 0%, rgba(233, 236, 239, 0.9) 100%) !important;
+  border-bottom: 2px solid #8a2be2 !important;
+  font-weight: 600;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.summary-card .card-header h6 {
+  color: #8a2be2 !important;
+  font-weight: 700 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  margin-bottom: 0 !important;
 }
 
 .summary-item {
@@ -398,17 +463,37 @@
   font-family: 'Inter', sans-serif !important;
 }
 
+.service-summary-name {
+  flex: 1;
+  word-break: break-word;
+  padding-right: 1rem;
+  color: #495057 !important;
+}
+
+.service-summary-price {
+  white-space: nowrap;
+  font-weight: 700;
+  color: #8a2be2 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+}
+
 .summary-total {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
   padding: 1rem !important;
-  background: #e9ecef !important;
-  font-weight: 700 !important;
-  font-size: 1.1rem !important;
+  background: rgba(233, 236, 239, 0.9) !important;
+  font-weight: 800 !important;
+  font-size: 1.2rem !important;
   color: #495057 !important;
   border: none !important;
-  font-family: 'Montserrat', sans-serif !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  border-top: 2px solid #dee2e6 !important;
+}
+
+.summary-total span:last-child {
+  color: #8a2be2 !important;
+  font-size: 1.3rem !important;
 }
 
 .summary-duration {
@@ -430,7 +515,7 @@
 }
 
 .payment-method-btn {
-  background: white !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   border: 2px solid #e9ecef !important;
   border-radius: 10px !important;
   padding: 1rem 1.5rem !important;
@@ -441,20 +526,22 @@
   cursor: pointer !important;
   transition: all 0.3s ease !important;
   text-align: center !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+  backdrop-filter: blur(5px) !important;
 }
 
 .payment-method-btn:hover {
-  border-color: #C41E3A !important;
+  border-color: #8a2be2 !important;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(196, 30, 58, 0.1) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.15) !important;
 }
 
 .payment-method-btn.selected {
-  background: rgba(196, 30, 58, 0.05) !important;
-  border-color: #C41E3A !important;
-  color: #C41E3A !important;
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.05) 0%, rgba(185, 94, 199, 0.03) 100%) !important;
+  border-color: #8a2be2 !important;
+  color: #8a2be2 !important;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(196, 30, 58, 0.2) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.2) !important;
 }
 
 /* Textarea de notas */
@@ -467,38 +554,44 @@
   resize: vertical !important;
   min-height: 100px !important;
   font-family: 'Inter', sans-serif !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
 }
 
 .notes-textarea:focus {
-  border-color: #C41E3A !important;
-  box-shadow: 0 0 0 0.2rem rgba(196, 30, 58, 0.1) !important;
+  border-color: #8a2be2 !important;
+  box-shadow: 0 0 0 0.2rem rgba(138, 43, 226, 0.1) !important;
   outline: none !important;
 }
 
 /* Botón de confirmar */
 .confirm-btn {
-  background: #C41E3A !important;
-  border: 2px solid #C41E3A !important;
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
+  border: 2px solid #8a2be2 !important;
   color: white !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   padding: 1rem 2rem !important;
   border-radius: 10px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  font-family: 'Montserrat', sans-serif !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
   font-size: 1.1rem !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.25) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
 }
 
 .confirm-btn:hover:not(:disabled) {
-  background: #D63349 !important;
-  border-color: #D63349 !important;
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(196, 30, 58, 0.3) !important;
+  background: linear-gradient(135deg, #7a1bd1 0%, #a84ab8 100%) !important;
+  border-color: #7a1bd1 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(138, 43, 226, 0.35) !important;
 }
 
 .confirm-btn:disabled {
   opacity: 0.6 !important;
   cursor: not-allowed !important;
   transform: none !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
 }
 
 /* ===== MODAL DE CONFIRMACIÓN ===== */
@@ -517,95 +610,274 @@
 }
 
 .confirmation-modal {
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.95) !important; /* Fondo semi-transparente */
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important; /* Shadowbox más leve */
   max-width: 500px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  border: 3px solid #C41E3A;
+  border: 3px solid #8a2be2;
+  animation: modalAppear 0.3s ease-out;
+  backdrop-filter: blur(10px) !important; /* Efecto de desenfoque */
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .modal-header {
-  background: linear-gradient(135deg, #C41E3A 0%, #D63349 100%);
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%);
   color: white;
   padding: 1.5rem;
-  border-radius: 12px 12px 0 0;
+  border-radius: 17px 17px 0 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .modal-header h5 {
   margin: 0;
   font-weight: 700;
+  font-size: 1.3rem;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
 }
 
-.modal-body {
-  padding: 1.5rem;
+.modal-header .btn-close {
+  filter: invert(1);
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+.modal-content {
+  padding: 2rem;
 }
 
 .confirmation-details h6 {
-  color: #C41E3A;
+  color: #8a2be2;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  text-align: center;
   border-bottom: 2px solid #e9ecef;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
 }
 
-.detail-row {
+/* Secciones del modal mejoradas */
+.detail-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(248, 249, 250, 0.8) !important;
+  border-radius: 12px;
+  border-left: 4px solid #8a2be2;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.detail-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.1);
+}
+
+.detail-section-title {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f8f9fa;
-}
-
-.detail-row strong {
+  align-items: center;
+  margin-bottom: 0.75rem;
   color: #495057;
   font-weight: 600;
-  min-width: 120px;
+  font-size: 1rem;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
 }
 
-.detail-row span {
+/* ICONOS EN VIOLETA, NO EN ROJO */
+.detail-section-title i {
+  margin-right: 0.5rem;
+  color: #8a2be2 !important; /* Violeta, no rojo */
+  width: 20px;
+}
+
+.detail-content {
   color: #6c757d;
-  text-align: right;
-  flex: 1;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
 }
 
-.total-amount {
-  color: #C41E3A !important;
-  font-weight: 700;
-  font-size: 1.2rem;
+/* Lista de servicios en modal */
+.services-list-modal {
+  width: 100%;
 }
 
-.services-summary {
-  text-align: right;
+.service-item-modal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
 }
 
-.service-summary-item {
-  background: #f8f9fa;
-  padding: 0.3rem 0.5rem;
-  border-radius: 5px;
-  margin-bottom: 0.3rem;
-  font-size: 0.9rem;
+.service-item-modal:hover {
+  border-color: #8a2be2;
+  transform: translateX(5px);
+  box-shadow: 0 4px 10px rgba(138, 43, 226, 0.1);
+}
+
+.service-item-modal:last-child {
+  margin-bottom: 0;
+}
+
+.service-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.service-name-modal {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+  line-height: 1.2;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.service-duration-modal {
+  font-size: 0.8rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+}
+
+.service-duration-modal i {
+  margin-right: 0.25rem;
+  font-size: 0.7rem;
+  color: #8a2be2 !important; /* Violeta, no rojo */
+}
+
+.service-price-modal {
+  font-weight: 800;
+  color: #8a2be2 !important; /* Violeta, no rojo */
+  font-size: 1rem;
+  white-space: nowrap;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+}
+
+.total-section {
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
+  color: white;
+  border-left-color: white !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.2) !important;
+}
+
+.total-section .detail-section-title {
+  color: white;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+}
+
+.total-section .detail-section-title i {
+  color: white !important;
+}
+
+.total-section .detail-content {
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+}
+
+.notes-section {
+  background: rgba(255, 243, 205, 0.8) !important;
+  border-left-color: #ffc107 !important;
+  box-shadow: 0 4px 10px rgba(255, 193, 7, 0.1) !important;
+}
+
+.notes-section .detail-section-title {
+  color: #856404;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+}
+
+.notes-section .detail-section-title i {
+  color: #856404 !important;
+}
+
+.notes-section .detail-content {
+  color: #856404;
+  font-style: italic;
+  font-family: 'Inter', sans-serif;
 }
 
 .modal-footer {
-  padding: 1rem 1.5rem;
-  background: #f8f9fa;
-  border-radius: 0 0 12px 12px;
+  padding: 1.5rem;
+  background: rgba(248, 249, 250, 0.9) !important;
+  border-radius: 0 0 17px 17px;
   display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 2px solid #e9ecef;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+  backdrop-filter: blur(5px) !important;
+}
+
+.modal-footer .btn {
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  flex: 1;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.modal-footer .btn-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #868e96 100%) !important;
+  border-color: #6c757d !important;
+  color: white !important;
+}
+
+.modal-footer .btn-secondary:hover {
+  background: linear-gradient(135deg, #5a6268 0%, #727b84 100%) !important;
+  border-color: #545b62 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(108, 117, 125, 0.2) !important;
+}
+
+.modal-footer .btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #34ce57 100%) !important;
+  border-color: #28a745 !important;
+  color: white !important;
+}
+
+.modal-footer .btn-success:hover {
+  background: linear-gradient(135deg, #218838 0%, #2db34a 100%) !important;
+  border-color: #1e7e34 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(40, 167, 69, 0.2) !important;
 }
 
 /* ===== CONFIRMATION PAGE COMPACTA ===== */
 .compact-confirmation {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background-image: url('../../images/login/background.jpg') !important; /* MISMO FONDO */
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
   padding-top: 100px !important;
   padding-bottom: 50px !important;
 }
@@ -613,47 +885,65 @@
 .compact-confirmation .confirmation-card {
   max-width: 600px;
   margin: 0 auto;
-  border-radius: 15px !important;
+  border-radius: 20px !important;
   border: none !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important; /* Shadowbox más leve */
+  overflow: hidden !important;
+  background: rgba(255, 255, 255, 0.95) !important; /* Fondo semi-transparente */
+  backdrop-filter: blur(10px) !important; /* Efecto de desenfoque */
 }
 
 .compact-confirmation .confirmation-header {
-  background: linear-gradient(135deg, #C41E3A 0%, #D63349 100%) !important;
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
   padding: 1.5rem !important;
-  border-radius: 15px 15px 0 0 !important;
+  border-radius: 20px 20px 0 0 !important;
   border: none !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  text-align: center !important;
 }
 
 .compact-confirmation .success-icon {
   font-size: 2.5rem !important;
   margin-bottom: 1rem !important;
   color: white;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .compact-confirmation .confirmation-header h4 {
   color: white;
-  font-weight: 700;
+  font-weight: 800 !important;
   margin-bottom: 0.5rem;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 1.8rem !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.compact-confirmation .confirmation-header p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin-bottom: 0;
 }
 
 .compact-confirmation .confirmation-section {
-  background: white;
-  border-radius: 10px;
-  padding: 1rem !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 12px;
+  padding: 1.25rem !important;
   margin-bottom: 1rem !important;
   border: 2px solid #e9ecef;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important; /* Shadowbox leve */
+  backdrop-filter: blur(5px) !important;
 }
 
 .compact-confirmation .confirmation-section:hover {
-  border-color: #C41E3A;
+  border-color: #8a2be2;
   transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.12) !important;
 }
 
 .compact-confirmation .section-header {
   margin-bottom: 0.75rem !important;
-  border-bottom: 2px solid #C41E3A;
+  border-bottom: 2px solid #8a2be2;
   padding-bottom: 0.5rem;
 }
 
@@ -661,44 +951,129 @@
   color: #495057;
   font-weight: 700;
   margin: 0;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 1.1rem;
 }
 
-.compact-confirmation .detail-item {
-  padding: 0.25rem 0 !important;
+/* ELEMENTOS EN VIOLETA, NO EN ROJO */
+.compact-confirmation .confirmation-number {
+  color: #8a2be2 !important; /* Violeta, no rojo */
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 1.3rem !important;
 }
 
-.compact-confirmation .services-list {
-  max-height: 200px !important;
-  overflow-y: auto;
+/* ICONOS EN VIOLETA, NO EN ROJO */
+.compact-confirmation .section-header h6 i.fa-user,
+.compact-confirmation .section-header h6 i.fa-calendar-day,
+.compact-confirmation .section-header h6 i.fa-scissors,
+.compact-confirmation .section-header h6 i.fa-money-bill-wave {
+  color: #8a2be2 !important; /* Violeta, no rojo */
 }
 
-.compact-confirmation .service-confirmation-item {
-  transition: all 0.3s ease;
-  border: 1px solid #dee2e6 !important;
+.compact-confirmation .service-confirmation-item .fw-bold {
+  color: #495057 !important;
+  font-weight: 600 !important;
+  font-family: 'Montserrat', sans-serif !important;
 }
 
-.compact-confirmation .service-confirmation-item:hover {
-  border-color: #C41E3A !important;
+.compact-confirmation .service-confirmation-item .text-danger {
+  color: #8a2be2 !important; /* Violeta, no rojo */
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 1.2rem !important;
+}
+
+/* Iconos en violeta, no en rojo */
+.compact-confirmation .service-confirmation-item .fa-clock {
+  color: #8a2be2 !important; /* Violeta, no rojo */
+}
+
+/* Iconos en violeta en las notificaciones */
+.compact-confirmation .alert-success .fa-bell,
+.compact-confirmation .alert-success .fa-check-circle,
+.compact-confirmation .alert-success .fa-clock {
+  color: #8a2be2 !important; /* Violeta, no rojo */
+}
+
+.compact-confirmation .alert-success {
+  border-left: 4px solid #8a2be2 !important; /* Violeta, no verde */
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.05) 0%, rgba(185, 94, 199, 0.03) 100%) !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+}
+
+.compact-confirmation .alert-success h6 {
+  color: #8a2be2 !important; /* Violeta, no rojo */
+  font-weight: 700 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+}
+
+.compact-confirmation .alert-success strong {
+  color: #495057 !important;
+}
+
+.compact-confirmation .alert-success .small {
+  color: #6c757d !important;
 }
 
 .compact-confirmation .confirmation-actions {
   border-top: 2px solid #e9ecef;
   padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.compact-confirmation .confirmation-actions .btn {
+  border-radius: 10px;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.compact-confirmation .confirmation-actions .btn-danger {
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important; /* Violeta, no rojo */
+  border-color: #8a2be2 !important;
+  color: white !important;
+}
+
+.compact-confirmation .confirmation-actions .btn-danger:hover {
+  background: linear-gradient(135deg, #7a1bd1 0%, #a84ab8 100%) !important;
+  border-color: #7a1bd1 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.25) !important;
+}
+
+.compact-confirmation .confirmation-actions .btn-outline-dark {
+  border: 2px solid #343a40 !important;
+  color: #343a40 !important;
+  background: transparent !important;
+}
+
+.compact-confirmation .confirmation-actions .btn-outline-dark:hover {
+  background: #343a40 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(52, 58, 64, 0.2) !important;
 }
 
 /* ===== ALERTAS Y NOTIFICACIONES ===== */
 .alert-success {
-  border-left: 4px solid #198754 !important;
-  background: linear-gradient(135deg, #d1e7dd 0%, #f8f9fa 100%) !important;
-  border: none !important;
+  border-left: 4px solid #8a2be2 !important; /* Violeta, no verde */
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.05) 0%, rgba(185, 94, 199, 0.03) 100%) !important;
+  border: 2px solid #e9ecef !important;
   border-radius: 12px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
 }
 
 .alert-warning {
   border-left: 4px solid #ffc107 !important;
-  background: linear-gradient(135deg, #fff3cd 0%, #f8f9fa 100%) !important;
-  border: none !important;
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 243, 205, 0.03) 100%) !important;
+  border: 2px solid #e9ecef !important;
   border-radius: 12px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
 }
 
 /* ===== SCROLL SMOOTH ===== */
@@ -757,13 +1132,10 @@ html {
   .service-card {
     padding: 1rem !important;
     min-height: 80px !important;
-    flex-direction: column !important;
-    text-align: center !important;
   }
 
   .service-icon {
-    margin-right: 0 !important;
-    margin-bottom: 0.5rem !important;
+    margin-right: 0.75rem !important;
     font-size: 1.5rem !important;
   }
 
@@ -772,8 +1144,8 @@ html {
   }
 
   .service-details {
-    flex-direction: column !important;
-    gap: 0.3rem !important;
+    flex-direction: row !important;
+    gap: 0.5rem !important;
   }
 
   .payment-methods {
@@ -795,23 +1167,17 @@ html {
   }
   
   .modal-header,
-  .modal-body,
+  .modal-content,
   .modal-footer {
     padding: 1rem;
   }
   
-  .detail-row {
-    flex-direction: column;
-    align-items: flex-start;
+  .detail-section {
+    padding: 0.75rem;
   }
   
-  .detail-row span {
-    text-align: left;
-    margin-top: 0.25rem;
-  }
-  
-  .services-summary {
-    text-align: left;
+  .service-item-modal {
+    padding: 0.5rem;
   }
 
   /* Confirmation page responsive */
@@ -821,7 +1187,7 @@ html {
   }
   
   .compact-confirmation .confirmation-section {
-    padding: 0.75rem !important;
+    padding: 1rem !important;
     margin-bottom: 0.75rem !important;
   }
   
@@ -865,6 +1231,12 @@ html {
   .service-card {
     min-height: auto !important;
   }
+
+  .service-details {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.3rem !important;
+  }
 }
 
 /* Scroll personalizado */
@@ -878,212 +1250,15 @@ html {
 }
 
 .services-list::-webkit-scrollbar-thumb {
-  background: #C41E3A;
+  background: #8a2be2;
   border-radius: 10px;
 }
 
 .services-list::-webkit-scrollbar-thumb:hover {
-  background: #a0182e;
+  background: #7a1bd1;
 }
 
-/* Mejoras de accesibilidad */
-@media (max-width: 768px) {
-  .service-card,
-  .day-button,
-  .time-slot,
-  .payment-method-btn {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .service-card:active,
-  .day-button:active {
-    transform: scale(0.98) !important;
-  }
-}
-/* ===== MODAL DE CONFIRMACIÓN MEJORADO ===== */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1050;
-  padding: 1rem;
-  backdrop-filter: blur(5px);
-}
-
-.confirmation-modal {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
-  width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  border: 3px solid #C41E3A;
-  animation: modalAppear 0.3s ease-out;
-}
-
-@keyframes modalAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.modal-header {
-  background: linear-gradient(135deg, #C41E3A 0%, #D63349 100%);
-  color: white;
-  padding: 1.5rem;
-  border-radius: 17px 17px 0 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-}
-
-.modal-header h5 {
-  margin: 0;
-  font-weight: 700;
-  font-size: 1.3rem;
-}
-
-.modal-header .btn-close {
-  filter: invert(1);
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-}
-
-.modal-header .btn-close:hover {
-  opacity: 1;
-}
-
-.modal-body {
-  padding: 2rem;
-}
-
-.confirmation-details h6 {
-  color: #C41E3A;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
-  text-align: center;
-  border-bottom: 2px solid #e9ecef;
-  padding-bottom: 0.75rem;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.25rem;
-  padding: 0.75rem;
-  border-radius: 10px;
-  background: #f8f9fa;
-  transition: all 0.3s ease;
-}
-
-.detail-row:hover {
-  background: #e9ecef;
-  transform: translateX(5px);
-}
-
-.detail-row strong {
-  color: #495057;
-  font-weight: 600;
-  min-width: 120px;
-  font-size: 0.95rem;
-}
-
-.detail-row span {
-  color: #6c757d;
-  text-align: right;
-  flex: 1;
-  font-weight: 500;
-}
-
-.total-amount {
-  color: #C41E3A !important;
-  font-weight: 700;
-  font-size: 1.3rem;
-}
-
-.services-summary {
-  text-align: right;
-  width: 100%;
-}
-
-.service-summary-item {
-  background: white;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
-}
-
-.service-summary-item:hover {
-  border-color: #C41E3A;
-  transform: translateX(-3px);
-}
-
-.service-summary-item:last-child {
-  margin-bottom: 0;
-}
-
-.modal-footer {
-  padding: 1.5rem;
-  background: #f8f9fa;
-  border-radius: 0 0 17px 17px;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  border-top: 2px solid #e9ecef;
-}
-
-.modal-footer .btn {
-  border-radius: 10px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  flex: 1;
-}
-
-.modal-footer .btn-secondary {
-  background: #6c757d;
-  border-color: #6c757d;
-  color: white;
-}
-
-.modal-footer .btn-secondary:hover {
-  background: #5a6268;
-  border-color: #545b62;
-  transform: translateY(-2px);
-}
-
-.modal-footer .btn-success {
-  background: #28a745;
-  border-color: #28a745;
-  color: white;
-}
-
-.modal-footer .btn-success:hover {
-  background: #218838;
-  border-color: #1e7e34;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-}
-
-/* Efectos de scroll para el modal */
+/* Scroll personalizado para modal */
 .confirmation-modal::-webkit-scrollbar {
   width: 8px;
 }
@@ -1094,647 +1269,12 @@ html {
 }
 
 .confirmation-modal::-webkit-scrollbar-thumb {
-  background: #C41E3A;
+  background: #8a2be2;
   border-radius: 10px;
 }
 
 .confirmation-modal::-webkit-scrollbar-thumb:hover {
-  background: #a0182e;
-}
-
-/* Responsive para el modal */
-@media (max-width: 768px) {
-  .modal-overlay {
-    padding: 0.5rem;
-  }
-  
-  .confirmation-modal {
-    max-height: 90vh;
-    max-width: 95%;
-  }
-  
-  .modal-header {
-    padding: 1.25rem;
-  }
-  
-  .modal-body {
-    padding: 1.5rem;
-  }
-  
-  .modal-footer {
-    padding: 1.25rem;
-    flex-direction: column;
-  }
-  
-  .detail-row {
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-  }
-  
-  .detail-row span {
-    text-align: left;
-    margin-top: 0.5rem;
-    width: 100%;
-  }
-  
-  .services-summary {
-    text-align: left;
-  }
-  
-  .service-summary-item {
-    text-align: left;
-  }
-}
-
-@media (max-width: 576px) {
-  .modal-body {
-    padding: 1rem;
-  }
-  
-  .modal-header h5 {
-    font-size: 1.1rem;
-  }
-  
-  .detail-row {
-    padding: 0.5rem;
-  }
-  
-  .modal-footer .btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-  }
-}
-/* ===== MODAL DE CONFIRMACIÓN CENTRADO Y MEJORADO ===== */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 1rem;
-  backdrop-filter: blur(5px);
-}
-
-.confirmation-modal {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-  width: 90%;
-  max-width: 500px;
-  max-height: 85vh;
-  overflow: hidden;
-  border: 3px solid #C41E3A;
-  animation: modalAppear 0.3s ease-out;
-  display: flex;
-  flex-direction: column;
-  margin: auto;
-}
-
-@keyframes modalAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.modal-header {
-  background: linear-gradient(135deg, #C41E3A 0%, #D63349 100%);
-  color: white;
-  padding: 1.5rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.modal-header h5 {
-  margin: 0;
-  font-weight: 700;
-  font-size: 1.4rem;
-  display: flex;
-  align-items: center;
-}
-
-.modal-header .btn-close {
-  filter: invert(1);
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-header .btn-close:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-}
-
-.modal-content {
-  padding: 2rem;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.confirmation-details h6 {
-  color: #C41E3A;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  font-size: 1.2rem;
-  text-align: center;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #e9ecef;
-}
-
-.detail-section {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border-left: 4px solid #C41E3A;
-}
-
-.detail-section:last-child {
-  margin-bottom: 0;
-}
-
-.detail-section-title {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  color: #495057;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.detail-section-title i {
-  margin-right: 0.5rem;
-  color: #C41E3A;
-  width: 20px;
-}
-
-.detail-content {
-  color: #6c757d;
-  font-weight: 500;
-}
-
-.services-list-modal {
-  width: 100%;
-}
-
-.service-item-modal {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background: white;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-  border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
-}
-
-.service-item-modal:hover {
-  border-color: #C41E3A;
-  transform: translateX(5px);
-}
-
-.service-item-modal:last-child {
-  margin-bottom: 0;
-}
-
-.service-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.service-name-modal {
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 0.25rem;
-}
-
-.service-duration-modal {
-  font-size: 0.8rem;
-  color: #6c757d;
-  display: flex;
-  align-items: center;
-}
-
-.service-duration-modal i {
-  margin-right: 0.25rem;
-  font-size: 0.7rem;
-}
-
-.service-price-modal {
-  font-weight: 700;
-  color: #C41E3A;
-  font-size: 1rem;
-}
-
-.total-section {
-  background: linear-gradient(135deg, #C41E3A 0%, #D63349 100%) !important;
-  color: white;
-  border-left-color: white !important;
-}
-
-.total-section .detail-section-title {
-  color: white;
-}
-
-.total-section .detail-section-title i {
-  color: white;
-}
-
-.total-section .detail-content {
-  color: white;
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.notes-section {
-  background: #fff3cd !important;
-  border-left-color: #ffc107 !important;
-}
-
-.notes-section .detail-section-title {
-  color: #856404;
-}
-
-.notes-section .detail-section-title i {
-  color: #856404;
-}
-
-.notes-section .detail-content {
-  color: #856404;
-  font-style: italic;
-}
-
-.modal-footer {
-  padding: 1.5rem 2rem;
-  background: #f8f9fa;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  border-top: 2px solid #e9ecef;
-  flex-shrink: 0;
-}
-
-.modal-footer .btn {
-  border-radius: 10px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  flex: 1;
-  border: 2px solid transparent;
-}
-
-.modal-footer .btn-secondary {
-  background: #6c757d;
-  border-color: #6c757d;
-  color: white;
-}
-
-.modal-footer .btn-secondary:hover {
-  background: #5a6268;
-  border-color: #545b62;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
-}
-
-.modal-footer .btn-success {
-  background: #28a745;
-  border-color: #28a745;
-  color: white;
-}
-
-.modal-footer .btn-success:hover {
-  background: #218838;
-  border-color: #1e7e34;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-}
-
-/* ===== RESPONSIVE COMPLETO ===== */
-
-/* Tablets */
-@media (max-width: 1024px) {
-  .client-dashboard-container {
-    padding-top: 100px !important;
-  }
-  
-  .welcome-alert {
-    margin: 1rem 0.5rem !important;
-  }
-  
-  .appointment-calendar-card,
-  .services-payment-card {
-    margin: 0 0.5rem;
-  }
-}
-
-/* Mobile Large */
-@media (max-width: 768px) {
-  .client-dashboard-container {
-    padding-top: 90px !important;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-
-  .welcome-alert {
-    margin: 0.5rem 0 !important;
-    text-align: center !important;
-    padding: 1rem !important;
-  }
-
-  .welcome-alert h3 {
-    font-size: 1.3rem !important;
-  }
-
-  .welcome-alert p {
-    font-size: 0.95rem !important;
-  }
-
-  /* Calendario Mobile */
-  .day-button {
-    min-height: 60px !important;
-    padding: 0.5rem 0.3rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-
-  .day-number {
-    font-size: 1rem !important;
-  }
-
-  .day-name {
-    font-size: 0.65rem !important;
-  }
-
-  .day-month {
-    font-size: 0.6rem !important;
-  }
-
-  .time-slot {
-    padding: 0.5rem 0.3rem !important;
-    font-size: 0.8rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-
-  .week-display {
-    font-size: 0.75rem !important;
-  }
-
-  /* Servicios Mobile */
-  .service-card {
-    padding: 0.75rem !important;
-    min-height: 70px !important;
-    margin-bottom: 0.5rem !important;
-  }
-
-  .service-icon {
-    font-size: 1.3rem !important;
-    margin-right: 0.75rem !important;
-  }
-
-  .service-name {
-    font-size: 0.9rem !important;
-  }
-
-  .service-price {
-    font-size: 1rem !important;
-  }
-
-  .service-duration {
-    font-size: 0.8rem !important;
-  }
-
-  /* Modal Mobile */
-  .modal-overlay {
-    padding: 0.5rem;
-    align-items: flex-start;
-    padding-top: 2rem;
-  }
-  
-  .confirmation-modal {
-    width: 95%;
-    max-height: 90vh;
-    margin: 0 auto;
-  }
-  
-  .modal-header {
-    padding: 1.25rem 1.5rem;
-  }
-  
-  .modal-header h5 {
-    font-size: 1.2rem;
-  }
-  
-  .modal-content {
-    padding: 1.5rem;
-  }
-  
-  .detail-section {
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-  }
-  
-  .service-item-modal {
-    padding: 0.5rem;
-  }
-  
-  .modal-footer {
-    padding: 1.25rem 1.5rem;
-    flex-direction: column;
-  }
-  
-  .modal-footer .btn {
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-  
-  .modal-footer .btn:last-child {
-    margin-bottom: 0;
-  }
-}
-
-/* Mobile Small */
-@media (max-width: 576px) {
-  .client-dashboard-container {
-    padding-top: 80px !important;
-  }
-
-  .day-button {
-    min-height: 55px !important;
-    padding: 0.4rem 0.2rem !important;
-  }
-
-  .day-number {
-    font-size: 0.9rem !important;
-  }
-
-  .day-content {
-    transform: scale(0.85);
-  }
-
-  .time-slot {
-    font-size: 0.75rem !important;
-    padding: 0.4rem 0.2rem !important;
-  }
-
-  .service-card {
-    flex-direction: column !important;
-    text-align: center !important;
-    min-height: auto !important;
-    padding: 1rem 0.5rem !important;
-  }
-
-  .service-icon {
-    margin-right: 0 !important;
-    margin-bottom: 0.5rem !important;
-    font-size: 1.5rem !important;
-  }
-
-  .service-details {
-    flex-direction: column !important;
-    gap: 0.3rem !important;
-  }
-
-  .payment-methods {
-    grid-template-columns: 1fr !important;
-    gap: 0.5rem !important;
-  }
-
-  .payment-method-btn {
-    padding: 0.75rem 1rem !important;
-    font-size: 0.9rem !important;
-  }
-
-  .confirm-btn {
-    padding: 0.8rem 1rem !important;
-    font-size: 1rem !important;
-  }
-
-  /* Modal Mobile Small */
-  .modal-content {
-    padding: 1rem;
-  }
-  
-  .modal-header {
-    padding: 1rem 1.25rem;
-  }
-  
-  .modal-header h5 {
-    font-size: 1.1rem;
-  }
-  
-  .confirmation-details h6 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .detail-section-title {
-    font-size: 0.9rem;
-  }
-  
-  .service-name-modal {
-    font-size: 0.85rem;
-  }
-  
-  .service-price-modal {
-    font-size: 0.9rem;
-  }
-  
-  .total-section .detail-content {
-    font-size: 1.1rem;
-  }
-}
-
-/* Mobile Extra Small */
-@media (max-width: 400px) {
-  .client-dashboard-container {
-    padding-top: 70px !important;
-  }
-
-  .day-button {
-    min-height: 50px !important;
-    padding: 0.3rem 0.1rem !important;
-  }
-
-  .day-number {
-    font-size: 0.8rem !important;
-  }
-
-  .day-name {
-    font-size: 0.6rem !important;
-  }
-
-  .service-card {
-    padding: 0.75rem 0.25rem !important;
-  }
-
-  .service-name {
-    font-size: 0.8rem !important;
-  }
-
-  /* Modal Extra Small */
-  .modal-overlay {
-    padding: 0.25rem;
-    padding-top: 1rem;
-  }
-  
-  .confirmation-modal {
-    width: 98%;
-  }
-  
-  .modal-content {
-    padding: 0.75rem;
-  }
-  
-  .modal-header {
-    padding: 0.75rem 1rem;
-  }
-  
-  .modal-footer {
-    padding: 1rem;
-  }
-  
-  .modal-footer .btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-  }
-}
-
-/* Scroll personalizado para modal */
-.confirmation-modal::-webkit-scrollbar {
-  width: 6px;
-}
-
-.confirmation-modal::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.confirmation-modal::-webkit-scrollbar-thumb {
-  background: #C41E3A;
-  border-radius: 3px;
-}
-
-.confirmation-modal::-webkit-scrollbar-thumb:hover {
-  background: #a0182e;
+  background: #7a1bd1;
 }
 
 /* Mejoras de accesibilidad móvil */
@@ -1742,9 +1282,10 @@ html {
   .service-card,
   .day-button,
   .time-slot,
-  .payment-method-btn {
-    -webkit-tap-highlight-color: transparent;
-    min-height: 44px !important; /* Tamaño mínimo para touch */
+  .payment-method-btn,
+  .confirm-btn {
+    -webkit-tap-highlight-color: rgba(138, 43, 226, 0.1);
+    min-height: 44px !important;
   }
 
   .service-card:active,
@@ -1752,396 +1293,855 @@ html {
     transform: scale(0.98) !important;
   }
 }
-/* Alerta de turno existente */
-.existing-appointment-alert {
-  border-left: 4px solid #ffc107;
-  background: #fffbf0;
+/* ===== CORRECCIONES PARA PÁGINA DE CONFIRMACIÓN ===== */
+
+/* Asegurar que el título "Servicios" se vea */
+.compact-confirmation .confirmation-section .section-header h6 {
+  color: #495057 !important;
+  font-weight: 700 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 1.1rem !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-.appointment-actions {
-  display: flex;
-  flex-direction: column;
-  min-width: 120px;
+/* Corregir la card de servicio (NO FONDO NEGRO) */
+.compact-confirmation .service-confirmation-item {
+  background: rgba(255, 255, 255, 0.9) !important; /* Fondo blanco semi-transparente */
+  border: 2px solid #e9ecef !important;
+  border-radius: 10px !important;
+  padding: 1rem !important;
+  margin-bottom: 0.75rem !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
 }
 
-/* Scroll suave para móviles */
+.compact-confirmation .service-confirmation-item:hover {
+  border-color: #8a2be2 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.1) !important;
+}
+
+/* Texto del nombre del servicio */
+.compact-confirmation .service-confirmation-item .fw-bold {
+  color: #495057 !important;
+  font-weight: 600 !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-size: 1rem !important;
+  margin-bottom: 0.25rem !important;
+  display: block !important;
+}
+
+/* Duración del servicio */
+.compact-confirmation .service-confirmation-item .small.text-muted {
+  color: #6c757d !important;
+  font-size: 0.85rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+}
+
+/* Icono del reloj en violeta */
+.compact-confirmation .service-confirmation-item .fa-clock {
+  color: #8a2be2 !important;
+  font-size: 0.8rem !important;
+}
+
+/* PRECIO EN VIOLETA, NO EN ROJO */
+.compact-confirmation .service-confirmation-item .text-danger.fw-bold.fs-5 {
+  color: #8a2be2 !important; /* VIOLETA */
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 1.2rem !important;
+  margin-left: 1rem !important;
+}
+
+/* NÚMERO DE CONFIRMACIÓN EN VIOLETA, NO EN ROJO */
+.compact-confirmation .confirmation-number {
+  color: #8a2be2 !important; /* VIOLETA */
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 1.3rem !important;
+  letter-spacing: 1px !important;
+  background: rgba(138, 43, 226, 0.05) !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px !important;
+  border: 2px solid rgba(138, 43, 226, 0.1) !important;
+  display: inline-block !important;
+  margin-top: 0.25rem !important;
+}
+
+/* Asegurar que las secciones tengan buen contraste */
+.compact-confirmation .confirmation-section {
+  background: rgba(255, 255, 255, 0.95) !important; /* Más opaco para mejor legibilidad */
+}
+
+/* Mejorar el contraste del texto en las secciones */
+.compact-confirmation .confirmation-section .detail-item,
+.compact-confirmation .confirmation-section .detail-content,
+.compact-confirmation .confirmation-section .section-header + * {
+  color: #495057 !important;
+  font-weight: 500 !important;
+}
+
+/* Total a pagar en violeta */
+.compact-confirmation .confirmation-section .text-danger.fw-bold.fs-4 {
+  color: #8a2be2 !important; /* VIOLETA */
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 1.5rem !important;
+}
+
+/* Iconos de secciones en violeta */
+.compact-confirmation .section-header h6 i {
+  color: #8a2be2 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Mejorar la visualización de la información del cliente */
+.compact-confirmation .confirmation-section .fw-bold {
+  color: #495057 !important;
+  font-weight: 600 !important;
+}
+
+.compact-confirmation .confirmation-section .text-muted.small {
+  color: #6c757d !important;
+  font-size: 0.9rem !important;
+}
+
+/* Asegurar que todos los elementos sean visibles */
+.compact-confirmation .confirmation-section > * {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Corregir los iconos en el alert de notificaciones */
+.compact-confirmation .alert-success .fa-bell,
+.compact-confirmation .alert-success .fa-check-circle,
+.compact-confirmation .alert-success .fa-clock {
+  color: #8a2be2 !important;
+  font-size: 1.1rem !important;
+}
+
+.compact-confirmation .alert-success strong {
+  color: #495057 !important;
+  font-weight: 600 !important;
+}
+
+/* También corregir en el modal de confirmación del formulario */
+.modal-content .service-price-modal {
+  color: #8a2be2 !important; /* VIOLETA */
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+}
+
+/* Si hay algún fondo negro residual, eliminarlo */
+.compact-confirmation * {
+  background-color: transparent !important;
+}
+
+.compact-confirmation .service-confirmation-item > * {
+  background-color: transparent !important;
+}
+
+/* Asegurar que no haya colores de Bootstrap interfiriendo */
+.compact-confirmation .bg-light {
+  background-color: rgba(248, 249, 250, 0.9) !important;
+}
+
+.compact-confirmation .rounded {
+  border-radius: 10px !important;
+}
+
+/* Responsive para servicios en móvil */
 @media (max-width: 768px) {
-  .confirmation-modal {
-    margin: 20px;
-    max-height: 85vh;
-    overflow-y: auto;
+  .compact-confirmation .service-confirmation-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
   }
   
-  .appointment-actions {
-    flex-direction: row;
-    min-width: auto;
-    width: 100%;
-    justify-content: space-between;
-    margin-top: 10px;
+  .compact-confirmation .service-confirmation-item .text-danger.fw-bold.fs-5 {
+    margin-left: 0 !important;
+    align-self: flex-end !important;
+    margin-top: 0.5rem !important;
   }
   
-  .appointment-actions .btn {
-    flex: 1;
-    margin: 0 5px;
+  .compact-confirmation .confirmation-number {
+    font-size: 1.1rem !important;
+    padding: 0.4rem 0.8rem !important;
   }
-}
-/* Alerta de turno existente */
-.existing-appointment-alert {
-  border-left: 4px solid #ffc107;
-  background: rgba(255, 193, 7, 0.1);
-  border: none;
-  border-radius: 10px;
 }
 
-.appointment-actions {
+/* Si el problema persiste, añadir estas reglas específicas */
+.compact-confirmation [class*="bg-"] {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.compact-confirmation .p-3 {
+  padding: 1rem !important;
+}
+
+/* Asegurar que el layout sea correcto */
+.compact-confirmation .d-flex.justify-content-between.align-items-center {
+  width: 100% !important;
+}
+
+/* Si el precio sigue en rojo, forzar el color violeta */
+.compact-confirmation .service-confirmation-item span[class*="text-"] {
+  color: #8a2be2 !important;
+}
+
+/* También corregir en la sección de resumen de pago */
+.compact-confirmation .confirmation-section .text-danger {
+  color: #8a2be2 !important;
+}
+
+/* Si hay estilos inline que están causando problemas, anularlos */
+.compact-confirmation .service-confirmation-item[style*="background"] {
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+.compact-confirmation .service-confirmation-item[style*="color"] {
+  color: #495057 !important;
+}
+
+/* Corregir también en el modal de confirmación del formulario */
+.modal-content .detail-section .service-price-modal {
+  color: #8a2be2 !important;
+  font-weight: 800 !important;
+}
+
+/* Asegurar que todos los números importantes estén en violeta */
+.compact-confirmation .text-danger,
+.compact-confirmation [class*="danger"] {
+  color: #8a2be2 !important;
+}
+
+/* Regla específica para el número de confirmación si usa una clase diferente */
+.compact-confirmation div:contains("CONF-") {
+  color: #8a2be2 !important;
+}
+
+/* Si el problema es de especificidad, usar !important */
+.compact-confirmation .service-confirmation-item span.fw-bold.fs-5 {
+  color: #8a2be2 !important;
+}
+/* ===== ALERTA DE TURNO EXISTENTE - BLANCA CON VIOLETA ===== */
+.existing-appointment-alert {
+  border-left: 5px solid #8a2be2 !important; /* Borde violeta */
+  background: rgba(255, 255, 255, 0.98) !important; /* Fondo blanco casi sólido */
+  border: 2px solid #e9ecef !important;
+  border-radius: 15px !important;
+  box-shadow: 0 8px 25px rgba(138, 43, 226, 0.15) !important; /* Sombra violeta leve */
+  transition: all 0.3s ease !important;
+  margin-bottom: 1.5rem !important;
+  padding: 1.5rem !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Efecto hover sutil */
+.existing-appointment-alert:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 30px rgba(138, 43, 226, 0.2) !important;
+  border-color: #8a2be2 !important;
+}
+
+/* Título principal */
+.existing-appointment-alert h5 {
+  color: #8a2be2 !important; /* Violeta */
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  margin-bottom: 1rem !important;
+  font-size: 1.4rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Icono del título */
+.existing-appointment-alert h5 i {
+  margin-right: 0.75rem !important;
+  color: #8a2be2 !important;
+  font-size: 1.3rem !important;
+}
+
+/* Contenedor de información del turno */
+.existing-appointment-alert .appointment-details-container {
+  background: rgba(248, 249, 250, 0.7) !important; /* Fondo gris muy claro */
+  border-radius: 12px !important;
+  padding: 1.25rem !important;
+  margin: 1rem 0 !important;
+  border: 1px solid rgba(138, 43, 226, 0.1) !important;
+}
+
+/* Filas de información */
+.existing-appointment-alert .appointment-info-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Items individuales de información */
+.existing-appointment-alert .appointment-info-item {
+  flex: 1 !important;
+  min-width: 250px !important;
+  background: white !important;
+  padding: 1rem !important;
+  border-radius: 10px !important;
+  border: 1px solid #e9ecef !important;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05) !important;
+  transition: all 0.3s ease !important;
+}
+
+.existing-appointment-alert .appointment-info-item:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(138, 43, 226, 0.1) !important;
+  border-color: #8a2be2 !important;
+}
+
+/* Etiquetas de información (Fecha, Hora, Servicios, Total) */
+.existing-appointment-alert .appointment-info-item strong {
+  color: #8a2be2 !important; /* Violeta */
+  font-weight: 700 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-size: 0.95rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+}
+
+/* Valores de la información */
+.existing-appointment-alert .appointment-info-item p {
+  color: #495057 !important; /* Texto oscuro para buen contraste */
+  font-weight: 500 !important;
+  margin: 0 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.4 !important;
+}
+
+/* Línea divisoria */
+.existing-appointment-alert hr {
+  border-color: rgba(138, 43, 226, 0.2) !important;
+  opacity: 0.5 !important;
+  margin: 1.5rem 0 !important;
+}
+
+/* Texto de instrucciones */
+.existing-appointment-alert .alert-instructions {
+  color: #6c757d !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  margin-top: 1rem !important;
+}
+
+/* Icono de información */
+.existing-appointment-alert .alert-instructions i {
+  color: #8a2be2 !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Contenedor de botones */
+.existing-appointment-alert .appointment-actions {
   min-width: 150px;
+  margin-top: 1.5rem !important;
+  display: flex !important;
+  gap: 1rem !important;
+}
+
+/* Botones */
+.existing-appointment-alert .appointment-actions .btn {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  font-family: 'Montserrat', sans-serif !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+  padding: 0.75rem 1.5rem !important;
+  border: 2px solid !important;
+  flex: 1 !important;
+  text-align: center !important;
+}
+
+/* Botón Cancelar */
+.existing-appointment-alert .appointment-actions .btn-outline-danger {
+  background: white !important;
+  border-color: #8a2be2 !important; /* Violeta en lugar de rojo */
+  color: #8a2be2 !important;
+}
+
+.existing-appointment-alert .appointment-actions .btn-outline-danger:hover {
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
+  border-color: #8a2be2 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.25) !important;
+}
+
+/* Botón Modificar */
+.existing-appointment-alert .appointment-actions .btn-outline-primary {
+  background: white !important;
+  border-color: #8a2be2 !important;
+  color: #8a2be2 !important;
+}
+
+.existing-appointment-alert .appointment-actions .btn-outline-primary:hover {
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
+  border-color: #8a2be2 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.25) !important;
 }
 
 /* Responsive para la alerta */
 @media (max-width: 768px) {
-  .appointment-actions {
-    width: 100%;
-    min-width: auto;
+  .existing-appointment-alert {
+    padding: 1.25rem !important;
+    margin: 0.75rem !important;
   }
   
-  .appointment-actions .btn {
-    margin: 5px 0;
+  .existing-appointment-alert h5 {
+    font-size: 1.2rem !important;
   }
-}
-/* ===== ESTILOS PARA NUEVOS SERVICIOS CON PRECIOS ALTOS ===== */
-
-/* Tarjeta de servicio ajustada para nombres largos */
-.service-card {
-  background: white !important;
-  border: 2px solid #e9ecef !important;
-  border-radius: 12px !important;
-  padding: 1rem !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: flex !important;
-  align-items: center !important;
-  position: relative !important;
-  min-height: 80px !important;
-  margin-bottom: 0.75rem !important;
-}
-
-.service-content {
-  flex-grow: 1 !important;
-  min-width: 0; /* Para evitar que el contenido se desborde */
-}
-
-.service-name {
-  color: #495057 !important;
-  font-weight: 600 !important;
-  font-family: 'Montserrat', sans-serif !important;
-  margin-bottom: 0.5rem !important;
-  font-size: 1rem !important;
-  word-break: break-word; /* Para nombres largos */
-  line-height: 1.3;
-}
-
-.service-details {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  flex-wrap: wrap; /* Para que en móvil se apilen */
-  gap: 0.5rem;
-}
-
-.service-price {
-  color: #C41E3A !important;
-  font-weight: 700 !important;
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 1.1rem !important;
-  white-space: nowrap; /* Para que el precio no se rompa */
-}
-
-.service-duration {
-  color: #6c757d !important;
-  font-size: 0.9rem !important;
-  font-family: 'Inter', sans-serif !important;
-  white-space: nowrap;
-}
-
-/* Resumen ajustado */
-.service-summary-name {
-  flex: 1;
-  word-break: break-word;
-  padding-right: 1rem;
-}
-
-.service-summary-price {
-  white-space: nowrap;
-  font-weight: 700;
-}
-
-/* Para móvil, ajustar los servicios */
-@media (max-width: 768px) {
-  .service-card {
-    flex-direction: row !important;
-    text-align: left !important;
-    padding: 1rem !important;
-    min-height: 80px !important;
-  }
-
-  .service-icon {
-    margin-right: 1rem !important;
-    margin-bottom: 0 !important;
-    font-size: 1.5rem !important;
-    flex-shrink: 0;
-  }
-
-  .service-name {
-    font-size: 0.95rem !important;
-    line-height: 1.2;
-  }
-
-  .service-details {
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    width: 100%;
-  }
-
-  .service-price {
-    font-size: 1rem !important;
-  }
-
-  .service-duration {
-    font-size: 0.85rem !important;
-  }
-}
-
-@media (max-width: 576px) {
-  .service-name {
-    font-size: 0.9rem !important;
-  }
-
-  .service-details {
+  
+  .existing-appointment-alert .appointment-info-row {
     flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 0.25rem;
+    gap: 0.75rem !important;
   }
-
-  .service-price {
-    font-size: 0.95rem !important;
+  
+  .existing-appointment-alert .appointment-info-item {
+    min-width: 100% !important;
+  }
+  
+  .existing-appointment-alert .appointment-actions {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+  
+  .existing-appointment-alert .appointment-actions .btn {
+    width: 100% !important;
   }
 }
 
-/* Ajustes para el modal de confirmación con precios altos */
-.service-name-modal {
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 0.25rem;
-  word-break: break-word;
-  line-height: 1.2;
+/* Efecto decorativo sutil */
+.existing-appointment-alert::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #8a2be2, #b95ec7, #8a2be2);
+  z-index: 1;
 }
 
-.service-price-modal {
-  font-weight: 700;
-  color: #C41E3A;
-  font-size: 1rem;
-  white-space: nowrap;
-  margin-left: 1rem;
-}
-
-/* Asegurar que el total se vea bien con precios altos */
-.total-section .detail-content {
-  font-size: 1.3rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-/* ===== ESTILOS PARA NUEVOS SERVICIOS CON PRECIOS ALTOS ===== */
-
-/* Tarjeta de servicio ajustada para nombres largos */
-.service-card {
-  background: white !important;
-  border: 2px solid #e9ecef !important;
-  border-radius: 12px !important;
-  padding: 1rem !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: flex !important;
-  align-items: center !important;
+/* Asegurar que el contenido esté por encima del efecto decorativo */
+.existing-appointment-alert > * {
   position: relative !important;
-  min-height: 80px !important;
-  margin-bottom: 0.75rem !important;
+  z-index: 2 !important;
 }
 
-.service-content {
-  flex-grow: 1 !important;
-  min-width: 0; /* Para evitar que el contenido se desborde */
-}
-
-.service-name {
-  color: #495057 !important;
-  font-weight: 600 !important;
-  font-family: 'Montserrat', sans-serif !important;
-  margin-bottom: 0.5rem !important;
-  font-size: 1rem !important;
-  word-break: break-word; /* Para nombres largos */
-  line-height: 1.3;
-}
-
-.service-details {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  flex-wrap: wrap; /* Para que en móvil se apilen */
-  gap: 0.5rem;
-}
-
-.service-price {
-  color: #C41E3A !important;
-  font-weight: 700 !important;
-  font-family: 'Montserrat', sans-serif !important;
-  font-size: 1.1rem !important;
-  white-space: nowrap; /* Para que el precio no se rompa */
-}
-
-.service-duration {
-  color: #6c757d !important;
+/* Mejorar los iconos dentro de los items de información */
+.existing-appointment-alert .appointment-info-item i {
+  color: #8a2be2 !important;
+  margin-right: 0.5rem !important;
   font-size: 0.9rem !important;
-  font-family: 'Inter', sans-serif !important;
-  white-space: nowrap;
 }
 
-/* Resumen ajustado */
-.service-summary-name {
-  flex: 1;
-  word-break: break-word;
-  padding-right: 1rem;
+/* Si hay estilos heredados que están causando transparencia, anularlos */
+.existing-appointment-alert[style*="background"] {
+  background: rgba(255, 255, 255, 0.98) !important;
 }
 
-.service-summary-price {
-  white-space: nowrap;
-  font-weight: 700;
+.existing-appointment-alert[style*="opacity"] {
+  opacity: 1 !important;
 }
 
-/* ===== MEJORAS PARA SCROLL AUTOMÁTICO ===== */
+/* Asegurar que el texto sea siempre legible */
+.existing-appointment-alert,
+.existing-appointment-alert * {
+  background-color: transparent !important;
+}
+
+.existing-appointment-alert .appointment-info-item {
+  background-color: white !important;
+}
+/* ===== ALERTA DE TURNO EXISTENTE - CORREGIDA (NO TRANSPARENTE) ===== */
+.existing-appointment-alert {
+  border-left: 5px solid #8a2be2 !important;
+  background: #ffffff !important; /* BLANCO SÓLIDO - NO TRANSPARENTE */
+  border: 2px solid #e9ecef !important;
+  border-radius: 15px !important;
+  box-shadow: 0 8px 25px rgba(138, 43, 226, 0.15) !important;
+  margin-bottom: 2rem !important;
+  padding: 1.5rem !important;
+}
+
+.existing-appointment-alert:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 30px rgba(138, 43, 226, 0.2) !important;
+  border-color: #8a2be2 !important;
+}
+
+.existing-appointment-alert h5 {
+  color: #8a2be2 !important;
+  font-weight: 800 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  margin-bottom: 1rem !important;
+  font-size: 1.3rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.existing-appointment-alert h5 i {
+  margin-right: 0.5rem !important;
+  color: #8a2be2 !important;
+}
+
+.existing-appointment-alert p {
+  color: #333333 !important; /* Texto oscuro para mejor contraste */
+  font-weight: 500 !important;
+  margin-bottom: 0.5rem !important;
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+}
+
+.existing-appointment-alert p strong {
+  color: #8a2be2 !important;
+  font-weight: 700 !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+}
+
+.existing-appointment-alert hr {
+  border-color: rgba(138, 43, 226, 0.2) !important;
+  margin: 1.25rem 0 !important;
+}
+
+.existing-appointment-alert .appointment-actions {
+  min-width: 150px;
+  margin-top: 1rem !important;
+}
+
+.existing-appointment-alert .appointment-actions .btn {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  font-family: 'Montserrat', sans-serif !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+  padding: 0.5rem 1rem !important;
+  border: 2px solid !important;
+}
+
+/* Versión MÁS SIMPLE - Si la de arriba no funciona */
+.existing-appointment-alert.alert-warning {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Fuerza el fondo blanco */
+.existing-appointment-alert {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Si Bootstrap está sobrescribiendo, usar !important */
+.alert-warning.existing-appointment-alert {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+/* ===== MÁRGENES PARA NO TAPAR LA NAVBAR ===== */
+.client-dashboard-container {
+  padding-top: 140px !important;
+  /* Si sigue tapando, aumenta este valor */
+}
+
+.compact-confirmation {
+  padding-top: 140px !important; /* Igual que el dashboard */
+  padding-bottom: 50px !important;
+}
+
+/* Si sigue tapando, prueba con esto */
 @media (max-width: 768px) {
-  /* Scroll suave para elementos importantes */
-  .time-selection,
-  .services-payment-card,
+  .client-dashboard-container {
+    padding-top: 160px !important; /* Más espacio en móvil */
+  }
+  
+  .compact-confirmation {
+    padding-top: 160px !important;
+  }
+}
+
+/* O esta opción más agresiva si persiste el problema */
+body {
+  padding-top: 80px !important; /* Espacio global */
+}
+
+.navbar-fixed-top {
+  height: 80px !important;
+}
+
+/* ===== ANIMACIONES PARA MÓVIL ===== */
+
+/* Animación al cargar la página */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Animaciones para móvil */
+@media (max-width: 768px) {
+  /* Animación al cargar */
+  .client-dashboard-container {
+    animation: fadeInUp 0.6s ease-out;
+  }
+  
+  /* Animación del calendario */
   .appointment-calendar-card {
-    scroll-margin-top: 100px; /* Ajusta según la altura de tu navbar */
+    animation: slideInLeft 0.5s ease-out 0.2s both;
   }
   
-  /* Asegurar que los elementos sean tap-highlight */
-  .service-card,
-  .day-button,
-  .time-slot,
-  .payment-method-btn,
-  .confirm-btn {
-    -webkit-tap-highlight-color: rgba(196, 30, 58, 0.1);
+  /* Animación del formulario */
+  .services-payment-card {
+    animation: slideInRight 0.5s ease-out 0.3s both;
   }
   
-  /* Animación sutil para el alert de confirmación */
-  .alert-success[ref] {
-    animation: pulse-gentle 2s ease-in-out;
+  /* Animación de alertas */
+  .welcome-alert,
+  .existing-appointment-alert,
+  .alert {
+    animation: scaleIn 0.4s ease-out;
   }
   
-  @keyframes pulse-gentle {
-    0%, 100% {
-      box-shadow: 0 0 0 rgba(25, 135, 84, 0);
-    }
-    50% {
-      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.1);
-    }
-  }
-}
-
-/* Para scroll más suave en móvil */
-@media (max-width: 768px) {
-  html {
-    scroll-behavior: smooth;
+  /* Animación de botones de día */
+  .day-button {
+    animation: fadeInUp 0.4s ease-out;
+    animation-fill-mode: both;
   }
   
-  /* Evitar saltos bruscos */
-  * {
-    scroll-snap-type: y proximity;
+  /* Retraso escalonado para botones de día */
+  .day-button:nth-child(1) { animation-delay: 0.1s; }
+  .day-button:nth-child(2) { animation-delay: 0.15s; }
+  .day-button:nth-child(3) { animation-delay: 0.2s; }
+  .day-button:nth-child(4) { animation-delay: 0.25s; }
+  .day-button:nth-child(5) { animation-delay: 0.3s; }
+  .day-button:nth-child(6) { animation-delay: 0.35s; }
+  
+  /* Animación de horarios */
+  .time-slot {
+    animation: fadeInUp 0.3s ease-out;
+    animation-fill-mode: both;
   }
   
-  /* Elementos importantes para snap */
-  .calendar-header,
-  .time-selection h6,
-  .services-label,
-  .payment-label {
-    scroll-snap-align: start;
-  }
-}
-
-/* Para móvil, ajustar los servicios */
-@media (max-width: 768px) {
+  /* Retraso escalonado para horarios */
+  .time-slot:nth-child(1) { animation-delay: 0.1s; }
+  .time-slot:nth-child(2) { animation-delay: 0.15s; }
+  .time-slot:nth-child(3) { animation-delay: 0.2s; }
+  .time-slot:nth-child(4) { animation-delay: 0.25s; }
+  .time-slot:nth-child(5) { animation-delay: 0.3s; }
+  .time-slot:nth-child(6) { animation-delay: 0.35s; }
+  
+  /* Animación de servicios */
   .service-card {
-    flex-direction: row !important;
-    text-align: left !important;
-    padding: 1rem !important;
-    min-height: 80px !important;
+    animation: fadeInUp 0.4s ease-out;
+    animation-fill-mode: both;
   }
-
-  .service-icon {
-    margin-right: 1rem !important;
-    margin-bottom: 0 !important;
-    font-size: 1.5rem !important;
-    flex-shrink: 0;
+  
+  .service-card:nth-child(1) { animation-delay: 0.1s; }
+  .service-card:nth-child(2) { animation-delay: 0.2s; }
+  .service-card:nth-child(3) { animation-delay: 0.3s; }
+  .service-card:nth-child(4) { animation-delay: 0.4s; }
+  
+  /* Animación del botón de confirmar */
+  .confirm-btn {
+    animation: pulse 2s infinite 1s;
   }
-
-  .service-name {
-    font-size: 0.95rem !important;
-    line-height: 1.2;
+  
+  /* Efecto al hacer tap en móvil */
+  .service-card:active,
+  .day-button:active,
+  .time-slot:active,
+  .payment-method-btn:active {
+    animation: scaleTap 0.2s ease-out;
   }
-
-  .service-details {
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    width: 100%;
+  
+  @keyframes scaleTap {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
   }
-
-  .service-price {
-    font-size: 1rem !important;
+  
+  /* Animación al scroll */
+  .scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease-out;
   }
+  
+  .scroll-animate.animated {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Animación para el modal */
+  .confirmation-modal {
+    animation: modalMobileIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  @keyframes modalMobileIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8) translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  /* Animación de página de confirmación */
+  .compact-confirmation .confirmation-card {
+    animation: fadeInUp 0.6s ease-out;
+  }
+  
+  .compact-confirmation .confirmation-section {
+    animation: slideInRight 0.4s ease-out;
+    animation-fill-mode: both;
+  }
+  
+  .compact-confirmation .confirmation-section:nth-child(1) { animation-delay: 0.1s; }
+  .compact-confirmation .confirmation-section:nth-child(2) { animation-delay: 0.2s; }
+  .compact-confirmation .confirmation-section:nth-child(3) { animation-delay: 0.3s; }
+  .compact-confirmation .confirmation-section:nth-child(4) { animation-delay: 0.4s; }
+  .compact-confirmation .confirmation-section:nth-child(5) { animation-delay: 0.5s; }
+}
 
-  .service-duration {
-    font-size: 0.85rem !important;
+/* Animaciones para scroll automático suave */
+@media (max-width: 768px) {
+  /* Scroll suave con indicador visual */
+  .time-selection[data-scrolled="true"],
+  .services-payment-card[data-scrolled="true"] {
+    animation: highlightPulse 1.5s ease-out;
+  }
+  
+  @keyframes highlightPulse {
+    0% { box-shadow: 0 0 0 rgba(138, 43, 226, 0); }
+    50% { box-shadow: 0 0 0 5px rgba(138, 43, 226, 0.2); }
+    100% { box-shadow: 0 0 0 rgba(138, 43, 226, 0); }
+  }
+  
+  /* Indicador de scroll */
+  .scroll-indicator {
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
   }
 }
 
-@media (max-width: 576px) {
-  .service-name {
-    font-size: 0.9rem !important;
+/* Efectos de transición para cambios de estado */
+@media (max-width: 768px) {
+  /* Transición al seleccionar fecha */
+  .day-button.selected {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  .service-details {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 0.25rem;
+  
+  /* Transición al seleccionar horario */
+  .time-slot.btn-primary {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  .service-price {
-    font-size: 0.95rem !important;
+  
+  /* Transición al seleccionar servicio */
+  .service-card.selected {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-}
-
-/* Ajustes para el modal de confirmación con precios altos */
-.service-name-modal {
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 0.25rem;
-  word-break: break-word;
-  line-height: 1.2;
-}
-
-.service-price-modal {
-  font-weight: 700;
-  color: #C41E3A;
-  font-size: 1rem;
-  white-space: nowrap;
-  margin-left: 1rem;
-}
-
-/* Asegurar que el total se vea bien con precios altos */
-.total-section .detail-content {
-  font-size: 1.3rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  
+  /* Efecto de carga */
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Notificación de éxito */
+  .alert-success {
+    animation: slideInDown 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  @keyframes slideInDown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 }
