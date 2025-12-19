@@ -73,20 +73,24 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
   const totalDuration = selectedServices.reduce((sum, service) => sum + service.duration, 0);
 
   const handleServiceToggle = (service) => {
-    setSelectedServices(prev => {
-      const isSelected = prev.find(s => s.id === service.id);
-      if (isSelected) {
-        return prev.filter(s => s.id !== service.id);
-      } else {
-        const newSelection = [...prev, service];
-        // Llamar al callback cuando se selecciona un servicio
-        if (onServiceSelected) {
-          onServiceSelected();
-        }
-        return newSelection;
-      }
-    });
-  };
+  setSelectedServices(prev => {
+    const isSelected = prev.find(s => s.id === service.id);
+    let newSelection;
+    
+    if (isSelected) {
+      newSelection = prev.filter(s => s.id !== service.id);
+    } else {
+      newSelection = [...prev, service];
+    }
+    
+    // Llamar al callback cuando se selecciona o deselecciona un servicio
+    if (onServiceSelected) {
+      onServiceSelected(newSelection);
+    }
+    
+    return newSelection;
+  });
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();

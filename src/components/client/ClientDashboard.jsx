@@ -252,6 +252,26 @@ function ClientDashboard() {
 
   return (
     <Container className="client-dashboard-container">
+      {/* === ALERTA INFORMATIVA SOBRE SEÑA === */}
+      {!existingAppointment && (
+        <Alert variant="warning" className="deposit-info-alert mb-4">
+          <div className="d-flex align-items-start">
+            <div className="me-3">
+              <i className="fa-solid fa-money-bill-wave fa-2x text-warning"></i>
+            </div>
+            <div>
+              <h5 className="mb-2">
+                <i className="fa-solid fa-info-circle me-2"></i>
+                ¡Importante! Seña requerida
+              </h5>
+              <p className="mb-0">
+                Para confirmar tu turno, <strong>necesitarás realizar una seña del 50%</strong> del total de los servicios seleccionados mediante <strong>transferencia bancaria</strong>.
+              </p>
+            </div>
+          </div>
+        </Alert>
+      )}
+
       {/* === ALERTA DE TURNO EXISTENTE === */}
       {loadingAppointments ? (
         <div className="text-center mb-4">

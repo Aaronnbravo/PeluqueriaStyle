@@ -655,7 +655,7 @@ export const sendAdminWhatsAppNotification = (appointment) => {
   try {
     const barberInfo = appointment.barber ? `💇 *Peluquero:* ${appointment.barber.name}\n` : '';
     
-    // Filtrar servicios que no son "Consultar"
+    // Filtrar servicios
     const paidServices = appointment.services.filter(s => s.price > 0);
     const consultServices = appointment.services.filter(s => s.price === 0);
     
@@ -668,6 +668,13 @@ export const sendAdminWhatsAppNotification = (appointment) => {
       servicesList += consultServices.map(s => `• ${s.name} - (Consultar precio)`).join('\n');
     }
     
+    // Información de señal
+    const depositInfo = appointment.depositAmount > 0 ? 
+      `\n💰 *SEÑA REQUERIDA:* $${appointment.depositAmount} (50%)
+   📋 *Estado:* ${appointment.depositStatus === 'pending' ? '❌ PENDIENTE' : '✅ PAGADA'}
+   💳 *Método:* ${appointment.depositPaymentMethod || 'Transferencia'}` : 
+      '\n💰 *SEÑA:* No requiere (servicios a consultar)';
+    
     const message = `📅 *NUEVO TURNO SOLICITADO* 📅
 
 👤 *Cliente:* ${appointment.clientName}
@@ -679,13 +686,15 @@ ${barberInfo}📅 *Fecha:* ${formatDateForDisplay(appointment.date)} a las ${app
 ${servicesList}
 
 💰 *Total:* $${appointment.total}
-💳 *Método de pago:* ${appointment.paymentMethod}
+${depositInfo}
+
+💳 *Método de pago final:* ${appointment.paymentMethod}
 
 📝 *Notas:* ${appointment.notes || 'Ninguna'}
 
 🆔 *ID de turno:* ${appointment.confirmationNumber}
 
-⚠️ *Por favor confirmar el turno con el cliente*`;
+⚠️ *El turno se confirmará cuando se reciba la seña*`;
 
     const whatsappUrl = `https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(message)}`;
     
@@ -771,12 +780,27 @@ export const createAppointmentWithNotifications = async (appointmentData) => {
   try {
     console.log('📝 Creando turno con datos:', appointmentData);
     
+    // Calcular señal (50% del total, solo de servicios con precio)
+    const totalWithPrice = appointmentData.services
+      .filter(service => service.price > 0)
+      .reduce((sum, service) => sum + service.price, 0);
+    
+    const depositAmount = Math.round(totalWithPrice * 0.5);
+    
     const formattedAppointmentData = {
       ...appointmentData,
       date: getLocalDateString(appointmentData.date),
-      confirmationNumber: 'CONF-' + Date.now().toString().slice(-6)
+      confirmationNumber: 'CONF-' + Date.now().toString().slice(-6),
+      // Campos para la señal
+      depositAmount: depositAmount,
+      depositStatus: 'pending', // pending, paid, completed, cancelled
+      depositRequired: depositAmount > 0,
+      depositPaymentMethod: 'transferencia',
+      depositPaidAt: null,
+      totalWithDeposit: appointmentData.total // El total ya incluye todo
     };
     
+    console.log('💰 Señal calculada:', depositAmount);
     console.log('📅 Fecha normalizada:', formattedAppointmentData.date);
     
     // Crear el turno en Firestore
@@ -784,7 +808,7 @@ export const createAppointmentWithNotifications = async (appointmentData) => {
     
     console.log('✅ Turno creado en Firestore:', newAppointment);
     
-    // 1. Enviar WhatsApp inmediato al ADMIN
+    // Enviar WhatsApp al ADMIN con info de señal
     setTimeout(() => {
       const sent = sendAdminWhatsAppNotification(newAppointment);
       if (sent) {
@@ -794,10 +818,10 @@ export const createAppointmentWithNotifications = async (appointmentData) => {
       }
     }, 1000);
     
-    // 2. Programar recordatorio para el CLIENTE
+    // Programar recordatorio
     const reminder = scheduleClientReminder(newAppointment);
     
-    // 3. Enviar confirmación inmediata al cliente
+    // Enviar confirmación con info de señal
     const confirmation = sendImmediateConfirmation(newAppointment);
     
     return {
