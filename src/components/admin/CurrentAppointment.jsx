@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { Card, Row, Col, Badge, Button } from 'react-bootstrap'
 import { getAppointments, updateAppointmentStatus, getLocalDateString } from '../../services/appointments'
+import { useAuth } from '../../hooks/useAuth'
 
 function CurrentAppointment() {
   const [currentAppointment, setCurrentAppointment] = useState(null)
   const [nextAppointment, setNextAppointment] = useState(null)
   const [loading, setLoading] = useState(true)
+  
+  // Obtener barberId del usuario actual
+  const { getBarberId, getBarberName } = useAuth()
+  const currentBarberId = getBarberId()
+  const currentBarberName = getBarberName()
 
   useEffect(() => {
     loadCurrentAppointments()
@@ -17,7 +23,8 @@ function CurrentAppointment() {
   const loadCurrentAppointments = async () => {
     try {
       setLoading(true)
-      const allAppointments = await getAppointments()
+      // Obtener solo los turnos del peluquero actual
+      const allAppointments = await getAppointments(currentBarberId)
       const now = new Date()
       
       // Obtener fecha de hoy en formato YYYY-MM-DD
@@ -32,7 +39,7 @@ function CurrentAppointment() {
       // Ordenar por hora
       todayAppointments.sort((a, b) => a.time?.localeCompare(b.time) || 0)
       
-      console.log(`📅 Turnos de hoy (${today}):`, todayAppointments.length)
+      console.log(`📅 Turnos de hoy (${today}) para ${currentBarberName}:`, todayAppointments.length)
       
       // Encontrar turno actual (en progreso)
       const inProgress = todayAppointments.find(apt => apt.status === 'in_progress')
@@ -103,7 +110,7 @@ function CurrentAppointment() {
       <Card.Header className="bg-primary text-white">
         <h5 className="mb-0">
           <i className="fas fa-user-clock me-2"></i>
-          Turnos del Día - En Vivo
+          Turnos del Día - {currentBarberName} - En Vivo
         </h5>
       </Card.Header>
       <Card.Body>

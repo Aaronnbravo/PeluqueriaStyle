@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Modal, Form, Button, Row, Col, Card, Alert, Badge } from 'react-bootstrap'
 import { searchUsers, getServices, createAdminAppointment, getAvailableTimeSlots } from '../../services/appointments'
+import { useAuth } from '../../hooks/useAuth'
 
 function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
   const [step, setStep] = useState(1)
@@ -14,6 +15,11 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [alert, setAlert] = useState({ show: false, message: '', variant: '' })
+  
+  // Obtener barberId del usuario actual
+  const { getBarberId, getBarberName } = useAuth()
+  const currentBarberId = getBarberId()
+  const currentBarberName = getBarberName()
 
   useEffect(() => {
     if (show) {
@@ -26,13 +32,14 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
 
   const loadServices = () => {
     const servicesData = getServices()
-    // Aquí ya deberían venir solo los 4 servicios que actualizaste
     setServices(servicesData || [])
   }
 
   const loadAvailableSlots = async (date) => {
     try {
-      const slots = await getAvailableTimeSlots(date)
+      // Obtener barber actual para los slots disponibles
+      const barber = currentBarberId ? { id: currentBarberId, name: currentBarberName } : null;
+      const slots = await getAvailableTimeSlots(date, barber, selectedServices)
       setAvailableSlots(Array.isArray(slots) ? slots : [])
       
       if (selectedTime && Array.isArray(slots) && slots.includes(selectedTime)) {
@@ -101,12 +108,14 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
       duration: calculateDuration(),
       paymentMethod: 'Efectivo', // Default
       notes: notes,
-      userId: selectedUser.id
+      userId: selectedUser.id,
+      barberId: currentBarberId, // ASIGNAR AUTOMÁTICAMENTE el barberId del usuario logueado
+      barberName: currentBarberName // Agregar nombre del peluquero para referencia
     }
 
     try {
       await createAdminAppointment(appointmentData)
-      showAlert('Turno agendado exitosamente', 'success')
+      showAlert(`Turno agendado exitosamente con ${currentBarberName}`, 'success')
       setTimeout(() => {
         resetForm()
         onHide()
@@ -142,7 +151,7 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
       <Modal.Header closeButton>
         <Modal.Title>
           <i className="fas fa-calendar-plus me-2"></i>
-          Agendar Turno Manual
+          Agendar Turno Manual - {currentBarberName}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -240,7 +249,7 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
         {step === 2 && selectedUser && (
           <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <h5>Servicios y Horario</h5>
+              <h5>Servicios y Horario - {currentBarberName}</h5>
               <Button variant="outline-secondary" size="sm" onClick={() => setStep(1)}>
                 <i className="fas fa-arrow-left me-1"></i> Volver a buscar
               </Button>
@@ -268,7 +277,7 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
               </Card.Body>
             </Card>
 
-            {/* Selección de servicios - AHORA SOLO 4 */}
+            {/* Selección de servicios */}
             <Form.Group className="mb-4">
               <Form.Label className="h6">Seleccionar Servicios</Form.Label>
               <Row>
@@ -344,6 +353,10 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
                             ${calculateTotal().toLocaleString('es-AR')}
                           </Badge>
                         </div>
+                        <small className="text-muted d-block mt-2">
+                          <i className="fas fa-user-tie me-1"></i>
+                          Peluquero: {currentBarberName}
+                        </small>
                       </div>
                     </Col>
                   </Row>
@@ -372,7 +385,7 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
               )}
               {selectedDate && availableSlots.length === 0 && (
                 <Form.Text className="text-danger">
-                  No hay horarios disponibles para esta fecha
+                  No hay horarios disponibles para esta fecha con {currentBarberName}
                 </Form.Text>
               )}
             </Form.Group>
@@ -399,7 +412,7 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
                 className="confirm-btn"
               >
                 <i className="fas fa-calendar-check me-2"></i>
-                Confirmar Turno - ${calculateTotal().toLocaleString('es-AR')}
+                Confirmar Turno con {currentBarberName} - ${calculateTotal().toLocaleString('es-AR')}
               </Button>
             </div>
           </div>

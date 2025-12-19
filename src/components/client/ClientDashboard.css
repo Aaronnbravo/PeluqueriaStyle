@@ -2145,3 +2145,275 @@ body {
     }
   }
 }
+/* ===== ESTILOS PARA SELECTOR DE PELUQUERO ===== */
+.barber-option {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+  min-height: 80px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+}
+
+.barber-option:hover {
+  transform: translateY(-3px) !important;
+  border-color: #8a2be2 !important;
+  box-shadow: 0 8px 18px rgba(138, 43, 226, 0.15) !important;
+}
+
+.barber-option.selected {
+  border-color: #8a2be2 !important;
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.05) 0%, rgba(185, 94, 199, 0.03) 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.2) !important;
+}
+
+.barber-option-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 1rem;
+  border: 3px solid #e9ecef;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.barber-option.selected .barber-option-image {
+  border-color: #8a2be2;
+}
+
+.barber-option-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.barber-option-info {
+  flex-grow: 1;
+}
+
+.barber-option-info h6 {
+  color: #495057;
+  font-weight: 700;
+  font-family: 'Engine', 'Montserrat', sans-serif;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.barber-option-info small {
+  font-size: 0.85rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+}
+
+.barber-option-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #8a2be2;
+  font-size: 1.2rem;
+}
+
+/* Card completa del selector de peluquero */
+.barber-selector-card {
+  border: 3px solid #e9ecef !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+  transition: all 0.4s ease-in-out !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(5px) !important;
+  overflow: hidden !important;
+  margin-bottom: 2rem !important;
+}
+
+.barber-selector-card:hover {
+  border-color: #8a2be2 !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 30px rgba(138, 43, 226, 0.15) !important;
+}
+
+.barber-selector-card .card-header {
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%) !important;
+  border-bottom: 3px solid #8a2be2 !important;
+  font-weight: 600;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  border-radius: 20px 20px 0 0 !important;
+  padding: 1.2rem 1.5rem !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important;
+}
+
+/* Tarjetas individuales de peluquero */
+.barber-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 15px !important;
+  padding: 1.5rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important;
+  text-align: center !important;
+}
+
+.barber-card:hover {
+  transform: translateY(-5px) scale(1.02) !important;
+  border-color: #8a2be2 !important;
+  box-shadow: 0 10px 25px rgba(138, 43, 226, 0.15) !important;
+}
+
+.barber-card.selected {
+  border-color: #8a2be2 !important;
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.08) 0%, rgba(185, 94, 199, 0.05) 100%) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 20px rgba(138, 43, 226, 0.2) !important;
+}
+
+.barber-image-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1rem auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.barber-card.selected .barber-image-container {
+  border-color: #8a2be2;
+}
+
+.barber-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.barber-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #8a2be2;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  border: 3px solid white;
+}
+
+.barber-info {
+  text-align: center;
+}
+
+.barber-name {
+  color: #495057;
+  font-weight: 800;
+  font-family: 'Engine', 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.barber-description {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  min-height: 40px;
+}
+
+.barber-interval {
+  display: flex;
+  justify-content: center;
+}
+
+.interval-badge {
+  background: rgba(138, 43, 226, 0.1);
+  color: #8a2be2;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+
+.selected-indicator {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  color: #8a2be2;
+  font-size: 1.5rem;
+  animation: pulseCheck 1.5s infinite;
+}
+
+@keyframes pulseCheck {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Responsive para selector de peluquero */
+@media (max-width: 768px) {
+  .barber-option {
+    min-height: 70px !important;
+    padding: 0.75rem !important;
+  }
+  
+  .barber-option-image {
+    width: 50px;
+    height: 50px;
+    margin-right: 0.75rem;
+  }
+  
+  .barber-card {
+    padding: 1rem !important;
+  }
+  
+  .barber-image-container {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .barber-name {
+    font-size: 1.1rem;
+  }
+  
+  .barber-description {
+    font-size: 0.85rem;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .barber-option {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem !important;
+  }
+  
+  .barber-option-image {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .barber-card {
+    padding: 0.75rem !important;
+  }
+  
+  .barber-image-container {
+    width: 70px;
+    height: 70px;
+  }
+}
+

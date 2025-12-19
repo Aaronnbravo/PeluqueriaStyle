@@ -26,17 +26,32 @@ const PAYMENT_METHODS = [
   'Transferencia Bancaria'
 ];
 
+// Constantes de peluqueros
+const BARBERS = [
+  {
+    id: 'santi',
+    name: 'Santiago',
+    image: '/src/images/Barbers/Santuu.jpg',
+    interval: 30, // minutos entre turnos
+    description: 'Corte clásico y moderno'
+  },
+  {
+    id: 'mili',
+    name: 'Mili',
+    image: '/src/images/Barbers/Mili.JPG',
+    interval: 45, // minutos entre turnos
+    description: 'Coloración y estilismo'
+  }
+];
+
 // ========== FUNCIONES AUXILIARES DE FECHA ==========
 
 // Función para convertir cualquier fecha a YYYY-MM-DD sin problemas de zona horaria
 export const getLocalDateString = (dateInput) => {
   if (!dateInput) return '';
   
-  console.log('🔄 getLocalDateString input:', dateInput, 'tipo:', typeof dateInput);
-  
   // Si ya es string YYYY-MM-DD, devolverlo
   if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
-    console.log('✅ Ya está en YYYY-MM-DD:', dateInput);
     return dateInput;
   }
   
@@ -44,7 +59,6 @@ export const getLocalDateString = (dateInput) => {
   if (typeof dateInput === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateInput)) {
     const [day, month, year] = dateInput.split('/');
     const result = `${year}-${month}-${day}`;
-    console.log('🔄 Convertido de DD/MM/YYYY a YYYY-MM-DD:', dateInput, '->', result);
     return result;
   }
   
@@ -69,7 +83,6 @@ export const getLocalDateString = (dateInput) => {
   const day = String(date.getDate()).padStart(2, '0');
   
   const result = `${year}-${month}-${day}`;
-  console.log('📅 Convertido a YYYY-MM-DD:', dateInput, '->', result);
   return result;
 };
 
@@ -135,14 +148,94 @@ export const isTimeInPast = (dateString, time) => {
   return false;
 };
 
+// ========== FUNCIONES PARA PELUQUEROS ==========
+
+// Obtener todos los peluqueros
+export const getBarbers = () => {
+  return BARBERS;
+};
+
+// Obtener peluquero por ID
+export const getBarberById = (id) => {
+  return BARBERS.find(b => b.id === id);
+};
+
+// Busca esta función y reemplázala:
+
+// Generar horarios según el intervalo del peluquero
+export const getAllTimeSlots = (barber = null) => {
+  const slots = [];
+  
+  // DETERMINAR INTERVALO SEGÚN PELUQUERO
+  let interval;
+  if (barber?.id === 'mili') {
+    interval = 45; // Mili tiene intervalo de 45 minutos
+    console.log(`⏰ Generando slots para Mili (${interval}min)`);
+  } else if (barber?.id === 'santi') {
+    interval = 30; // Santiago tiene intervalo de 30 minutos
+    console.log(`⏰ Generando slots para Santiago (${interval}min)`);
+  } else {
+    interval = 30; // Por defecto 30 minutos
+    console.log(`⏰ Generando slots por defecto (${interval}min)`);
+  }
+  
+  // Horario de trabajo: 10:00 a 20:00
+  const startHour = 10;
+  const endHour = 20;
+  
+  let currentHour = startHour;
+  let currentMinute = 0;
+  
+  console.log(`⏰ Iniciando generación de slots: ${startHour}:00 a ${endHour}:00`);
+  
+  while (currentHour < endHour || (currentHour === endHour && currentMinute === 0)) {
+    const time = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+    slots.push(time);
+    
+    // DEBUG: Mostrar cada slot generado
+    console.log(`   Slot generado: ${time} (barber: ${barber?.id || 'default'})`);
+    
+    // Avanzar el tiempo según el intervalo
+    currentMinute += interval;
+    
+    // Ajustar horas si los minutos superan 60
+    if (currentMinute >= 60) {
+      currentHour += Math.floor(currentMinute / 60);
+      currentMinute = currentMinute % 60;
+    }
+    
+    // Si hemos pasado las 20:00, terminar
+    if (currentHour > endHour || (currentHour === endHour && currentMinute > 0)) {
+      console.log(`   Fin: pasó de las ${endHour}:00`);
+      break;
+    }
+  }
+  
+  console.log(`⏰ Total slots generados para ${barber?.id || 'default'}: ${slots.length}`);
+  console.log(`⏰ Slots: ${slots.join(', ')}`);
+  return slots;
+};
+
 // ========== FUNCIONES FIRESTORE PARA TURNOS ==========
 
-// Obtener todos los turnos desde Firestore
-export const getAppointments = async () => {
+// Obtener todos los turnos desde Firestore (CON FILTRO POR BARBER)
+export const getAppointments = async (barberId = null) => {
   try {
-    console.log('🔍 Obteniendo turnos de Firestore...');
+    console.log('🔍 Obteniendo turnos de Firestore...', barberId ? `Filtro: barberId=${barberId}` : 'Sin filtro');
     const appointmentsRef = collection(db, 'appointments');
-    const q = query(appointmentsRef, orderBy('createdAt', 'desc'));
+    
+    // Crear query con filtro por barberId si se proporciona
+    let q;
+    if (barberId) {
+      q = query(
+        appointmentsRef, 
+        where('barberId', '==', barberId),
+        orderBy('createdAt', 'desc')
+      );
+    } else {
+      q = query(appointmentsRef, orderBy('createdAt', 'desc'));
+    }
+    
     const querySnapshot = await getDocs(q);
     
     const appointments = [];
@@ -160,7 +253,7 @@ export const getAppointments = async () => {
       });
     });
     
-    console.log(`✅ Total turnos obtenidos: ${appointments.length}`);
+    console.log(`✅ Total turnos obtenidos: ${appointments.length} ${barberId ? `para barberId=${barberId}` : ''}`);
     return appointments;
   } catch (error) {
     console.error('❌ Error obteniendo turnos:', error);
@@ -175,7 +268,6 @@ export const createAppointment = async (appointmentData) => {
     
     // IMPORTANTE: Normalizar la fecha a YYYY-MM-DD
     const formattedDate = getLocalDateString(appointmentData.date);
-    console.log('📅 Fecha normalizada para guardar:', formattedDate);
     
     const appointmentToSave = {
       ...appointmentData,
@@ -200,14 +292,26 @@ export const createAppointment = async (appointmentData) => {
   }
 };
 
-// Obtener turnos por fecha desde Firestore
-export const getAppointmentsByDate = async (date) => {
+// Obtener turnos por fecha desde Firestore (CON FILTRO POR BARBER)
+export const getAppointmentsByDate = async (date, barberId = null) => {
   try {
     const searchDate = getLocalDateString(date);
-    console.log(`🔍 Buscando turnos para fecha: ${searchDate}`);
+    console.log(`🔍 Buscando turnos para fecha: ${searchDate}`, barberId ? `Filtro: barberId=${barberId}` : '');
     
     const appointmentsRef = collection(db, 'appointments');
-    const q = query(appointmentsRef, where('date', '==', searchDate));
+    
+    // Crear query con múltiples condiciones
+    let q;
+    if (barberId) {
+      q = query(
+        appointmentsRef, 
+        where('date', '==', searchDate),
+        where('barberId', '==', barberId)
+      );
+    } else {
+      q = query(appointmentsRef, where('date', '==', searchDate));
+    }
+    
     const querySnapshot = await getDocs(q);
     
     const appointments = [];
@@ -219,7 +323,7 @@ export const getAppointmentsByDate = async (date) => {
       });
     });
     
-    console.log(`✅ Turnos encontrados para ${searchDate}: ${appointments.length}`);
+    console.log(`✅ Turnos encontrados para ${searchDate}: ${appointments.length} ${barberId ? `para barberId=${barberId}` : ''}`);
     return appointments;
   } catch (error) {
     console.error('❌ Error obteniendo turnos por fecha:', error);
@@ -227,10 +331,20 @@ export const getAppointmentsByDate = async (date) => {
   }
 };
 
-// Escuchar cambios en tiempo real de los turnos
-export const listenToAppointments = (callback) => {
+// Escuchar cambios en tiempo real de los turnos (CON FILTRO POR BARBER)
+export const listenToAppointments = (callback, barberId = null) => {
   const appointmentsRef = collection(db, 'appointments');
-  const q = query(appointmentsRef, orderBy('createdAt', 'desc'));
+  
+  let q;
+  if (barberId) {
+    q = query(
+      appointmentsRef, 
+      where('barberId', '==', barberId),
+      orderBy('createdAt', 'desc')
+    );
+  } else {
+    q = query(appointmentsRef, orderBy('createdAt', 'desc'));
+  }
   
   return onSnapshot(q, (snapshot) => {
     const appointments = [];
@@ -248,11 +362,21 @@ export const listenToAppointments = (callback) => {
   });
 };
 
-// Escuchar turnos por fecha en tiempo real
-export const listenToAppointmentsByDate = (date, callback) => {
+// Escuchar turnos por fecha en tiempo real (CON FILTRO POR BARBER)
+export const listenToAppointmentsByDate = (date, callback, barberId = null) => {
   const searchDate = getLocalDateString(date);
   const appointmentsRef = collection(db, 'appointments');
-  const q = query(appointmentsRef, where('date', '==', searchDate));
+  
+  let q;
+  if (barberId) {
+    q = query(
+      appointmentsRef, 
+      where('date', '==', searchDate),
+      where('barberId', '==', barberId)
+    );
+  } else {
+    q = query(appointmentsRef, where('date', '==', searchDate));
+  }
   
   return onSnapshot(q, (snapshot) => {
     const appointments = [];
@@ -309,64 +433,136 @@ export const getPaymentMethods = () => {
   return PAYMENT_METHODS;
 };
 
-// Generar todos los horarios posibles
-export const getAllTimeSlots = () => {
-  const slots = [];
-  for (let hour = 10; hour <= 20; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      if (hour === 20 && minute === 30) break;
-      const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-      slots.push(time);
-    }
-  }
-  return slots;
-};
-
-// Obtener horarios disponibles para una fecha
-export const getAvailableTimeSlots = async (selectedDate) => {
+// Obtener horarios disponibles para una fecha (CON FILTRO POR BARBER)
+export const getAvailableTimeSlots = async (selectedDate, barber = null, selectedServices = []) => {
   try {
-    const baseSlots = getAllTimeSlots();
+    // Obtener intervalo específico del peluquero
+    let interval;
+    if (barber?.id === 'mili') {
+      interval = 45; // Forzar 45 minutos para Mili
+    } else if (barber?.id === 'santi') {
+      interval = 30; // 30 minutos para Santiago
+    } else {
+      interval = barber?.interval || 30; // Por defecto 30
+    }
+    
+    // Obtener slots base según el peluquero
+    const baseSlots = getAllTimeSlots(barber);
     const searchDate = getLocalDateString(selectedDate);
     
-    console.log(`📅 Obteniendo slots disponibles para: ${searchDate}`);
+    console.log(`📅 Obteniendo slots para ${searchDate} con ${barber?.name || 'default'}`);
+    console.log(`⏰ Intervalo: ${interval}min | Slots base:`, baseSlots);
     
-    // Obtener turnos existentes para esa fecha
-    const existingAppointments = await getAppointmentsByDate(searchDate);
-    const bookedTimes = existingAppointments.map(apt => apt.time);
+    // Obtener turnos existentes para esa fecha (FILTRADO POR BARBER)
+    const existingAppointments = await getAppointmentsByDate(searchDate, barber?.id);
+    console.log(`📊 Turnos existentes para ${barber?.name}:`, existingAppointments.length);
     
-    console.log(`⏰ Horarios ocupados para ${searchDate}:`, bookedTimes);
+    // Si hay servicios seleccionados, calcular duración total
+    const totalDuration = selectedServices.reduce((sum, service) => sum + service.duration, 0);
+    console.log(`⏱️ Duración total de servicios: ${totalDuration}min`);
     
-    // Filtrar horarios ocupados y pasados
-    const availableSlots = baseSlots.filter(slot => {
-      const isBooked = bookedTimes.includes(slot);
-      const isPast = isTimeInPast(searchDate, slot);
+    // Filtrar slots ocupados
+    const bookedTimes = [];
+    existingAppointments.forEach(apt => {
+      const aptTime = apt.time;
+      const [aptHour, aptMinute] = aptTime.split(':').map(Number);
+      const aptDuration = apt.duration || interval; // Usar el intervalo como duración por defecto
       
-      if (isBooked) {
-        console.log(`❌ Horario ${slot} ocupado para ${searchDate}`);
+      console.log(`   Turno existente: ${aptTime} (${aptDuration}min) - Cliente: ${apt.clientName}`);
+      
+      // Marcar como ocupado el slot principal
+      bookedTimes.push(aptTime);
+      
+      // Si la duración del turno es mayor que el intervalo, marcar slots adicionales como ocupados
+      const slotsNeeded = Math.ceil(aptDuration / interval) - 1;
+      console.log(`   Slots adicionales necesarios: ${slotsNeeded} (intervalo: ${interval}min)`);
+      
+      for (let i = 1; i <= slotsNeeded; i++) {
+        const totalMinutes = aptHour * 60 + aptMinute + (interval * i);
+        const newHour = Math.floor(totalMinutes / 60);
+        const newMinute = totalMinutes % 60;
+        const newTime = `${newHour.toString().padStart(2, '0')}:${newMinute.toString().padStart(2, '0')}`;
+        
+        // Solo agregar si está dentro del horario de trabajo (10-20)
+        if (newHour >= 10 && newHour <= 20 && !(newHour === 20 && newMinute > 0)) {
+          bookedTimes.push(newTime);
+          console.log(`     Slot adicional ocupado: ${newTime}`);
+        }
+      }
+    });
+    
+    console.log(`⏰ Horarios ocupados para ${barber?.name || 'default'}:`, bookedTimes.sort());
+    
+    // Filtrar horarios disponibles considerando duración de servicios
+    const availableSlots = baseSlots.filter(slot => {
+      // Verificar si el slot está ocupado
+      if (bookedTimes.includes(slot)) {
+        console.log(`❌ Horario ${slot} ocupado para ${barber?.name || 'default'}`);
         return false;
       }
-      if (isPast) {
-        console.log(`⏰ Horario ${slot} pasado para ${searchDate}`);
+      
+      // Verificar si es un horario pasado
+      if (isTimeInPast(searchDate, slot)) {
+        console.log(`⏰ Horario ${slot} pasado`);
         return false;
       }
+      
+      // Si hay servicios seleccionados, verificar que haya suficiente tiempo consecutivo
+      if (selectedServices.length > 0 && totalDuration > interval) {
+        const slotsNeeded = Math.ceil(totalDuration / interval);
+        const [startHour, startMinute] = slot.split(':').map(Number);
+        
+        console.log(`🔍 Verificando slot ${slot} para ${slotsNeeded} intervalos de ${interval}min`);
+        
+        // Verificar que todos los slots necesarios estén disponibles
+        for (let i = 0; i < slotsNeeded; i++) {
+          const totalMinutes = startHour * 60 + startMinute + (interval * i);
+          const checkHour = Math.floor(totalMinutes / 60);
+          const checkMinute = totalMinutes % 60;
+          const checkTime = `${checkHour.toString().padStart(2, '0')}:${checkMinute.toString().padStart(2, '0')}`;
+          
+          // Verificar límites de horario (10:00 - 20:00)
+          if (checkHour < 10 || checkHour > 20 || (checkHour === 20 && checkMinute > 0)) {
+            console.log(`   ❌ Slot ${checkTime} fuera del horario laboral`);
+            return false;
+          }
+          
+          // Si el slot no está en baseSlots
+          if (!baseSlots.includes(checkTime)) {
+            console.log(`   ❌ Slot ${checkTime} no está en slots base`);
+            return false;
+          }
+          
+          // Si el slot está ocupado
+          if (bookedTimes.includes(checkTime)) {
+            console.log(`   ❌ Slot ${checkTime} ya está ocupado`);
+            return false;
+          }
+        }
+        
+        console.log(`   ✅ Slot ${slot} tiene ${slotsNeeded} intervalos disponibles`);
+      }
+      
       return true;
     });
     
-    console.log(`✅ Horarios disponibles para ${searchDate}:`, availableSlots);
+    console.log(`✅ Horarios disponibles para ${barber?.name || 'default'}:`, availableSlots);
+    console.log(`📊 Total disponibles: ${availableSlots.length} de ${baseSlots.length}`);
+    
     return availableSlots;
   } catch (error) {
-    console.error('Error obteniendo horarios disponibles:', error);
+    console.error('❌ Error obteniendo horarios disponibles:', error);
     return [];
   }
 };
 
-// Obtener estadísticas para el admin
-export const getAdminStats = async () => {
+// Obtener estadísticas para el admin (CON FILTRO POR BARBER)
+export const getAdminStats = async (barberId = null) => {
   try {
-    const allAppointments = await getAppointments();
+    const allAppointments = await getAppointments(barberId);
     const today = getTodayDateString();
     
-    console.log(`📊 Hoy es: ${today}`);
+    console.log(`📊 Hoy es: ${today}`, barberId ? `Filtro: barberId=${barberId}` : '');
     
     const todayAppointments = allAppointments.filter(apt => {
       return apt.date === today;
@@ -392,7 +588,8 @@ export const getAdminStats = async () => {
       totalAppointments: allAppointments.length,
       todayAppointments: todayAppointments.length,
       totalEarnings,
-      monthlyEarnings
+      monthlyEarnings,
+      barberId // Incluir en la respuesta para debugging
     };
   } catch (error) {
     console.error('Error obteniendo estadísticas:', error);
@@ -400,14 +597,15 @@ export const getAdminStats = async () => {
       totalAppointments: 0,
       todayAppointments: 0,
       totalEarnings: 0,
-      monthlyEarnings: 0
+      monthlyEarnings: 0,
+      barberId
     };
   }
 };
 
 // ========== FUNCIONES EXISTENTES ==========
 
-// Buscar usuarios por username o documento
+// Buscar usuarios por username o documento (COMPARTIDOS ENTRE PELUQUEROS)
 export const searchUsers = async (searchTerm) => {
   try {
     const usersQuery = query(
@@ -440,7 +638,7 @@ export const searchUsers = async (searchTerm) => {
   }
 };
 
-// Crear turno manual para admin
+// Crear turno manual para admin (ASIGNA BARBERID AUTOMÁTICAMENTE)
 export const createAdminAppointment = async (appointmentData) => {
   try {
     const formattedDate = getLocalDateString(appointmentData.date);
@@ -473,13 +671,14 @@ const ADMIN_PHONE = '2233129810';
 
 export const sendAdminWhatsAppNotification = (appointment) => {
   try {
+    const barberInfo = appointment.barber ? `💇 *Peluquero:* ${appointment.barber.name}\n` : '';
     const servicesList = appointment.services.map(s => `• ${s.name} - $${s.price}`).join('\n');
     
     const message = `📅 *NUEVO TURNO SOLICITADO* 📅
 
 👤 *Cliente:* ${appointment.clientName}
 📞 *Teléfono:* ${appointment.phone}
-📅 *Fecha:* ${formatDateForDisplay(appointment.date)} a las ${appointment.time}
+${barberInfo}📅 *Fecha:* ${formatDateForDisplay(appointment.date)} a las ${appointment.time}
 ⏰ *Hora:* ${appointment.time}
 
 💇 *Servicios:*
@@ -544,14 +743,15 @@ Hola ${clientName}! Te recordamos que tenés un turno:
 };
 
 export const sendImmediateConfirmation = (appointment) => {
-  const { clientName, date, time, confirmationNumber } = appointment;
+  const { clientName, date, time, confirmationNumber, barber } = appointment;
+  const barberInfo = barber ? `💇 *Con:* ${barber.name}\n` : '';
   
   const confirmationMessage = `✅ *Turno Confirmado - Ian Castillo BarberShop* ✅
 
 Hola ${clientName}! Tu turno ha sido confirmado:
 
 📅 *Fecha:* ${formatDateForDisplay(date)} a las ${time}
-🆔 *N° de confirmación:* ${confirmationNumber}
+${barberInfo}🆔 *N° de confirmación:* ${confirmationNumber}
 
 📍 *Dirección:* Güiraldes 4700, Cerrito Sur, Mar del Plata
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Button, Alert, Row, Col } from 'react-bootstrap';
-import { getAvailableTimeSlots, getAppointmentsByDate, getAllTimeSlots, listenToAppointmentsByDate } from '../../services/appointments';
+import { getAvailableTimeSlots, getAppointmentsByDate, getAllTimeSlots, listenToAppointmentsByDate, getBarbers } from '../../services/appointments';
 
 // Función helper para obtener fecha en formato YYYY-MM-DD local
 // Función para obtener fecha en formato DD/MM/YYYY para el cliente
@@ -47,14 +47,25 @@ const getClientDateString = (date) => {
   return result;
 };
 
-export function AppointmentCalendar({ onDateTimeSelect, selectedDate, selectedTime, onDateSelected, onTimeSelected, confirmationAlertRef }) {
+export function AppointmentCalendar({ 
+  onDateTimeSelect, 
+  selectedDate, 
+  selectedTime, 
+  onDateSelected, 
+  onTimeSelected, 
+  confirmationAlertRef,
+  selectedBarber: propSelectedBarber,
+  onBarberSelect: propOnBarberSelect 
+}) {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [weekDays, setWeekDays] = useState([]);
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [dayStatus, setDayStatus] = useState({});
   const [loading, setLoading] = useState(false);
+  const [selectedBarber, setSelectedBarber] = useState(propSelectedBarber || null);
   const timeSlotsRef = useRef(null);
   const calendarRef = useRef(null);
+  const barbers = getBarbers();
 
  
   // Función para verificar si un horario ya pasó - VERSIÓN CORREGIDA para DD/MM/YYYY
@@ -129,7 +140,7 @@ const isTimeInPast = (dateString, time) => {
     const dateString = getClientDateString(date);
     try {
       const appointments = await getAppointmentsByDate(dateString);
-      const timeSlots = await getAvailableTimeSlots(dateString);
+      const timeSlots = await getAvailableTimeSlots(dateString, selectedBarber);
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -190,48 +201,47 @@ const isTimeInPast = (dateString, time) => {
     };
 
     loadWeekDays();
-  }, [currentWeek]);
+  }, [currentWeek, selectedBarber]);
 
   // Cargar horarios cuando se selecciona una fecha - VERSIÓN ASÍNCRONA
-  useEffect(() => {
-    const loadTimeSlots = async () => {
-      if (selectedDate) {
-        setLoading(true);
-        try {
-          // Ahora es async/await
-          const slots = await getAvailableTimeSlots(selectedDate);
-          setAvailableTimeSlots(slots);
-          
-          // También actualizar el estado del día
-          const dayDate = getDateFromDDMMYYYY(selectedDate);
-          if (dayDate) {
-            const dateKey = getClientDateString(dayDate);
-            const statusInfo = await checkDayStatus(dayDate);
-            setDayStatus(prev => ({
-              ...prev,
-              [dateKey]: statusInfo
-            }));
-          }
-        } catch (error) {
-          console.error('Error cargando horarios:', error);
-          setAvailableTimeSlots([]);
-        } finally {
-          setLoading(false);
+  const loadTimeSlots = async (date, barber = selectedBarber) => {
+    if (date) {
+      setLoading(true);
+      try {
+        const slots = await getAvailableTimeSlots(date, barber);
+        setAvailableTimeSlots(slots);
+        
+        // También actualizar el estado del día
+        const dayDate = getDateFromDDMMYYYY(date);
+        if (dayDate) {
+          const dateKey = getClientDateString(dayDate);
+          const statusInfo = await checkDayStatus(dayDate);
+          setDayStatus(prev => ({
+            ...prev,
+            [dateKey]: statusInfo
+          }));
         }
-      } else {
+      } catch (error) {
+        console.error('Error cargando horarios:', error);
         setAvailableTimeSlots([]);
+      } finally {
+        setLoading(false);
       }
-    };
+    } else {
+      setAvailableTimeSlots([]);
+    }
+  };
 
-    loadTimeSlots();
-  }, [selectedDate]);
+  useEffect(() => {
+    loadTimeSlots(selectedDate, selectedBarber);
+  }, [selectedDate, selectedBarber]);
 
   // Actualizar estado de días cada minuto para horarios pasados - VERSIÓN ASÍNCRONA
   useEffect(() => {
     const updateSlots = async () => {
       if (selectedDate) {
         try {
-          const slots = await getAvailableTimeSlots(selectedDate);
+          const slots = await getAvailableTimeSlots(selectedDate, selectedBarber);
           setAvailableTimeSlots(slots);
         } catch (error) {
           console.error('Error actualizando horarios:', error);
@@ -242,7 +252,7 @@ const isTimeInPast = (dateString, time) => {
     const interval = setInterval(updateSlots, 60000); // Cada minuto
 
     return () => clearInterval(interval);
-  }, [selectedDate]);
+  }, [selectedDate, selectedBarber]);
 
   // Escuchar cambios en tiempo real para la fecha seleccionada
   useEffect(() => {
@@ -254,7 +264,7 @@ const isTimeInPast = (dateString, time) => {
         
         // Cuando hay cambios, actualizar los horarios
         try {
-          const slots = await getAvailableTimeSlots(selectedDate);
+          const slots = await getAvailableTimeSlots(selectedDate, selectedBarber);
           setAvailableTimeSlots(slots);
           
           // También actualizar estado del día
@@ -278,7 +288,23 @@ const isTimeInPast = (dateString, time) => {
         unsubscribe();
       };
     }
-  }, [selectedDate]);
+  }, [selectedDate, selectedBarber]);
+
+  // Nueva función para manejar selección de peluquero
+  const handleBarberSelect = (barber) => {
+    setSelectedBarber(barber);
+    if (propOnBarberSelect) {
+      propOnBarberSelect(barber);
+    }
+    
+    // Resetear fecha y hora si cambia el peluquero
+    onDateTimeSelect('', '');
+    
+    // Si ya hay una fecha seleccionada, actualizar los horarios disponibles
+    if (selectedDate) {
+      loadTimeSlots(selectedDate, barber);
+    }
+  };
 
   const handleDateSelect = (date) => {
     const dateString = getClientDateString(date);
@@ -351,13 +377,13 @@ const isTimeInPast = (dateString, time) => {
     });
   };
 
-  // Usar la función importada para obtener todos los horarios
-  const allTimeSlots = getAllTimeSlots();
+  // Usar la función importada para obtener todos los horarios según el peluquero
+  const allTimeSlots = getAllTimeSlots(selectedBarber);
 
   return (
     <Card className="appointment-calendar-card" ref={calendarRef}>
       <Card.Header className="calendar-header">
-        <h5><i className="fa-solid fa-calendar-days"></i> Seleccionar Fecha y Hora</h5>
+        <h5><i className="fa-solid fa-calendar-days"></i> Seleccionar Peluquero, Fecha y Hora</h5>
         <div className="week-navigation">
           <Button
             variant="outline-secondary"
@@ -383,6 +409,53 @@ const isTimeInPast = (dateString, time) => {
       </Card.Header>
 
       <Card.Body>
+        {/* SELECTOR DE PELUQUERO */}
+        <div className="mb-4">
+          <h6 className="mb-3">
+            <i className="fa-solid fa-user-check me-2"></i>
+            Primero, elige con quién cortarte:
+          </h6>
+          <Row className="g-2">
+            {barbers.map(barber => (
+              <Col key={barber.id} xs={6} className="mb-3">
+                <div 
+                  className={`barber-option ${selectedBarber?.id === barber.id ? 'selected' : ''}`}
+                  onClick={() => handleBarberSelect(barber)}
+                >
+                  <div className="barber-option-image">
+                    <img 
+                      src={barber.image} 
+                      alt={barber.name}
+                      onError={(e) => {
+                        e.target.src = 'src/images/Logo.png';
+                      }}
+                    />
+                  </div>
+                  <div className="barber-option-info">
+                    <h6 className="mb-1">{barber.name}</h6>
+                    <small className="text-muted">
+                      <i className="fa-solid fa-clock me-1"></i>
+                      Turnos cada {barber.interval} min
+                    </small>
+                  </div>
+                  {selectedBarber?.id === barber.id && (
+                    <div className="barber-option-check">
+                      <i className="fa-solid fa-check-circle"></i>
+                    </div>
+                  )}
+                </div>
+              </Col>
+            ))}
+          </Row>
+        </div>
+
+        {!selectedBarber && (
+          <Alert variant="warning" className="mb-4">
+            <i className="fa-solid fa-user-slash me-2"></i>
+            Por favor selecciona un peluquero para ver disponibilidad
+          </Alert>
+        )}
+
         {loading && (
           <div className="text-center mb-3">
             <div className="spinner-border text-primary" role="status">
@@ -392,113 +465,119 @@ const isTimeInPast = (dateString, time) => {
           </div>
         )}
 
-        {/* Calendario Semanal */}
-        <div className="week-calendar mb-4">
-          <Row className="g-2">
-            {weekDays.map((day) => {
-              const dateString = getClientDateString(day);
-              const status = dayStatus[dateString];
-              const variant = getDayVariant(day);
-              const isSelected = selectedDate === dateString;
-
-              return (
-                <Col key={dateString} xs={4} sm={4} md={2} className="mb-2">
-                  <Button
-                    variant={variant}
-                    className={`day-button w-100 ${isSelected ? 'selected' : ''} ${status?.isPast ? 'past-day' : ''
-                      }`}
-                    onClick={() => handleDateSelect(day)}
-                    disabled={status?.isPast || !status?.isAvailable || loading}
-                  >
-                    <div className="day-content">
-                      <div className="day-name">{formatDay(day)}</div>
-                      <div className="day-number">{formatDate(day)}</div>
-                      <div className="day-month">{formatMonth(day)}</div>
-                      {status && !status.isPast && (
-                        <div className="day-status">
-                          {status.isAvailable ? (
-                            <small className="text-success">
-                              <i className="fa-solid fa-check me-1"></i>
-                              {status.availableSlots} disp.
-                            </small>
-                          ) : (
-                            <small className="text-danger">
-                              <i className="fa-solid fa-xmark me-1"></i>
-                              Completo
-                            </small>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </Button>
-                </Col>
-              );
-            })}
-          </Row>
-        </div>
-
-        {/* Horarios */}
-        {selectedDate && (
-          <div className="time-selection" ref={timeSlotsRef}>
-            <h6>
-              <i className="fa-solid fa-clock me-2"></i>
-              Horarios disponibles para {getDisplayDate()}:
-            </h6>
-            
-            {loading ? (
-              <div className="text-center py-3">
-                <div className="spinner-border spinner-border-sm text-primary" role="status">
-                  <span className="visually-hidden">Cargando horarios...</span>
-                </div>
-                <p className="mt-2 text-muted small">Cargando horarios disponibles...</p>
-              </div>
-            ) : availableTimeSlots.length > 0 ? (
+        {/* Calendario Semanal - Mostrar solo si hay peluquero seleccionado */}
+        {selectedBarber && (
+          <>
+            <div className="week-calendar mb-4">
               <Row className="g-2">
-                {allTimeSlots.map(time => {
-                  const isAvailable = availableTimeSlots.includes(time);
-                  const isSelected = selectedTime === time;
-                  const isPast = isTimeInPast(selectedDate, time);
+                {weekDays.map((day) => {
+                  const dateString = getClientDateString(day);
+                  const status = dayStatus[dateString];
+                  const variant = getDayVariant(day);
+                  const isSelected = selectedDate === dateString;
 
                   return (
-                    <Col key={time} xs={6} sm={4} className="mb-2">
+                    <Col key={dateString} xs={4} sm={4} md={2} className="mb-2">
                       <Button
-                        variant={
-                          isPast ? "outline-secondary" : 
-                          isSelected ? "primary" : 
-                          isAvailable ? "outline-primary" : "outline-danger"
-                        }
-                        className={`time-slot w-100 ${isPast ? 'past-time' : ''} ${!isAvailable ? 'occupied' : ''}`}
-                        onClick={() => !isPast && isAvailable && handleTimeSelect(time)}
-                        disabled={isPast || !isAvailable || loading}
+                        variant={variant}
+                        className={`day-button w-100 ${isSelected ? 'selected' : ''} ${status?.isPast ? 'past-day' : ''
+                          }`}
+                        onClick={() => handleDateSelect(day)}
+                        disabled={status?.isPast || !status?.isAvailable || loading}
                       >
-                        {time}
-                        {isPast && <small className="d-block">Pasado</small>}
-                        {!isAvailable && !isPast && <small className="d-block">Ocupado</small>}
+                        <div className="day-content">
+                          <div className="day-name">{formatDay(day)}</div>
+                          <div className="day-number">{formatDate(day)}</div>
+                          <div className="day-month">{formatMonth(day)}</div>
+                          {status && !status.isPast && (
+                            <div className="day-status">
+                              {status.isAvailable ? (
+                                <small className="text-success">
+                                  <i className="fa-solid fa-check me-1"></i>
+                                  {status.availableSlots} disp.
+                                </small>
+                              ) : (
+                                <small className="text-danger">
+                                  <i className="fa-solid fa-xmark me-1"></i>
+                                  Completo
+                                </small>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </Button>
                     </Col>
                   );
                 })}
               </Row>
-            ) : (
-              <Alert variant="warning">
-                <i className="fa-solid fa-triangle-exclamation me-2"></i>
-                No hay horarios disponibles para esta fecha. Por favor selecciona otra.
+            </div>
+
+            {/* Horarios */}
+            {selectedDate && (
+              <div className="time-selection" ref={timeSlotsRef}>
+                <h6>
+                  <i className="fa-solid fa-clock me-2"></i>
+                  Horarios disponibles con {selectedBarber.name} para {getDisplayDate()}:
+                </h6>
+                
+                {loading ? (
+                  <div className="text-center py-3">
+                    <div className="spinner-border spinner-border-sm text-primary" role="status">
+                      <span className="visually-hidden">Cargando horarios...</span>
+                    </div>
+                    <p className="mt-2 text-muted small">Cargando horarios disponibles...</p>
+                  </div>
+                ) : availableTimeSlots.length > 0 ? (
+                  <Row className="g-2">
+                    {allTimeSlots.map(time => {
+                      const isAvailable = availableTimeSlots.includes(time);
+                      const isSelected = selectedTime === time;
+                      const isPast = isTimeInPast(selectedDate, time);
+
+                      return (
+                        <Col key={time} xs={6} sm={4} className="mb-2">
+                          <Button
+                            variant={
+                              isPast ? "outline-secondary" : 
+                              isSelected ? "primary" : 
+                              isAvailable ? "outline-primary" : "outline-danger"
+                            }
+                            className={`time-slot w-100 ${isPast ? 'past-time' : ''} ${!isAvailable ? 'occupied' : ''}`}
+                            onClick={() => !isPast && isAvailable && handleTimeSelect(time)}
+                            disabled={isPast || !isAvailable || loading}
+                          >
+                            {time}
+                            {isPast && <small className="d-block">Pasado</small>}
+                            {!isAvailable && !isPast && <small className="d-block">Ocupado</small>}
+                          </Button>
+                        </Col>
+                      );
+                    })}
+                  </Row>
+                ) : (
+                  <Alert variant="warning">
+                    <i className="fa-solid fa-triangle-exclamation me-2"></i>
+                    No hay horarios disponibles para esta fecha con {selectedBarber.name}. Por favor selecciona otra fecha.
+                  </Alert>
+                )}
+              </div>
+            )}
+
+            {selectedDate && selectedTime && (
+              <Alert variant="success" className="mt-3" ref={confirmationAlertRef}>
+                <strong>
+                  <i className="fa-solid fa-check me-2"></i>
+                  Turno seleccionado:<br />
+                  <i className="fa-solid fa-user me-2"></i>
+                  Peluquero: {selectedBarber.name}<br />
+                  <i className="fa-solid fa-calendar-day me-2"></i>
+                  Día: {getDisplayDate()}<br />
+                  <i className="fa-solid fa-clock me-2"></i>
+                  Horario: {selectedTime}
+                </strong>
               </Alert>
             )}
-          </div>
-        )}
-
-        {selectedDate && selectedTime && (
-          <Alert variant="success" className="mt-3" ref={confirmationAlertRef}>
-            <strong>
-              <i className="fa-solid fa-check me-2"></i>
-              Turno seleccionado:<br />
-              <i className="fa-solid fa-calendar-day me-2"></i>
-              Día: {getDisplayDate()}<br />
-              <i className="fa-solid fa-clock me-2"></i>
-              Horario: {selectedTime}
-            </strong>
-          </Alert>
+          </>
         )}
       </Card.Body>
     </Card>

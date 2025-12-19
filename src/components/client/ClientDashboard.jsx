@@ -12,11 +12,12 @@ function ClientDashboard() {
   const navigate = useNavigate()
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
+  const [selectedBarber, setSelectedBarber] = useState(null)
   const [existingAppointment, setExistingAppointment] = useState(null)
   const [loadingAppointments, setLoadingAppointments] = useState(false)
   const [showSuccessAlert, setShowSuccessAlert] = useState(false)
   const servicesRef = useRef(null)
-  const confirmationAlertRef = useRef(null) // NUEVA REFERENCIA
+  const confirmationAlertRef = useRef(null)
 
   // useEffect corregido
   useEffect(() => {
@@ -95,7 +96,7 @@ function ClientDashboard() {
     setSelectedTime(time)
     
     // Si ya había una fecha y hora seleccionada, hacer scroll a la confirmación
-    if (date && time) {
+    if (date && time && selectedBarber) {
       scrollToConfirmation();
     }
   }
@@ -108,7 +109,7 @@ function ClientDashboard() {
       })
       
       // Después de scroll a servicios, si hay servicios seleccionados, scroll a confirmación
-      if (selectedDate && selectedTime) {
+      if (selectedDate && selectedTime && selectedBarber) {
         setTimeout(() => {
           scrollToConfirmation();
         }, 500);
@@ -116,20 +117,38 @@ function ClientDashboard() {
     }, 400)
   }
 
-  // MODIFICACIÓN IMPORTANTE AQUÍ:
+  const handleBarberSelect = (barber) => {
+    setSelectedBarber(barber)
+    // Resetear fecha y hora si cambia el peluquero
+    setSelectedDate('')
+    setSelectedTime('')
+    
+    // Hacer scroll al calendario después de seleccionar peluquero en móvil
+    if (window.innerWidth < 768) {
+      setTimeout(() => {
+        const calendar = document.querySelector('.appointment-calendar-card');
+        if (calendar) {
+          calendar.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 300);
+    }
+  }
+
   const handleAppointmentCreated = (appointment) => {
     // Marcar que el usuario tiene un turno existente
-    setExistingAppointment(appointment)
+    setExistingAppointment({ ...appointment, barber: selectedBarber })
     setShowSuccessAlert(false)
     
     console.log('🎯 Navegando a página de confirmación con datos:', appointment)
     
     // Navegar a la página de confirmación con todos los datos
-    // Usar replace: true para que no pueda volver atrás al formulario
     navigate('/confirmacion', { 
       replace: true,
       state: { 
-        appointment: appointment,
+        appointment: { ...appointment, barber: selectedBarber },
         userName: user.firstName || user.name || user.username || 'Cliente',
         userEmail: user.email,
         userPhone: user.phone
@@ -154,6 +173,7 @@ function ClientDashboard() {
     setExistingAppointment(null)
     setSelectedDate('')
     setSelectedTime('')
+    setSelectedBarber(null)
   }
 
   // Función para formatear fecha del turno existente (CORREGIDA)
@@ -254,6 +274,11 @@ function ClientDashboard() {
                   <p className="mb-2">
                     <strong>Hora:</strong> {existingAppointment.time}
                   </p>
+                  {existingAppointment.barber && (
+                    <p className="mb-2">
+                      <strong>Peluquero:</strong> {existingAppointment.barber.name}
+                    </p>
+                  )}
                 </Col>
                 <Col md={6}>
                   <p className="mb-2">
@@ -329,8 +354,9 @@ function ClientDashboard() {
               }, 300);
             }}
             onTimeSelected={handleTimeSelected}
-            // Prop para pasar la ref al calendario
             confirmationAlertRef={confirmationAlertRef}
+            selectedBarber={selectedBarber}
+            onBarberSelect={handleBarberSelect}
           />
         </Col>
         
@@ -341,7 +367,8 @@ function ClientDashboard() {
               selectedTime={selectedTime}
               onAppointmentCreated={handleAppointmentCreated}
               existingAppointment={existingAppointment}
-              onServiceSelected={handleServiceSelected} // Nuevo prop
+              onServiceSelected={handleServiceSelected}
+              selectedBarber={selectedBarber}
             />
           </div>
         </Col>

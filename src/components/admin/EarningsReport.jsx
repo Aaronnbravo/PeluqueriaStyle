@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { Card, Table, Row, Col, Badge } from 'react-bootstrap'
 import { getAppointments, getAdminStats, formatDateForDisplay } from '../../services/appointments'
+import { useAuth } from '../../hooks/useAuth'
 
 function EarningsReport() {
   const [stats, setStats] = useState({})
   const [appointments, setAppointments] = useState([])
   const [weeklyEarnings, setWeeklyEarnings] = useState([])
   const [loading, setLoading] = useState(true)
+  
+  // Obtener barberId del usuario actual
+  const { getBarberId, getBarberName } = useAuth()
+  const currentBarberId = getBarberId()
+  const currentBarberName = getBarberName()
 
   useEffect(() => {
     loadData()
@@ -15,13 +21,15 @@ function EarningsReport() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const adminStats = await getAdminStats()
-      const allAppointments = await getAppointments()
+      // Obtener estadísticas solo para este peluquero
+      const adminStats = await getAdminStats(currentBarberId)
+      // Obtener turnos solo de este peluquero
+      const allAppointments = await getAppointments(currentBarberId)
       
       setStats(adminStats)
       setAppointments(allAppointments || [])
       
-      // Calcular ganancias semanales
+      // Calcular ganancias semanales específicas del peluquero
       calculateWeeklyEarnings(allAppointments || [])
     } catch (error) {
       console.error('Error cargando datos:', error)
@@ -67,7 +75,7 @@ function EarningsReport() {
     setWeeklyEarnings(weeklyData)
   }
 
-  // Función auxiliar para getLocalDateString (copiada de appointments.js)
+  // Función auxiliar para getLocalDateString
   const getLocalDateString = (dateInput) => {
     if (!dateInput) return '';
     
@@ -119,6 +127,7 @@ function EarningsReport() {
             <Card.Body>
               <Card.Title><i className="fas fa-square-poll-vertical"></i> Total Turnos</Card.Title>
               <h2>{stats.totalAppointments || 0}</h2>
+              <small className="text-muted">{currentBarberName}</small>
             </Card.Body>
           </Card>
         </Col>
@@ -127,6 +136,7 @@ function EarningsReport() {
             <Card.Body>
               <Card.Title><i className="fas fa-calendar-days"></i> Turnos Hoy</Card.Title>
               <h2>{stats.todayAppointments || 0}</h2>
+              <small className="text-muted">{currentBarberName}</small>
             </Card.Body>
           </Card>
         </Col>
@@ -135,6 +145,7 @@ function EarningsReport() {
             <Card.Body>
               <Card.Title><i className="fas fa-window-restore"></i> Ganancias Mensuales</Card.Title>
               <h2>${stats.monthlyEarnings || 0}</h2>
+              <small className="text-muted">{currentBarberName}</small>
             </Card.Body>
           </Card>
         </Col>
@@ -143,6 +154,7 @@ function EarningsReport() {
             <Card.Body>
               <Card.Title><i className="fas fa-money-check-dollar"></i> Ganancias Totales</Card.Title>
               <h2>${stats.totalEarnings || 0}</h2>
+              <small className="text-muted">{currentBarberName}</small>
             </Card.Body>
           </Card>
         </Col>
@@ -151,7 +163,10 @@ function EarningsReport() {
       {/* Ganancias Semanales */}
       <Card className="mb-4">
         <Card.Header>
-          <h5 className="mb-0"><i className="fas fa-calendar-week"></i> Ganancias de la Semana</h5>
+          <h5 className="mb-0">
+            <i className="fas fa-calendar-week"></i> 
+            Ganancias de la Semana - {currentBarberName}
+          </h5>
         </Card.Header>
         <Card.Body>
           <Row className="mb-3">
@@ -203,7 +218,10 @@ function EarningsReport() {
       {/* Tabla de ganancias por mes */}
       <Card>
         <Card.Header>
-          <h5 className="mb-0"><i className="fas fa-window-restore"></i> Ganancias por Mes</h5>
+          <h5 className="mb-0">
+            <i className="fas fa-window-restore"></i> 
+            Ganancias por Mes - {currentBarberName}
+          </h5>
         </Card.Header>
         <Card.Body>
           <Table responsive>

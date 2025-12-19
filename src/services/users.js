@@ -2,268 +2,464 @@ import {
   collection, 
   getDocs, 
   query, 
-  where, 
-  addDoc
+  where,
+  addDoc,
+  updateDoc,
+  doc,
+  Timestamp
 } from 'firebase/firestore'
+import { db } from '../firebase/config'
 import { 
+  getAuth, 
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut 
+  signOut,
+  onAuthStateChanged,
+  updateProfile
 } from 'firebase/auth'
-import { db, auth } from '../firebase/config'
 
-// Registrar nuevo usuario - VERSIÓN SIMPLIFICADA
-export const registerUser = async (userData) => {
+const auth = getAuth()
+
+// ========== FUNCIONES DE AUTENTICACIÓN ==========
+
+// Login de usuario - SEPARADO PARA ADMINS Y CLIENTES
+export const loginUser = async (identifier, password) => {
   try {
-    console.log('📝 Registrando en Firebase:', userData.username)
-
-    // Crear email temporal basado en username
-    const tempEmail = `${userData.username}@peluqueria.com`
-
-    // 1. Crear usuario en Firebase Authentication
-    const userCredential = await createUserWithEmailAndPassword(
-      auth, 
-      tempEmail, 
-      userData.password
-    )
-
-    // 2. Guardar datos adicionales en Firestore
-    const userDoc = {
-      uid: userCredential.user.uid,
-      username: userData.username,
-      email: tempEmail, // Email temporal
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      document: userData.document,
-      type: 'client',
-      createdAt: new Date().toISOString(),
-      rememberMe: userData.rememberMe || false
-    }
-
-    // 3. Guardar en colección "Users"
-    await addDoc(collection(db, 'Users'), userDoc)
-
-    console.log('✅ Usuario registrado exitosamente en Firebase')
-
-    return { 
-      success: true, 
-      user: {
-        id: userCredential.user.uid,
-        ...userDoc
+    console.log('🔐 Intentando login con:', identifier)
+    
+    // PRIMERO: Verificar si es un ADMIN (solo username exacto)
+    const adminUsernames = ['Admin', 'MiliAdmin']
+    
+    if (adminUsernames.includes(identifier)) {
+      console.log('👑 Intentando login como ADMIN:', identifier)
+      
+      // Buscar admin por username exacto
+      const usersRef = collection(db, 'Users')
+      const adminQuery = query(usersRef, where('username', '==', identifier))
+      const adminSnapshot = await getDocs(adminQuery)
+      
+      if (adminSnapshot.empty) {
+        console.log('❌ Admin no encontrado en Firestore')
+        return {
+          success: false,
+          error: 'Administrador no encontrado'
+        }
+      }
+      
+      const adminDoc = adminSnapshot.docs[0]
+      const adminData = adminDoc.data()
+      
+      console.log('🔑 Comparando contraseña admin...')
+      
+      // Verificar contraseña del admin (texto plano)
+      if (adminData.password === password) {
+        console.log('✅ Contraseña correcta para admin')
+        
+        // Intentar login con Firebase Auth si tiene email
+        if (adminData.email) {
+          try {
+            await signInWithEmailAndPassword(auth, adminData.email, password)
+            console.log('✅ Firebase Auth login exitoso para admin')
+          } catch (firebaseError) {
+            console.log('⚠️ Firebase Auth falló para admin:', firebaseError.message)
+            // Continuamos con login manual
+          }
+        }
+        
+        // Preparar datos del admin con barberName
+        const adminToReturn = {
+          id: adminDoc.id,
+          ...adminData
+        }
+        
+        // Asegurar barberName
+        if (adminData.barberId && !adminData.barberName) {
+          adminToReturn.barberName = adminData.barberId === 'santi' ? 'Santiago' : 
+                                     adminData.barberId === 'mili' ? 'Mili' : 
+                                     adminData.firstName || 'Administrador'
+        }
+        
+        return {
+          success: true,
+          user: adminToReturn,
+          message: 'Login de administrador exitoso'
+        }
+      } else {
+        console.log('❌ Contraseña incorrecta para admin')
+        return {
+          success: false,
+          error: 'Contraseña incorrecta'
+        }
       }
     }
-
-  } catch (error) {
-    console.error('❌ Error en registro Firebase:', error)
     
-    let errorMessage = 'Error en el registro'
-    if (error.code === 'auth/email-already-in-use') {
-      errorMessage = 'El nombre de usuario ya está en uso'
-    } else if (error.code === 'auth/weak-password') {
-      errorMessage = 'La contraseña es muy débil'
+    // SEGUNDO: Si no es admin, es CLIENTE (buscar por username O documento)
+    console.log('👤 Intentando login como CLIENTE:', identifier)
+    
+    const usersRef = collection(db, 'Users')
+    
+    // Buscar cliente por username
+    let userQuery = query(usersRef, where('username', '==', identifier))
+    let querySnapshot = await getDocs(userQuery)
+    
+    // Si no encuentra por username, buscar por documento
+    if (querySnapshot.empty) {
+      userQuery = query(usersRef, where('document', '==', identifier))
+      querySnapshot = await getDocs(userQuery)
     }
     
-    return { 
-      success: false, 
-      error: errorMessage 
+    if (querySnapshot.empty) {
+      console.log('❌ Cliente no encontrado (ni por username ni documento)')
+      return {
+        success: false,
+        error: 'Usuario o DNI no encontrado'
+      }
+    }
+    
+    const userDoc = querySnapshot.docs[0]
+    const userData = userDoc.data()
+    
+    // Verificar que sea cliente (no admin que intenta loguearse mal)
+    if (userData.type === 'admin') {
+      console.log('❌ Cliente intentando usar método de admin')
+      return {
+        success: false,
+        error: 'Para administradores, use su username exacto (Admin o MiliAdmin)'
+      }
+    }
+    
+    console.log('🔑 Comparando contraseña cliente...')
+    
+    // Verificar contraseña del cliente (texto plano)
+    if (userData.password === password) {
+      console.log('✅ Contraseña correcta para cliente')
+      
+      // Intentar login con Firebase Auth si tiene email
+      if (userData.email) {
+        try {
+          await signInWithEmailAndPassword(auth, userData.email, password)
+          console.log('✅ Firebase Auth login exitoso para cliente')
+        } catch (firebaseError) {
+          console.log('⚠️ Firebase Auth falló para cliente:', firebaseError.message)
+          // Continuamos con login manual
+        }
+      }
+      
+      return {
+        success: true,
+        user: {
+          id: userDoc.id,
+          ...userData
+        },
+        message: 'Login de cliente exitoso'
+      }
+    } else {
+      console.log('❌ Contraseña incorrecta para cliente')
+      return {
+        success: false,
+        error: 'Contraseña incorrecta'
+      }
+    }
+    
+  } catch (error) {
+    console.error('❌ Error en loginUser:', error)
+    return {
+      success: false,
+      error: error.message || 'Error en el servidor'
     }
   }
 }
 
-// Login de usuario - VERSIÓN MEJORADA CON USERNAME O DOCUMENTO
-export const loginUser = async (identifier, password) => {
+// Registrar nuevo usuario (solo para clientes)
+export const registerUser = async (userData) => {
   try {
-    console.log('🔐 Intentando login en Firebase:', identifier)
+    console.log('📝 Registrando NUEVO CLIENTE:', userData.username)
     
-    // ADMIN: Login directo
-    if (identifier === 'Admin' && password === '123456') {
-      try {
-        // Intentar login con el email del admin
-        await signInWithEmailAndPassword(auth, 'sergio.bravo.9406@gmail.com', password)
-        
-        // Buscar datos del admin en Firestore
-        const adminQuery = query(
-          collection(db, 'Users'),
-          where('username', '==', 'Admin')
-        )
-        const adminSnapshot = await getDocs(adminQuery)
-        
-        let adminData = {
-          id: 'admin-1',
-          username: 'Admin',
-          email: 'sergio.bravo.9406@gmail.com',
-          firstName: 'Administrador',
-          lastName: 'Sistema', 
-          type: 'admin',
-          phone: '+5492235428346'
-        }
-        
-        if (!adminSnapshot.empty) {
-          const adminDoc = adminSnapshot.docs[0]
-          adminData = {
-            id: adminDoc.id,
-            ...adminDoc.data()
-          }
-        }
-        
-        return { 
-          success: true, 
-          user: adminData
-        }
-      } catch (error) {
-        // Si falla el login, retornar admin de todos modos
-        return { 
-          success: true, 
-          user: {
-            id: 'admin-1',
-            username: 'Admin',
-            email: 'sergio.bravo.9406@gmail.com',
-            firstName: 'Administrador',
-            lastName: 'Sistema', 
-            type: 'admin',
-            phone: '+5492235428346'
-          }
-        }
-      }
-    }
-
-    // PARA CLIENTES: Buscar por username o documento
-
-    let userEmail = null
-
-    // Buscar usuario en Firestore por username O documento
-    const usernameQuery = query(
-      collection(db, 'Users'),
-      where('username', '==', identifier)
-    )
+    // Verificar si el username ya existe
+    const usersRef = collection(db, 'Users')
+    
+    const usernameQuery = query(usersRef, where('username', '==', userData.username))
     const usernameSnapshot = await getDocs(usernameQuery)
-
-    const documentQuery = query(
-      collection(db, 'Users'),
-      where('document', '==', identifier)
-    )
-    const documentSnapshot = await getDocs(documentQuery)
-
-    const userSnapshot = !usernameSnapshot.empty ? usernameSnapshot : documentSnapshot
-
-    if (userSnapshot.empty) {
-      return { success: false, error: 'Usuario o DNI no encontrado' }
-    }
-
-    const userDoc = userSnapshot.docs[0]
-    const userData = userDoc.data()
-    userEmail = userData.email
-
-    if (!userEmail) {
-      return { success: false, error: 'Error en los datos del usuario' }
-    }
-
-    // Iniciar sesión con Firebase Auth usando el email
-    await signInWithEmailAndPassword(auth, userEmail, password)
-
-    return { 
-      success: true, 
-      user: {
-        id: userDoc.id,
-        ...userData
+    
+    if (!usernameSnapshot.empty) {
+      return {
+        success: false,
+        error: 'El nombre de usuario ya está en uso'
       }
     }
-
-  } catch (error) {
-    console.error('❌ Error en login Firebase:', error)
     
-    let errorMessage = 'Credenciales incorrectas'
-    if (error.code === 'auth/user-not-found') {
-      errorMessage = 'Usuario no encontrado'
-    } else if (error.code === 'auth/wrong-password') {
-      errorMessage = 'Contraseña incorrecta'
-    } else if (error.code === 'auth/invalid-email') {
-      errorMessage = 'Formato de usuario inválido'
+    // Verificar si el documento ya existe
+    if (userData.document) {
+      const documentQuery = query(usersRef, where('document', '==', userData.document))
+      const documentSnapshot = await getDocs(documentQuery)
+      
+      if (!documentSnapshot.empty) {
+        return {
+          success: false,
+          error: 'El documento ya está registrado'
+        }
+      }
     }
     
-    return { 
-      success: false, 
-      error: errorMessage 
+    // Crear usuario cliente en Firestore
+    const newUser = {
+      ...userData,
+      type: 'client', // SIEMPRE cliente
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    
+    const docRef = await addDoc(usersRef, newUser)
+    
+    console.log('✅ Cliente registrado exitosamente en Firestore')
+    
+    return {
+      success: true,
+      user: {
+        id: docRef.id,
+        ...newUser
+      },
+      message: 'Cliente registrado exitosamente'
+    }
+    
+  } catch (error) {
+    console.error('❌ Error en registerUser:', error)
+    return {
+      success: false,
+      error: error.message || 'Error al registrar cliente'
     }
   }
 }
 
 // Obtener usuario actual
-export const getCurrentUser = () => {
-  return new Promise((resolve) => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      unsubscribe()
-      if (user) {
-        // Buscar datos adicionales en Firestore
-        const userQuery = query(
-          collection(db, 'Users'),
-          where('uid', '==', user.uid)
-        )
-        const userSnapshot = await getDocs(userQuery)
+export const getCurrentUser = async () => {
+  try {
+    console.log('👤 Obteniendo usuario actual...')
+    
+    // PRIMERO: Intentar obtener de Firebase Auth
+    const authUser = auth.currentUser
+    
+    if (authUser && authUser.email) {
+      console.log('✅ Usuario de Firebase Auth encontrado:', authUser.email)
+      
+      // Buscar en Firestore por email
+      const usersRef = collection(db, 'Users')
+      const userQuery = query(usersRef, where('email', '==', authUser.email))
+      const querySnapshot = await getDocs(userQuery)
+      
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0]
+        const userData = userDoc.data()
         
-        if (!userSnapshot.empty) {
-          const userDoc = userSnapshot.docs[0]
-          resolve({
-            id: userDoc.id,
-            ...userDoc.data()
-          })
-        } else {
-          // Si no está en Firestore pero está autenticado, podría ser el admin
-          if (user.email === 'sergio.bravo.9406@gmail.com') {
-            resolve({
-              id: 'admin-1',
-              username: 'Admin',
-              email: 'sergio.bravo.9406@gmail.com',
-              firstName: 'Administrador',
-              lastName: 'Sistema', 
-              type: 'admin',
-              phone: '+5492235428346'
-            })
-          }
+        // Asegurar barberName para admins
+        if (userData.type === 'admin' && userData.barberId && !userData.barberName) {
+          userData.barberName = userData.barberId === 'santi' ? 'Santiago' : 
+                                userData.barberId === 'mili' ? 'Mili' : 
+                                userData.firstName || 'Administrador'
+        }
+        
+        return {
+          id: userDoc.id,
+          ...userData
         }
       }
-      resolve(null)
-    })
-  })
+    }
+    
+    // SEGUNDO: Intentar obtener de localStorage (fallback)
+    const storedUser = localStorage.getItem('adminUser') || localStorage.getItem('user')
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser)
+        console.log('✅ Usuario de localStorage:', parsedUser.username)
+        
+        // Asegurar barberName para admins
+        if (parsedUser.type === 'admin' && parsedUser.barberId && !parsedUser.barberName) {
+          parsedUser.barberName = parsedUser.barberId === 'santi' ? 'Santiago' : 
+                                  parsedUser.barberId === 'mili' ? 'Mili' : 
+                                  parsedUser.firstName || 'Administrador'
+        }
+        
+        return parsedUser
+      } catch (e) {
+        console.log('❌ Error parseando usuario de localStorage')
+      }
+    }
+    
+    console.log('ℹ️ No hay usuario autenticado')
+    return null
+    
+  } catch (error) {
+    console.error('❌ Error en getCurrentUser:', error)
+    return null
+  }
 }
 
 // Cerrar sesión
 export const logoutUser = async () => {
   try {
+    // Cerrar sesión en Firebase Auth
     await signOut(auth)
+    
+    // Limpiar localStorage
+    localStorage.removeItem('adminToken')
+    localStorage.removeItem('adminUser')
+    localStorage.removeItem('user')
+    localStorage.removeItem('isAuthenticated')
+    localStorage.removeItem('rememberedUsername')
+    
+    console.log('✅ Logout exitoso')
     return { success: true }
+    
   } catch (error) {
-    console.error('Error en logout:', error)
+    console.error('❌ Error en logoutUser:', error)
     return { success: false, error: error.message }
   }
 }
 
-// Función auxiliar para verificar si username ya existe
+// Verificar si username está disponible (para clientes)
 export const isUsernameTaken = async (username) => {
   try {
-    const userQuery = query(
-      collection(db, 'Users'),
-      where('username', '==', username)
-    )
-    const userSnapshot = await getDocs(userQuery)
-    return !userSnapshot.empty
+    const usersRef = collection(db, 'Users')
+    const q = query(usersRef, where('username', '==', username))
+    const querySnapshot = await getDocs(q)
+    return !querySnapshot.empty
   } catch (error) {
     console.error('Error verificando username:', error)
-    return false
+    return true // Por seguridad, asumir que está tomado
   }
 }
 
-// Función auxiliar para verificar si documento ya existe
+// Verificar si documento está disponible (para clientes)
 export const isDocumentTaken = async (document) => {
   try {
-    const userQuery = query(
-      collection(db, 'Users'),
-      where('document', '==', document)
-    )
-    const userSnapshot = await getDocs(userQuery)
-    return !userSnapshot.empty
+    const usersRef = collection(db, 'Users')
+    const q = query(usersRef, where('document', '==', document))
+    const querySnapshot = await getDocs(q)
+    return !querySnapshot.empty
   } catch (error) {
     console.error('Error verificando documento:', error)
-    return false
+    return true
+  }
+}
+
+// Actualizar perfil de usuario
+export const updateUserProfile = async (userId, updates) => {
+  try {
+    const userRef = doc(db, 'Users', userId)
+    await updateDoc(userRef, {
+      ...updates,
+      updatedAt: new Date().toISOString()
+    })
+    return { success: true }
+  } catch (error) {
+    console.error('Error actualizando perfil:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Buscar usuarios (para admin)
+export const searchUsers = async (searchTerm) => {
+  try {
+    const usersRef = collection(db, 'Users')
+    const clientQuery = query(usersRef, where('type', '==', 'client'))
+    const querySnapshot = await getDocs(clientQuery)
+    
+    const results = []
+    const searchLower = searchTerm.toLowerCase()
+    
+    querySnapshot.forEach(doc => {
+      const userData = doc.data()
+      
+      if (
+        (userData.username && userData.username.toLowerCase().includes(searchLower)) ||
+        (userData.email && userData.email.toLowerCase().includes(searchLower)) ||
+        (userData.firstName && userData.firstName.toLowerCase().includes(searchLower)) ||
+        (userData.lastName && userData.lastName.toLowerCase().includes(searchLower)) ||
+        (userData.document && userData.document.includes(searchTerm))
+      ) {
+        results.push({
+          id: doc.id,
+          ...userData
+        })
+      }
+    })
+    
+    return results
+  } catch (error) {
+    console.error('Error buscando usuarios:', error)
+    return []
+  }
+}
+
+// Crear usuario admin (para desarrollo)
+export const createAdminUser = async (adminData) => {
+  try {
+    const { username, email, password, barberId, firstName, lastName } = adminData
+    
+    // Verificar si ya existe
+    const existingQuery = query(
+      collection(db, 'Users'),
+      where('username', '==', username)
+    )
+    const existingSnapshot = await getDocs(existingQuery)
+    
+    if (!existingSnapshot.empty) {
+      return {
+        success: false,
+        error: 'El usuario admin ya existe'
+      }
+    }
+    
+    const adminUser = {
+      username,
+      email,
+      password,
+      type: 'admin',
+      barberId,
+      firstName,
+      lastName,
+      phone: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    
+    const docRef = await addDoc(collection(db, 'Users'), adminUser)
+    
+    return {
+      success: true,
+      user: {
+        id: docRef.id,
+        ...adminUser
+      }
+    }
+    
+  } catch (error) {
+    console.error('Error creando admin:', error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
+}
+
+// Obtener todos los clientes (para admin)
+export const getAllClients = async () => {
+  try {
+    const usersRef = collection(db, 'Users')
+    const clientQuery = query(usersRef, where('type', '==', 'client'))
+    const querySnapshot = await getDocs(clientQuery)
+    
+    const clients = []
+    querySnapshot.forEach(doc => {
+      clients.push({
+        id: doc.id,
+        ...doc.data()
+      })
+    })
+    
+    return clients
+  } catch (error) {
+    console.error('Error obteniendo clientes:', error)
+    return []
   }
 }

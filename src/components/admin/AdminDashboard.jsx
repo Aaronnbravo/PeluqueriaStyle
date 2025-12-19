@@ -8,10 +8,15 @@ import CurrentAppointment from './CurrentAppointment'
 import { getAppointments, getLocalDateString } from '../../services/appointments'
 import logo from '../../images/Logo.png'
 import './AdminDashboard.css'
-import { logoutUser } from '../../services/users';
+import { logoutUser } from '../../services/users'
+import { useAuth } from '../../hooks/useAuth'
 
 function AdminDashboard() {
   const navigate = useNavigate()
+  const { getBarberId, getBarberName } = useAuth()
+  const currentBarberId = getBarberId()
+  const currentBarberName = getBarberName()
+  
   const [activeTab, setActiveTab] = useState('agenda')
   const [stats, setStats] = useState({
     turnosHoy: 0,
@@ -51,7 +56,7 @@ function AdminDashboard() {
     }
   }, [])
 
-  // Cargar estadísticas reales
+  // Cargar estadísticas reales ESPECÍFICAS DEL PELUQUERO
   useEffect(() => {
     loadRealStats()
     // Actualizar estadísticas cada 30 segundos
@@ -62,7 +67,8 @@ function AdminDashboard() {
   const loadRealStats = async () => {
     try {
       setLoading(true);
-      const allAppointments = await getAppointments();
+      // Obtener solo los turnos del peluquero actual
+      const allAppointments = await getAppointments(currentBarberId);
       
       const today = getLocalDateString(new Date());
       const todayAppointments = allAppointments.filter(apt => {
@@ -70,7 +76,7 @@ function AdminDashboard() {
         return aptDate === today;
       });
       
-      // Calcular nuevos stats
+      // Calcular estadísticas solo para este peluquero
       const ingresosHoy = todayAppointments.reduce((sum, apt) => sum + (apt.total || 0), 0);
       const turnosPendientes = allAppointments.filter(apt => apt.status === 'pending').length;
       const turnosConfirmados = allAppointments.filter(apt => apt.status === 'confirmed').length;
@@ -154,35 +160,33 @@ function AdminDashboard() {
     });
   };
 
-  // En AdminDashboard.jsx, modifica la función handleLogout:
-
-const handleLogout = async () => {
-  try {
-    // 1. Cerrar sesión en Firebase
-    await logoutUser(); // Importa logoutUser desde services/users
-    
-    // 2. Limpiar localStorage
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('user');
-    localStorage.removeItem('isAuthenticated');
-    
-    // 3. Limpiar sessionStorage
-    sessionStorage.clear();
-    
-    // 4. Redirigir a la página principal
-    navigate('/', { replace: true });
-    
-    // 5. Recargar la página para limpiar estado
-    window.location.href = '/';
-    
-  } catch (error) {
-    console.error('Error al cerrar sesión:', error);
-    // Si hay error, redirigir de todos modos
-    navigate('/', { replace: true });
-    window.location.href = '/';
-  }
-};
+  const handleLogout = async () => {
+    try {
+      // 1. Cerrar sesión en Firebase
+      await logoutUser();
+      
+      // 2. Limpiar localStorage
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      localStorage.removeItem('user');
+      localStorage.removeItem('isAuthenticated');
+      
+      // 3. Limpiar sessionStorage
+      sessionStorage.clear();
+      
+      // 4. Redirigir a la página principal
+      navigate('/', { replace: true });
+      
+      // 5. Recargar la página para limpiar estado
+      window.location.href = '/';
+      
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // Si hay error, redirigir de todos modos
+      navigate('/', { replace: true });
+      window.location.href = '/';
+    }
+  };
 
   return (
     <div className="admin-dashboard" ref={contentRef}>
@@ -196,8 +200,17 @@ const handleLogout = async () => {
                 alt="Ian Castillo" 
                 className="admin-logo"
               />
-              {!isMobile && <strong>Panel Administrativo</strong>}
-              {isMobile && <strong>Admin</strong>}
+              {!isMobile && (
+                <strong>
+                  Panel de {currentBarberName || 'Administración'}
+                  {currentBarberName && ' - ' + currentBarberName}
+                </strong>
+              )}
+              {isMobile && (
+                <strong>
+                  {currentBarberName || 'Admin'}
+                </strong>
+              )}
             </div>
             
             {/* Navegación responsive */}
@@ -275,10 +288,10 @@ const handleLogout = async () => {
             {/* Header con estadísticas - Responsive */}
             <div className="admin-header">
               <h1 className={isMobile ? "h4" : ""}>
-                {isMobile ? "Bienvenido" : "Bienvenido, Administrador"}
+                {isMobile ? "Bienvenido" : `Bienvenido, ${currentBarberName || 'Administrador'}`}
               </h1>
               <p className={isMobile ? "small" : ""}>
-                {isMobile ? "Panel de control" : "Gestiona tu peluquería desde el panel de control"}
+                {isMobile ? "Panel de control" : `Gestiona tus turnos desde el panel de control${currentBarberName ? ` - ${currentBarberName}` : ''}`}
               </p>
               
               {loading ? (

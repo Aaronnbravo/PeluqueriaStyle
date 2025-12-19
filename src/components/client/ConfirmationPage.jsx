@@ -129,7 +129,38 @@ function ConfirmationPage() {
               </Col>
             </Row>
           </div>
-
+          {/* Peluquero Seleccionado */}
+{appointment.barber && (
+  <div className="confirmation-section">
+    <div className="section-header">
+      <h6 className="fw-bold text-dark mb-3">
+        <i className="fa-solid fa-user me-2 text-danger"></i>
+        Peluquero
+      </h6>
+    </div>
+    <div className="d-flex align-items-center">
+      <img 
+        src={appointment.barber.image} 
+        alt={appointment.barber.name}
+        style={{ 
+          width: '60px', 
+          height: '60px', 
+          borderRadius: '50%', 
+          objectFit: 'cover',
+          marginRight: '1rem',
+          border: '3px solid #8a2be2'
+        }}
+      />
+      <div>
+        <div className="fw-bold fs-5">{appointment.barber.name}</div>
+        <div className="text-muted small">
+          <i className="fa-solid fa-clock me-1"></i>
+          Turnos cada {appointment.barber.interval} minutos
+        </div>
+      </div>
+    </div>
+  </div>
+)}
           {/* Servicios Contratados */}
           <div className="confirmation-section">
             <div className="section-header">

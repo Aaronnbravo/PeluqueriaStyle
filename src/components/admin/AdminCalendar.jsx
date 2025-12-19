@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Table, Badge, Button, Form, Modal, Row, Col } from 'react-bootstrap'
-import { getAppointments, getAllTimeSlots, getLocalDateString, updateAppointmentStatus } from '../../services/appointments'
+import { Card, Table, Badge, Button, Form, Modal, Row, Col, Alert } from 'react-bootstrap'
+import { 
+  getAppointmentsByDate,  // USAR ESTA FUNCIÓN DIRECTAMENTE
+  getAllTimeSlots, 
+  updateAppointmentStatus
+} from '../../services/appointments'
 import ManualAppointment from './ManualAppointment'
+import { useAuth } from '../../hooks/useAuth'
 
 function AdminCalendar() {
-  // Fecha inicial: hoy en formato local
+  // Fecha inicial: hoy en formato YYYY-MM-DD (igual que Firestore)
   const today = new Date();
   const todayLocal = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   
@@ -17,212 +22,182 @@ function AdminCalendar() {
   const [selectedTimeForManual, setSelectedTimeForManual] = useState('')
   const [loading, setLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  
+  // Obtener barberId del usuario actual
+  const { getBarberId, getBarberName } = useAuth()
+  const currentBarberId = getBarberId()
+  const currentBarberName = getBarberName()
+  
+  console.log('🎯 CALENDARIO INICIADO');
+  console.log('📅 Fecha inicial:', selectedDate);
+  console.log('💇 Peluquero:', currentBarberName, 'ID:', currentBarberId);
+  
+  // Función para obtener el objeto barber completo
+  const getCurrentBarberObject = () => {
+    if (currentBarberId === 'mili') {
+      return {
+        id: 'mili',
+        name: 'Mili',
+        interval: 45,
+        description: 'Coloración y estilismo'
+      }
+    } else if (currentBarberId === 'santi') {
+      return {
+        id: 'santi',
+        name: 'Santiago',
+        interval: 30,
+        description: 'Corte clásico y moderno'
+      }
+    }
+    return null
+  }
 
-  // Forzar recarga cada 30 segundos y cuando cambia la fecha
+  // Cargar datos - VERSIÓN SIMPLIFICADA Y DIRECTA
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      console.log('='.repeat(50));
+      console.log('📥 CARGANDO TURNOS...');
+      console.log(`📅 Para fecha: ${selectedDate}`);
+      console.log(`💇 Para peluquero: ${currentBarberName} (${currentBarberId})`);
+      
+      // 1. Obtener turnos ESPECÍFICOS para esta fecha y este peluquero
+      const appointmentsForDate = await getAppointmentsByDate(selectedDate, currentBarberId);
+      
+      console.log(`✅ TURNOS ENCONTRADOS: ${appointmentsForDate.length}`);
+      
+      // Mostrar cada turno en consola
+      appointmentsForDate.forEach((apt, idx) => {
+        console.log(`   [${idx}] ${apt.clientName} - ${apt.time} - Peluquero: ${apt.barberId || apt.barber?.id}`);
+      });
+      
+      // Guardar los turnos
+      setAppointments(appointmentsForDate);
+      
+      // 2. Obtener slots para este peluquero específico
+      const barberObject = getCurrentBarberObject();
+      const slots = getAllTimeSlots(barberObject);
+      console.log(`⏰ Slots generados: ${slots.length} (intervalo: ${barberObject?.interval || 30} min)`);
+      
+      setTimeSlots(slots);
+      
+    } catch (error) {
+      console.error('❌ ERROR cargando datos:', error);
+      setAppointments([]);
+      setTimeSlots([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cargar cuando cambia la fecha o se fuerza recarga
   useEffect(() => {
-    console.log('=== DEBUG CALENDARIO ===');
-    console.log('📅 Fecha seleccionada:', selectedDate);
-    
-    loadData()
+    console.log('🔄 useEffect ejecutado');
+    loadData();
     
     // Actualizar automáticamente cada 30 segundos
-    const interval = setInterval(loadData, 30000)
+    const interval = setInterval(loadData, 30000);
     
-    return () => clearInterval(interval)
-  }, [selectedDate, refreshTrigger])
-
-const loadData = async () => {
-  try {
-    setLoading(true)
-    const allAppointments = await getAppointments()
-    const slots = getAllTimeSlots()
-    setAppointments(allAppointments)
-    setTimeSlots(slots)
-    
-    // DEBUG: Mostrar información de los turnos
-    console.log('📊=== DEBUG CALENDARIO ===')
-    console.log('📊 Total turnos cargados:', allAppointments.length)
-    
-    // Mostrar los primeros 5 turnos para debug
-    allAppointments.slice(0, 5).forEach((apt, idx) => {
-      console.log(`Turno ${idx + 1}:`, {
-        cliente: apt.clientName,
-        fecha: apt.date,
-        hora: apt.time,
-        estado: apt.status
-      })
-    })
-    
-    // Buscar específicamente turnos para la fecha seleccionada
-    const turnosParaFecha = allAppointments.filter(apt => {
-      if (!apt || !apt.date) return false;
-      
-      // Normalizar fecha del turno a YYYY-MM-DD
-      const aptDateNormalized = normalizeDateForComparison(apt.date);
-      const selectedDateNormalized = normalizeDateForComparison(selectedDate);
-      
-      const matches = aptDateNormalized === selectedDateNormalized;
-      
-      if (matches) {
-        console.log(`🎯 Turno encontrado para ${selectedDate}:`, {
-          cliente: apt.clientName,
-          hora: apt.time,
-          fechaOriginal: apt.date,
-          fechaNormalizada: aptDateNormalized
-        })
-      }
-      
-      return matches;
-    })
-    
-    console.log(`✅ Turnos para ${selectedDate}:`, turnosParaFecha.length)
-    
-  } catch (error) {
-    console.error('❌ Error cargando datos:', error)
-    setAppointments([])
-    setTimeSlots([])
-  } finally {
-    setLoading(false)
-  }
-}
-  // Función para normalizar fechas a YYYY-MM-DD
-  const normalizeDateForComparison = (dateStr) => {
-    if (!dateStr) return '';
-    
-    console.log('🔄 Normalizando fecha:', dateStr, 'tipo:', typeof dateStr);
-    
-    // Si ya es YYYY-MM-DD
-    if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-      return dateStr;
-    }
-    
-    // Si es DD/MM/YYYY (como se muestra en la tabla de Turnos Totales)
-    if (typeof dateStr === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
-      const [day, month, year] = dateStr.split('/');
-      const normalized = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      console.log(`   Convertido de DD/MM/YYYY a YYYY-MM-DD: ${dateStr} -> ${normalized}`);
-      return normalized;
-    }
-    
-    // Si es un objeto Date o timestamp
-    try {
-      // Usar getLocalDateString que ya tiene la lógica de conversión
-      const normalized = getLocalDateString(dateStr);
-      console.log(`   Usando getLocalDateString: ${dateStr} -> ${normalized}`);
-      return normalized;
-    } catch (error) {
-      console.error('Error en normalizeDateForComparison:', error);
-      return '';
-    }
-  }
-
-  // Filtrar turnos usando fecha normalizada
-  const appointmentsForSelectedDate = appointments.filter(apt => {
-    if (!apt || !apt.date) return false;
-    
-    const aptDateNormalized = normalizeDateForComparison(apt.date);
-    const selectedDateNormalized = normalizeDateForComparison(selectedDate);
-    
-    console.log('🔍 Comparando:', {
-      cliente: apt.clientName,
-      fechaOriginal: apt.date,
-      fechaNormalizada: aptDateNormalized,
-      fechaSeleccionada: selectedDateNormalized,
-      coincide: aptDateNormalized === selectedDateNormalized
-    });
-    
-    return aptDateNormalized === selectedDateNormalized;
-  });
+    return () => clearInterval(interval);
+  }, [selectedDate, refreshTrigger]);
 
   // Crear mapa de horarios ocupados
-  const bookedSlotsMap = {}
-  appointmentsForSelectedDate.forEach(apt => {
+  const bookedSlotsMap = {};
+  appointments.forEach(apt => {
     if (apt && apt.time) {
-      bookedSlotsMap[apt.time] = apt
+      bookedSlotsMap[apt.time] = apt;
+      console.log(`📌 Slot ${apt.time} ocupado por ${apt.clientName}`);
     }
-  })
+  });
 
+  // Manejar clic en turno
   const handleAppointmentClick = (appointment) => {
-    setSelectedAppointment(appointment)
-    setShowModal(true)
-  }
+    setSelectedAppointment(appointment);
+    setShowModal(true);
+  };
 
-  // Función mejorada para obtener color según estado
-  const getStatusVariant = (status) => {
-    switch (status) {
-      case 'pending': return 'warning'     // Pendiente - Amarillo
-      case 'confirmed': return 'primary'   // Confirmado - Azul
-      case 'in_progress': return 'info'    // En progreso - Celeste
-      case 'completed': return 'success'   // Terminado - Verde
-      case 'cancelled': return 'danger'    // Cancelado - Rojo
-      default: return 'secondary'
-    }
-  }
-
-  // Función para obtener texto del estado
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'pending': return 'Pendiente'
-      case 'confirmed': return 'Confirmado'
-      case 'in_progress': return 'En Progreso'
-      case 'completed': return 'Terminado'
-      case 'cancelled': return 'Cancelado'
-      default: return 'Desconocido'
-    }
-  }
-
-  // Función para cambiar estado desde el calendario
+  // Cambiar estado del turno
   const handleStatusChange = async (appointmentId, newStatus) => {
     try {
-      const success = await updateAppointmentStatus(appointmentId, newStatus)
+      const success = await updateAppointmentStatus(appointmentId, newStatus);
       if (success) {
-        // Forzar recarga de datos
-        setRefreshTrigger(prev => prev + 1)
-        setShowModal(false)
+        setRefreshTrigger(prev => prev + 1);
+        setShowModal(false);
       }
     } catch (error) {
-      console.error('Error cambiando estado:', error)
+      console.error('Error cambiando estado:', error);
     }
-  }
+  };
 
   // Formatear fecha para mostrar
-  const formatDate = (dateString) => {
+  const formatDateForDisplay = (dateString) => {
     if (!dateString) return '';
     
-    // Primero normalizar la fecha
-    const normalizedDate = normalizeDateForComparison(dateString);
-    
-    // Crear fecha a partir de la normalizada
-    const [year, month, day] = normalizedDate.split('-').map(Number);
-    const date = new Date(year, month - 1, day, 12, 0, 0, 0);
-    
-    return date.toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'America/Argentina/Buenos_Aires'
-    });
-  }
+    try {
+      // Si ya es YYYY-MM-DD
+      if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        
+        return date.toLocaleDateString('es-ES', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      
+      return dateString;
+    } catch (error) {
+      console.error('Error formateando fecha:', error);
+      return dateString;
+    }
+  };
 
-  // Manejar cambio de fecha
-  const handleDateChange = (e) => {
-    const newDate = e.target.value;
-    console.log('📅 Cambiando fecha a:', newDate);
-    setSelectedDate(newDate);
-  }
+  // Obtener nombre del peluquero para mostrar
+  const getBarberDisplay = (appointment) => {
+    if (appointment.barberName) return appointment.barberName;
+    if (appointment.barber?.name) return appointment.barber.name;
+    if (appointment.barberId === 'mili') return 'Mili';
+    if (appointment.barberId === 'santi') return 'Santiago';
+    return appointment.barberId || 'No asignado';
+  };
 
-  // Función para obtener clase CSS según estado (para color de fondo)
+  // Obtener variante de estado
+  const getStatusVariant = (status) => {
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'confirmed': return 'primary';
+      case 'in_progress': return 'info';
+      case 'completed': return 'success';
+      case 'cancelled': return 'danger';
+      default: return 'secondary';
+    }
+  };
+
+  // Obtener texto del estado
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'pending': return 'Pendiente';
+      case 'confirmed': return 'Confirmado';
+      case 'in_progress': return 'En Progreso';
+      case 'completed': return 'Terminado';
+      case 'cancelled': return 'Cancelado';
+      default: return 'Desconocido';
+    }
+  };
+
+  // Clase CSS según estado
   const getAppointmentCardClass = (status) => {
     switch (status) {
-      case 'pending': return 'status-pending'
-      case 'confirmed': return 'status-confirmed'
-      case 'in_progress': return 'status-in-progress'
-      case 'completed': return 'status-completed'
-      case 'cancelled': return 'status-cancelled'
-      default: return 'status-default'
+      case 'pending': return 'status-pending';
+      case 'confirmed': return 'status-confirmed';
+      case 'in_progress': return 'status-in-progress';
+      case 'completed': return 'status-completed';
+      case 'cancelled': return 'status-cancelled';
+      default: return 'status-default';
     }
-  }
+  };
 
   return (
     <div>
@@ -230,14 +205,20 @@ const loadData = async () => {
       <Card className="mb-4">
         <Card.Header className="d-flex justify-content-between align-items-center">
           <h5 className="mb-0">
-            <i className="fas fa-calendar-days"></i> Agenda del Día - {formatDate(selectedDate)}
+            <i className="fas fa-calendar-days"></i> Agenda del Día - {formatDateForDisplay(selectedDate)} - {currentBarberName}
+            <small className="text-muted ms-2">
+              (Intervalo: {currentBarberId === 'mili' ? '45' : '30'} minutos)
+            </small>
           </h5>
           <div className="d-flex align-items-center gap-3">
             <Form.Group className="mb-0">
               <Form.Control
                 type="date"
                 value={selectedDate}
-                onChange={handleDateChange}
+                onChange={(e) => {
+                  console.log('📅 Cambiando fecha a:', e.target.value);
+                  setSelectedDate(e.target.value);
+                }}
                 className="calendar-date-picker"
               />
             </Form.Group>
@@ -245,8 +226,8 @@ const loadData = async () => {
               variant="outline-primary" 
               size="sm"
               onClick={() => {
-                console.log('🔄 Refrescando datos...');
-                setRefreshTrigger(prev => prev + 1)
+                console.log('🔄 Forzando recarga...');
+                setRefreshTrigger(prev => prev + 1);
               }}
               title="Actualizar"
             >
@@ -254,6 +235,7 @@ const loadData = async () => {
             </Button>
           </div>
         </Card.Header>
+        
         <Card.Body>
           {loading ? (
             <div className="text-center py-5">
@@ -261,83 +243,121 @@ const loadData = async () => {
                 <span className="visually-hidden">Cargando...</span>
               </div>
               <p className="mt-3">Cargando agenda...</p>
+              <small className="text-muted">
+                Buscando turnos para {currentBarberName} el {formatDateForDisplay(selectedDate)}
+              </small>
             </div>
           ) : (
-            <div className="calendar-grid">
-              <Row className="calendar-header">
-                <Col md={2}>
-                  <strong>Hora</strong>
-                </Col>
-                <Col md={10}>
-                  <strong>Turnos Programados ({appointmentsForSelectedDate.length})</strong>
-                </Col>
-              </Row>
+            <>
+              {/* Información del estado */}
+              <Alert variant={appointments.length > 0 ? 'success' : 'info'} className="mb-3">
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <i className="fas fa-info-circle me-2"></i>
+                    <strong>{appointments.length}</strong> turnos para {currentBarberName} el {formatDateForDisplay(selectedDate)}
+                  </div>
+                  <Badge bg="primary">
+                    {currentBarberName} (ID: {currentBarberId})
+                  </Badge>
+                </div>
+              </Alert>
               
-              {timeSlots.map(time => {
-                const appointment = bookedSlotsMap[time]
-                const isBooked = !!appointment
+              {/* Grid del calendario */}
+              <div className="calendar-grid">
+                <Row className="calendar-header">
+                  <Col md={2}>
+                    <strong>Hora</strong>
+                  </Col>
+                  <Col md={10}>
+                    <strong>Turnos Programados</strong>
+                    <small className="text-muted ms-2">
+                      • {currentBarberName} • Intervalo: {currentBarberId === 'mili' ? '45' : '30'} min
+                    </small>
+                  </Col>
+                </Row>
                 
-                return (
-                  <Row key={time} className={`calendar-time-slot ${isBooked ? 'booked' : 'available'}`}>
-                    <Col md={2} className="time-column">
-                      <Badge bg={isBooked ? "danger" : "secondary"} className="time-badge">
-                        {time}
-                      </Badge>
-                    </Col>
-                    <Col md={10} className="appointment-column">
-                      {isBooked ? (
-                        <div 
-                          className={`appointment-card ${getAppointmentCardClass(appointment.status)}`}
-                          onClick={() => handleAppointmentClick(appointment)}
-                        >
-                          <div className="appointment-content">
-                            <div className="appointment-header">
-                              <div className="d-flex justify-content-between align-items-start">
-                                <div>
-                                  <strong>{appointment.clientName}</strong>
-                                  <Badge bg={getStatusVariant(appointment.status)} className="ms-2">
-                                    {getStatusText(appointment.status)}
-                                  </Badge>
+                {timeSlots.length === 0 ? (
+                  <div className="text-center py-4 text-muted">
+                    <i className="fas fa-clock fa-2x mb-2"></i>
+                    <p>No se generaron slots de horario</p>
+                  </div>
+                ) : (
+                  timeSlots.map(time => {
+                    const appointment = bookedSlotsMap[time];
+                    const isBooked = !!appointment;
+                    
+                    return (
+                      <Row key={time} className={`calendar-time-slot ${isBooked ? 'booked' : 'available'}`}>
+                        <Col md={2} className="time-column">
+                          <Badge bg={isBooked ? "danger" : "secondary"} className="time-badge">
+                            {time}
+                          </Badge>
+                        </Col>
+                        <Col md={10} className="appointment-column">
+                          {isBooked ? (
+                            <div 
+                              className={`appointment-card ${getAppointmentCardClass(appointment.status)}`}
+                              onClick={() => handleAppointmentClick(appointment)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <div className="appointment-content">
+                                <div className="appointment-header">
+                                  <div className="d-flex justify-content-between align-items-start">
+                                    <div>
+                                      <strong>{appointment.clientName}</strong>
+                                      <Badge bg={getStatusVariant(appointment.status)} className="ms-2">
+                                        {getStatusText(appointment.status)}
+                                      </Badge>
+                                      <small className="ms-2 text-muted">
+                                        <i className="fas fa-user me-1"></i>
+                                        {getBarberDisplay(appointment)}
+                                      </small>
+                                    </div>
+                                    <div>
+                                      <small className="text-muted me-2">
+                                        <i className="fas fa-clock me-1"></i>
+                                        {appointment.duration} min
+                                      </small>
+                                      <Badge bg="success">
+                                        ${appointment.total || 0}
+                                      </Badge>
+                                    </div>
+                                  </div>
                                 </div>
-                                <small className="text-muted">
-                                  <i className="fas fa-clock me-1"></i>
-                                  {appointment.duration} min
-                                </small>
+                                <div className="appointment-details">
+                                  <small>
+                                    <i className="fas fa-phone me-1"></i> {appointment.phone || 'Sin teléfono'} • 
+                                    <i className="fas fa-scissors me-2 ms-1"></i> {appointment.services?.map(s => s.name).join(', ') || 'Sin servicios'}
+                                  </small>
+                                </div>
                               </div>
                             </div>
-                            <div className="appointment-details">
-                              <small>
-                                <i className="fas fa-phone me-1"></i> {appointment.phone} • 
-                                <i className="fas fa-scissors me-1"></i> {appointment.services?.map(s => s.name).join(', ') || 'Sin servicios'} • 
-                                <i className="fas fa-dollar-sign me-1"></i> ${appointment.total || 0}
-                              </small>
+                          ) : (
+                            <div className="time-slot-empty">
+                              <div className="d-flex justify-content-between align-items-center">
+                                <small className="text-muted">Disponible para {currentBarberName}</small>
+                                <Button 
+                                  variant="danger" 
+                                  size="sm" 
+                                  className="agendar-btn"
+                                  onClick={() => {
+                                    setSelectedTimeForManual(time);
+                                    setShowManualAppointment(true);
+                                  }}
+                                >
+                                  <i className="fas fa-plus me-1"></i>
+                                  Agendar
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="time-slot-empty">
-                          <div className="d-flex justify-content-between align-items-center">
-                            <small className="text-muted">Disponible</small>
-                            <Button 
-                              variant="danger" 
-                              size="sm" 
-                              className="agendar-btn"
-                              onClick={() => {
-                                setSelectedTimeForManual(time)
-                                setShowManualAppointment(true)
-                              }}
-                            >
-                              <i className="fas fa-plus me-1"></i>
-                              Agendar
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </Col>
-                  </Row>
-                )
-              })}
-            </div>
+                          )}
+                        </Col>
+                      </Row>
+                    );
+                  })
+                )}
+              </div>
+            </>
           )}
         </Card.Body>
       </Card>
@@ -346,26 +366,22 @@ const loadData = async () => {
       <Card>
         <Card.Header>
           <div className="d-flex justify-content-between align-items-center">
-            <h5 className="mb-0"><i className="fas fa-list"></i> Lista de Turnos del Día</h5>
-            <Badge bg="info">
-              {appointmentsForSelectedDate.length} turnos
+            <h5 className="mb-0">
+              <i className="fas fa-list"></i> Lista de Turnos del Día - {currentBarberName}
+            </h5>
+            <Badge bg="primary">
+              {appointments.length} turnos
             </Badge>
           </div>
         </Card.Header>
         <Card.Body>
-          {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border spinner-border-sm text-primary" role="status">
-                <span className="visually-hidden">Cargando...</span>
-              </div>
-              <p className="mt-2 small">Cargando turnos...</p>
-            </div>
-          ) : appointmentsForSelectedDate.length > 0 ? (
+          {appointments.length > 0 ? (
             <Table responsive hover>
               <thead>
                 <tr>
                   <th>Hora</th>
                   <th>Cliente</th>
+                  <th>Peluquero</th>
                   <th>Servicios</th>
                   <th>Duración</th>
                   <th>Total</th>
@@ -374,7 +390,7 @@ const loadData = async () => {
                 </tr>
               </thead>
               <tbody>
-                {appointmentsForSelectedDate
+                {appointments
                   .sort((a, b) => a.time?.localeCompare(b.time) || 0)
                   .map(appointment => (
                     <tr key={appointment.id} className={getAppointmentCardClass(appointment.status)}>
@@ -389,6 +405,12 @@ const loadData = async () => {
                             <i className="fas fa-phone me-1"></i> {appointment.phone || 'Sin teléfono'}
                           </small>
                         </div>
+                      </td>
+                      <td>
+                        <Badge bg="info">
+                          <i className="fas fa-user me-1"></i>
+                          {getBarberDisplay(appointment)}
+                        </Badge>
                       </td>
                       <td>
                         {appointment.services?.map(service => service.name).join(', ') || 'Sin servicios'}
@@ -425,7 +447,7 @@ const loadData = async () => {
                           {appointment.status === 'in_progress' ? (
                             <Button 
                               variant="outline-success" 
-                            size="sm"
+                              size="sm"
                               onClick={() => handleStatusChange(appointment.id, 'completed')}
                               title="Marcar como terminado"
                             >
@@ -443,7 +465,7 @@ const loadData = async () => {
             <div className="text-center text-muted py-4">
               <i className="fas fa-calendar-times fa-2x mb-3"></i>
               <h6>No hay turnos para esta fecha</h6>
-              <p>Selecciona otra fecha o espera nuevos turnos</p>
+              <p className="mb-3">No se encontraron turnos para {currentBarberName} el {formatDateForDisplay(selectedDate)}</p>
               <Button 
                 variant="danger" 
                 size="sm"
@@ -457,7 +479,7 @@ const loadData = async () => {
         </Card.Body>
       </Card>
 
-      {/* Modal para ver detalles del turno */}
+      {/* Modal de detalles */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
@@ -481,6 +503,10 @@ const loadData = async () => {
                           {getStatusText(selectedAppointment.status)}
                         </Badge>
                         <Badge bg="secondary">{selectedAppointment.time}</Badge>
+                        <Badge bg="info" className="ms-2">
+                          <i className="fas fa-user me-1"></i>
+                          {getBarberDisplay(selectedAppointment)}
+                        </Badge>
                       </div>
                     </div>
                   </div>
@@ -530,7 +556,7 @@ const loadData = async () => {
                   {selectedAppointment.email || 'No especificado'}</p>
                   
                   <p><strong><i className="fas fa-calendar-day me-2"></i>Fecha:</strong><br />
-                  {formatDate(selectedAppointment.date)}</p>
+                  {formatDateForDisplay(selectedAppointment.date)}</p>
                   
                   <p><strong><i className="fas fa-clock me-2"></i>Hora:</strong><br />
                   {selectedAppointment.time}</p>
@@ -577,11 +603,13 @@ const loadData = async () => {
       <ManualAppointment 
         show={showManualAppointment}
         onHide={() => {
-          setShowManualAppointment(false)
-          setRefreshTrigger(prev => prev + 1) // Forzar recarga después de agendar
+          setShowManualAppointment(false);
+          setRefreshTrigger(prev => prev + 1);
         }}
         selectedDate={selectedDate}
         selectedTime={selectedTimeForManual}
+        currentBarberId={currentBarberId}
+        currentBarberName={currentBarberName}
       />
     </div>
   )

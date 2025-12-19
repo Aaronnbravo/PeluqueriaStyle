@@ -3,7 +3,7 @@ import { Card, Form, Button, Alert, ListGroup, Row, Col } from 'react-bootstrap'
 import { getServices, getPaymentMethods, createAppointmentWithNotifications } from '../../services/appointments';
 import { useAuth } from '../../hooks/useAuth';
 
-function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, existingAppointment, onServiceSelected }) {
+function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, existingAppointment, onServiceSelected, selectedBarber }) {
   const { user } = useAuth();
   const [services] = useState(getServices());
   const [paymentMethods] = useState(getPaymentMethods());
@@ -77,6 +77,12 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
     e.preventDefault();
     setError('');
 
+    // Validaciones adicionales
+    if (!selectedBarber) {
+      setError('Por favor selecciona un peluquero primero');
+      return;
+    }
+
     // Si ya tiene turno, no permitir agendar otro
     if (existingAppointment) {
       setError('Ya tienes un turno agendado. Cancela o modifica tu turno existente primero.');
@@ -133,6 +139,8 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
       duration: totalDuration,
       paymentMethod: paymentMethod,
       notes: notes,
+      barber: selectedBarber, // Incluir información del peluquero
+      barberId: selectedBarber?.id, // Incluir ID del peluquero
       confirmationNumber: 'CONF-' + Date.now().toString().slice(-6)
     };
 
@@ -193,6 +201,14 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
           </Alert>
         )}
 
+        {/* MOSTRAR MENSAJE SI NO HAY PELUQUERO SELECCIONADO */}
+        {!selectedBarber && (
+          <Alert variant="warning" className="mb-4">
+            <i className="fa-solid fa-user-slash me-2"></i>
+            Primero selecciona un peluquero en el calendario
+          </Alert>
+        )}
+
         {/* MOSTRAR MENSAJE SI YA TIENE TURNO EXISTENTE */}
         {existingAppointment && (
           <Alert variant="warning" className="mb-4">
@@ -203,6 +219,11 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
             <p className="mb-2">
               <strong>Hora:</strong> {existingAppointment.time}
             </p>
+            {existingAppointment.barber && (
+              <p className="mb-2">
+                <strong>Peluquero:</strong> {existingAppointment.barber.name}
+              </p>
+            )}
             <p className="mb-0">
               <strong>Servicios:</strong> {existingAppointment.services.map(s => s.name).join(', ')}
             </p>
@@ -213,7 +234,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
           </Alert>
         )}
 
-        {!selectedDate && !existingAppointment && (
+        {!selectedDate && !existingAppointment && selectedBarber && (
           <Alert variant="warning">
             <i className="fa-solid fa-clock me-2"></i>
             Primero selecciona una fecha y hora en el calendario
@@ -233,8 +254,8 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                 return (
                   <Col key={service.id} xs={12} className="mb-3">
                     <div
-                      className={`service-card ${isSelected ? 'selected' : ''} ${existingAppointment ? 'disabled-service' : ''}`}
-                      onClick={() => !existingAppointment && handleServiceToggle(service)}
+                      className={`service-card ${isSelected ? 'selected' : ''} ${existingAppointment ? 'disabled-service' : ''} ${!selectedBarber ? 'disabled-service' : ''}`}
+                      onClick={() => !existingAppointment && selectedBarber && handleServiceToggle(service)}
                     >
                       <div className="service-icon">
                         {getServiceIcon(service.name)}
@@ -246,7 +267,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                           <span className="service-duration">{service.duration}min</span>
                         </div>
                       </div>
-                      {existingAppointment && (
+                      {(existingAppointment || !selectedBarber) && (
                         <div className="service-overlay">
                           <i className="fa-solid fa-lock"></i>
                         </div>
@@ -265,6 +286,28 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                 <h6><i className="fa-solid fa-receipt me-2"></i> Resumen del Turno</h6>
               </Card.Header>
               <Card.Body>
+                {selectedBarber && (
+                  <Alert variant="info" className="mb-3">
+                    <div className="d-flex align-items-center">
+                      <img 
+                        src={selectedBarber.image} 
+                        alt={selectedBarber.name}
+                        style={{ 
+                          width: '40px', 
+                          height: '40px', 
+                          borderRadius: '50%', 
+                          objectFit: 'cover',
+                          marginRight: '1rem',
+                          border: '2px solid #8a2be2'
+                        }}
+                      />
+                      <div>
+                        <strong className="d-block">{selectedBarber.name}</strong>
+                        <small className="text-muted">Turnos cada {selectedBarber.interval} minutos</small>
+                      </div>
+                    </div>
+                  </Alert>
+                )}
                 <ListGroup variant="flush">
                   {selectedServices.map(service => (
                     <ListGroup.Item key={service.id} className="summary-item">
@@ -277,7 +320,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                     <span>{formatPrice(total)}</span>
                   </ListGroup.Item>
                   <ListGroup.Item className="summary-duration">
-                    <span>Duración total:</span>
+                    <span>Duración aproximada:</span>
                     <span>{totalDuration} minutos</span>
                   </ListGroup.Item>
                 </ListGroup>
@@ -296,9 +339,9 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                 <button
                   key={method}
                   type="button"
-                  className={`payment-method-btn ${paymentMethod === method ? 'selected' : ''} ${existingAppointment ? 'disabled-payment' : ''}`}
-                  onClick={() => !existingAppointment && setPaymentMethod(method)}
-                  disabled={existingAppointment}
+                  className={`payment-method-btn ${paymentMethod === method ? 'selected' : ''} ${existingAppointment ? 'disabled-payment' : ''} ${!selectedBarber ? 'disabled-payment' : ''}`}
+                  onClick={() => !existingAppointment && selectedBarber && setPaymentMethod(method)}
+                  disabled={existingAppointment || !selectedBarber}
                 >
                   {getPaymentIcon(method)} {method}
                 </button>
@@ -316,10 +359,10 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
               as="textarea"
               rows={3}
               value={notes}
-              onChange={(e) => !existingAppointment && setNotes(e.target.value)}
-              placeholder={existingAppointment ? "No puedes agregar notas mientras tengas un turno activo" : "Algún requerimiento especial, color de tintura, estilo de corte preferido, etc."}
+              onChange={(e) => !existingAppointment && selectedBarber && setNotes(e.target.value)}
+              placeholder={existingAppointment ? "No puedes agregar notas mientras tengas un turno activo" : !selectedBarber ? "Primero selecciona un peluquero" : "Algún requerimiento especial, color de tintura, estilo de corte preferido, etc."}
               className="notes-textarea"
-              disabled={existingAppointment}
+              disabled={existingAppointment || !selectedBarber}
             />
           </Form.Group>
 
@@ -345,6 +388,31 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                 <div className="modal-content">
                   <div className="confirmation-details">
                     <h6>Revisa los detalles de tu turno</h6>
+
+                    {/* Peluquero */}
+                    {selectedBarber && (
+                      <div className="detail-section">
+                        <div className="detail-section-title">
+                          <i className="fa-solid fa-user"></i>
+                          Peluquero
+                        </div>
+                        <div className="detail-content">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <img 
+                              src={selectedBarber.image} 
+                              alt={selectedBarber.name}
+                              style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
+                            />
+                            <div>
+                              <strong>{selectedBarber.name}</strong>
+                              <div style={{ fontSize: '0.9rem', color: '#6c757d' }}>
+                                Turnos cada {selectedBarber.interval} minutos
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Fecha y Hora */}
                     <div className="detail-section">
@@ -419,7 +487,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                     <div className="detail-section">
                       <div className="detail-section-title">
                         <i className="fa-solid fa-stopwatch"></i>
-                        Duración Total
+                        Duración Aprox
                       </div>
                       <div className="detail-content">
                         {totalDuration} minutos
@@ -488,7 +556,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
             variant="success"
             type="submit"
             className="confirm-btn w-100"
-            disabled={loading || !selectedDate || !selectedTime || selectedServices.length === 0 || existingAppointment}
+            disabled={loading || !selectedDate || !selectedTime || selectedServices.length === 0 || existingAppointment || !selectedBarber}
             size="lg"
           >
             {loading ? (
@@ -500,6 +568,11 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
               <>
                 <i className="fa-solid fa-lock me-2"></i>
                 Ya tienes un turno
+              </>
+            ) : !selectedBarber ? (
+              <>
+                <i className="fa-solid fa-user-slash me-2"></i>
+                Selecciona un peluquero
               </>
             ) : (
               <>
