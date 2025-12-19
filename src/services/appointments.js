@@ -649,7 +649,7 @@ export const createAdminAppointment = async (appointmentData) => {
 
 // ========== SERVICIO DE NOTIFICACIONES ==========
 
-const ADMIN_PHONE = '2233129810';
+const ADMIN_PHONE = '2233540664';
 
 export const sendAdminWhatsAppNotification = (appointment) => {
   try {
@@ -847,3 +847,4 @@ export const isDocumentTaken = async () => false;
 
 // Alias para mantener compatibilidad
 export const formatToYYYYMMDD = getLocalDateString;
+
