@@ -5,14 +5,14 @@ const BARBERS = [
   {
     id: 'santiago',
     name: 'Santiago',
-    image: '/images/Barbers/Santuu.jpg', // Carpeta Barbers con B mayúscula
+    image: '/images/Barbers/Santuu.jpg',
     interval: 30,
     description: 'Corte clásico y moderno'
   },
   {
     id: 'mili',
     name: 'Mili',
-    image: 'src/images/Barbers/Mili.JPG', // Extensión .JPG en mayúsculas
+    image: 'src/images/Barbers/Mili.JPG',
     interval: 45,
     description: 'Coloración y estilismo'
   }

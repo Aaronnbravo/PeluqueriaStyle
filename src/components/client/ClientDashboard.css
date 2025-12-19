@@ -2417,3 +2417,162 @@ body {
   }
 }
 
+/* Estilos para servicios "Consultar" */
+.consult-service {
+  border-left: 4px solid #ffc107 !important;
+  background-color: #fff8e1 !important;
+}
+
+.consult-service.selected {
+  background-color: #fff3cd !important;
+  border-color: #ffca2c !important;
+}
+
+.consult-price {
+  color: #856404;
+  font-weight: bold;
+  background-color: #fff3cd;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.consult-note {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background-color: #e8f4fd;
+  border-radius: 4px;
+  color: #0c5460;
+  font-size: 0.8rem;
+  border-left: 3px solid #17a2b8;
+}
+
+.product-label {
+  background-color: #e7f5ff;
+  color: #0066cc;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.consult-badge {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  margin-left: 8px;
+  border: 1px solid #ffc107;
+}
+
+.consult-badge-modal {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+/* Estilos para método de pago (solo transferencia) */
+.payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-method-btn {
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-align: left;
+  font-weight: 500;
+  color: #495057;
+  transition: all 0.3s;
+}
+
+.payment-method-btn.selected {
+  background: #e7f5ff;
+  border-color: #339af0;
+  color: #1864ab;
+}
+
+.payment-method-btn:hover:not(.disabled-payment) {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.payment-method-btn.disabled-payment {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Estilos para el modal de confirmación */
+.consult-total-message {
+  background-color: #fff3cd;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
+.total-amount {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #198754;
+}
+
+.service-item-modal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.service-item-modal:last-child {
+  border-bottom: none;
+}
+
+.service-info {
+  flex: 1;
+}
+
+.service-name-modal {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.service-duration-modal {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.service-price-modal {
+  font-weight: bold;
+  color: #198754;
+}
+
+/* Para servicios con precio 0 en el modal */
+.service-price-modal[data-price="0"] {
+  color: #ffc107;
+  font-style: italic;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .service-card {
+    padding: 12px !important;
+  }
+  
+  .payment-method-btn {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .consult-note {
+    font-size: 0.75rem;
+  }
+}

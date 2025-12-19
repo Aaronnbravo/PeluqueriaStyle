@@ -53,8 +53,23 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
     }
   };
 
+  // Calcular total con manejo de servicios "Consultar"
+  const calculateTotal = () => {
+    let total = 0;
+    let hasConsultServices = false;
+    
+    selectedServices.forEach(service => {
+      if (service.price > 0) {
+        total += service.price;
+      } else {
+        hasConsultServices = true;
+      }
+    });
+    
+    return { total, hasConsultServices };
+  };
 
-  const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
+  const { total, hasConsultServices } = calculateTotal();
   const totalDuration = selectedServices.reduce((sum, service) => sum + service.duration, 0);
 
   const handleServiceToggle = (service) => {
@@ -104,6 +119,27 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
       return;
     }
 
+    // Validar si solo se selecciona Pomada (compra)
+    const hasProductOnly = selectedServices.length === 1 && 
+      selectedServices[0].name.includes('Pomada') && 
+      selectedServices[0].duration === 0;
+
+    if (hasProductOnly) {
+      if (!window.confirm('Estás seleccionando solo la compra de pomada. ¿Deseas continuar?\n\nNota: Esto no es un turno de servicio.')) {
+        return;
+      }
+    }
+
+    // Validar servicios "Consultar"
+    if (hasConsultServices) {
+      const consultServices = selectedServices.filter(s => s.price === 0);
+      const serviceNames = consultServices.map(s => s.name).join(', ');
+      
+      if (!window.confirm(`⚠️ SERVICIO CONSULTAR PRECIO ⚠️\n\nLos siguientes servicios requieren consulta de precio:\n\n${serviceNames}\n\n¿Deseas continuar con la reserva?\n\nLos precios se consultarán por WhatsApp antes del turno.`)) {
+        return;
+      }
+    }
+
     // Mostrar confirmación
     setShowConfirmation(true);
 
@@ -119,72 +155,95 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
     }, 100);
   };
 
- const confirmAppointment = async () => {
-  setLoading(true);
-  setShowConfirmation(false);
+  const confirmAppointment = async () => {
+    setLoading(true);
+    setShowConfirmation(false);
 
-  try {
-    // CONVERTIR FECHA A DD/MM/YYYY ANTES DE ENVIAR
-    const formattedDate = formatDateToDDMMYYYY(selectedDate);
-    console.log('📅 Fecha convertida para enviar:', selectedDate, '->', formattedDate);
+    try {
+      // CONVERTIR FECHA A DD/MM/YYYY ANTES DE ENVIAR
+      const formattedDate = formatDateToDDMMYYYY(selectedDate);
+      console.log('📅 Fecha convertida para enviar:', selectedDate, '->', formattedDate);
 
-    const appointmentData = {
-      clientName: user.firstName || user.name || user.username || 'Cliente',
-      email: user.email || '',
-      phone: user.phone || '',
-      date: formattedDate, // USAR LA FECHA CONVERTIDA
-      time: selectedTime,
-      services: selectedServices,
-      total: total,
-      duration: totalDuration,
-      paymentMethod: paymentMethod,
-      notes: notes,
-      barber: selectedBarber, // Incluir información del peluquero
-      barberId: selectedBarber?.id, // Incluir ID del peluquero
-      confirmationNumber: 'CONF-' + Date.now().toString().slice(-6)
-    };
+      // Para servicios "Consultar", mantener precio como 0
+      const servicesWithAdjustedPrice = selectedServices.map(service => ({
+        ...service,
+        price: service.price === 0 ? 0 : service.price
+      }));
 
-    console.log('📝 Enviando datos del turno:', appointmentData);
-    
-    // Usar la nueva función con notificaciones automáticas
-    const newAppointment = await createAppointmentWithNotifications(appointmentData);
+      const appointmentData = {
+        clientName: user.firstName || user.name || user.username || 'Cliente',
+        email: user.email || '',
+        phone: user.phone || '',
+        date: formattedDate,
+        time: selectedTime,
+        services: servicesWithAdjustedPrice,
+        total: total,
+        duration: totalDuration,
+        paymentMethod: paymentMethod,
+        notes: notes,
+        barber: selectedBarber,
+        barberId: selectedBarber?.id,
+        confirmationNumber: 'CONF-' + Date.now().toString().slice(-6)
+      };
 
-    console.log('✅ Turno creado exitosamente:', newAppointment);
-    
-    // Llamar al callback del padre
-    if (onAppointmentCreated) {
-      console.log('🔄 Llamando a onAppointmentCreated');
-      onAppointmentCreated(newAppointment);
-    } else {
-      console.error('❌ onAppointmentCreated no está definido');
-      setError('Error: No se pudo procesar la confirmación del turno');
+      console.log('📝 Enviando datos del turno:', appointmentData);
+      
+      // Agregar nota sobre servicios a consultar
+      if (hasConsultServices) {
+        const consultServices = selectedServices.filter(s => s.price === 0);
+        const serviceNames = consultServices.map(s => s.name).join(', ');
+        
+        appointmentData.notes = (notes ? notes + '\n\n' : '') + 
+          `SERVICIOS A CONSULTAR PRECIO: ${serviceNames}`;
+      }
+      
+      // Usar la nueva función con notificaciones automáticas
+      const newAppointment = await createAppointmentWithNotifications(appointmentData);
+
+      console.log('✅ Turno creado exitosamente:', newAppointment);
+      
+      // Llamar al callback del padre
+      if (onAppointmentCreated) {
+        console.log('🔄 Llamando a onAppointmentCreated');
+        onAppointmentCreated(newAppointment);
+      } else {
+        console.error('❌ onAppointmentCreated no está definido');
+        setError('Error: No se pudo procesar la confirmación del turno');
+      }
+
+    } catch (err) {
+      console.error('❌ Error detallado al agendar turno:', err);
+      setError('Error al agendar el turno: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setLoading(false);
     }
+  };
 
-  } catch (err) {
-    console.error('❌ Error detallado al agendar turno:', err);
-    setError('Error al agendar el turno: ' + (err.message || 'Error desconocido'));
-  } finally {
-    setLoading(false);
-  }
-};
   const getServiceIcon = (serviceName) => {
     const icons = {
       'Corte': 'scissors',
+      'Barba': 'mustache',
       'Corte + Barba': 'user',
-      'Claritos/Reflejos (incluye corte)': 'star',
-      'Global (incluye corte)': 'palette'
+      'Global / Color (Consultar)': 'palette',
+      'Nutrición capilar (Consultar)': 'leaf',
+      'Pomada (compra)': 'shopping-bag'
     };
     return <i className={`fa-solid fa-${icons[serviceName] || 'scissors'}`}></i>;
   };
 
   const getPaymentIcon = (method) => {
-    return method === 'Efectivo' ?
-      <i className="fa-solid fa-money-bill-wave me-2"></i> :
-      <i className="fa-solid fa-building-columns me-2"></i>;
+    return <i className="fa-solid fa-building-columns me-2"></i>;
   };
 
   // Formatear precio con separadores de miles
   const formatPrice = (price) => {
+    if (price === 0) return 'Consultar';
+    return `$${price.toLocaleString('es-AR')}`;
+  };
+
+  // Formatear precio para mostrar en tarjeta
+  const formatPriceForCard = (price) => {
+    if (price === 0) return 'Consultar precio';
     return `$${price.toLocaleString('es-AR')}`;
   };
 
@@ -251,10 +310,13 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
             <Row className="g-3">
               {services.map(service => {
                 const isSelected = selectedServices.some(s => s.id === service.id);
+                const isConsultService = service.price === 0;
+                const isProduct = service.name.includes('Pomada');
+                
                 return (
                   <Col key={service.id} xs={12} className="mb-3">
                     <div
-                      className={`service-card ${isSelected ? 'selected' : ''} ${existingAppointment ? 'disabled-service' : ''} ${!selectedBarber ? 'disabled-service' : ''}`}
+                      className={`service-card ${isSelected ? 'selected' : ''} ${existingAppointment ? 'disabled-service' : ''} ${!selectedBarber ? 'disabled-service' : ''} ${isConsultService ? 'consult-service' : ''}`}
                       onClick={() => !existingAppointment && selectedBarber && handleServiceToggle(service)}
                     >
                       <div className="service-icon">
@@ -263,9 +325,23 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                       <div className="service-content">
                         <h6 className="service-name">{service.name}</h6>
                         <div className="service-details">
-                          <span className="service-price">{formatPrice(service.price)}</span>
-                          <span className="service-duration">{service.duration}min</span>
+                          <span className={`service-price ${isConsultService ? 'consult-price' : ''}`}>
+                            {formatPriceForCard(service.price)}
+                          </span>
+                          {service.duration > 0 ? (
+                            <span className="service-duration">{service.duration}min</span>
+                          ) : (
+                            <span className="service-duration product-label">Producto</span>
+                          )}
                         </div>
+                        {isConsultService && (
+                          <div className="consult-note">
+                            <small>
+                              <i className="fa-solid fa-info-circle me-1"></i>
+                              El precio se consultará por WhatsApp
+                            </small>
+                          </div>
+                        )}
                       </div>
                       {(existingAppointment || !selectedBarber) && (
                         <div className="service-overlay">
@@ -311,13 +387,27 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                 <ListGroup variant="flush">
                   {selectedServices.map(service => (
                     <ListGroup.Item key={service.id} className="summary-item">
-                      <span className="service-summary-name">{service.name}</span>
-                      <span className="service-summary-price">{formatPrice(service.price)}</span>
+                      <span className="service-summary-name">
+                        {service.name}
+                        {service.price === 0 && (
+                          <small className="consult-badge ms-2">(Consultar)</small>
+                        )}
+                      </span>
+                      <span className="service-summary-price">
+                        {formatPrice(service.price)}
+                      </span>
                     </ListGroup.Item>
                   ))}
                   <ListGroup.Item className="summary-total">
                     <span>Total:</span>
-                    <span>{formatPrice(total)}</span>
+                    <span>
+                      {hasConsultServices && total > 0 ? 
+                        `${formatPrice(total)} + servicios a consultar` : 
+                        hasConsultServices ? 
+                        'Servicios a consultar precio' : 
+                        formatPrice(total)
+                      }
+                    </span>
                   </ListGroup.Item>
                   <ListGroup.Item className="summary-duration">
                     <span>Duración aproximada:</span>
@@ -423,9 +513,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                       <div className="detail-content">
                         {(() => {
                           try {
-                            // Usar la función formatDateToDDMMYYYY para asegurar formato correcto
                             const displayDate = formatDateToDDMMYYYY(selectedDate);
-                            // Convertir a Date para formatear
                             if (displayDate.includes('/')) {
                               const [day, month, year] = displayDate.split('/').map(Number);
                               const date = new Date(year, month - 1, day);
@@ -436,7 +524,6 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                                 day: 'numeric'
                               }) + ' a las ' + selectedTime;
                             }
-                            // Si no se puede parsear, mostrar como texto
                             return displayDate + ' a las ' + selectedTime;
                           } catch (error) {
                             return selectedDate + ' a las ' + selectedTime;
@@ -456,13 +543,20 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                           {selectedServices.map(service => (
                             <div key={service.id} className="service-item-modal">
                               <div className="service-info">
-                                <div className="service-name-modal">{service.name}</div>
+                                <div className="service-name-modal">
+                                  {service.name}
+                                  {service.price === 0 && (
+                                    <small className="consult-badge-modal">(Consultar)</small>
+                                  )}
+                                </div>
                                 <div className="service-duration-modal">
                                   <i className="fa-solid fa-clock"></i>
-                                  {service.duration} minutos
+                                  {service.duration > 0 ? `${service.duration} minutos` : 'Producto'}
                                 </div>
                               </div>
-                              <div className="service-price-modal">{formatPrice(service.price)}</div>
+                              <div className="service-price-modal">
+                                {formatPrice(service.price)}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -476,10 +570,8 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                         Método de Pago
                       </div>
                       <div className="detail-content">
-                        {paymentMethod === 'Efectivo' ?
-                          <><i className="fa-solid fa-money-bill-wave me-2"></i> Efectivo</> :
-                          <><i className="fa-solid fa-building-columns me-2"></i> Transferencia Bancaria</>
-                        }
+                        <i className="fa-solid fa-building-columns me-2"></i>
+                        {paymentMethod}
                       </div>
                     </div>
 
@@ -514,7 +606,19 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                         Total a Pagar
                       </div>
                       <div className="detail-content">
-                        {formatPrice(total)}
+                        {hasConsultServices ? (
+                          <div>
+                            <div className="consult-total-message">
+                              <i className="fa-solid fa-info-circle me-2 text-warning"></i>
+                              Incluye servicios a consultar precio
+                            </div>
+                            <div className="total-amount">
+                              {total > 0 ? `${formatPrice(total)} + consulta` : 'Precio a consultar'}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="total-amount">{formatPrice(total)}</div>
+                        )}
                       </div>
                     </div>
                   </div>
