@@ -1,34 +1,34 @@
-/* ===== VARIABLES CSS ===== */
+/* ===== VARIABLES CSS - ACTUALIZADO CON COLORES DEL CLIENTE ===== */
 :root {
   --color-primary: #f8f9fa;
   --color-navbar: #343a40;
   --color-navbar-text: #ffffff;
-  --color-accent: #C41E3A;
-  --color-accent-hover: #a0162c;
-  --color-accent-light: rgba(196, 30, 58, 0.1);
-  --color-accent-medium: rgba(196, 30, 58, 0.15);
-  --color-accent-dark: rgba(196, 30, 58, 0.2);
-  --color-border: #dee2e6;
+  --color-accent: #8a2be2; /* VIOLETA del cliente */
+  --color-accent-hover: #b95ec7; /* Violeta más claro del cliente */
+  --color-accent-light: rgba(138, 43, 226, 0.08); /* Del cliente */
+  --color-accent-medium: rgba(138, 43, 226, 0.15);
+  --color-accent-dark: rgba(138, 43, 226, 0.2);
+  --color-border: #e9ecef; /* Del cliente */
   --color-white: #ffffff;
   --color-text: #212529;
   --color-text-light: #6c757d;
-  --color-success: #198754;
+  --color-success: #28a745;
   --color-warning: #ffc107;
   --color-danger: #dc3545;
   --color-info: #0dcaf0;
   --color-secondary: #6c757d;
   
-  /* Sombras consistentes */
+  /* Sombras del cliente */
   --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.1);
-  --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
-  --shadow-heavy: 0 12px 35px rgba(0, 0, 0, 0.15);
-  --shadow-accent: 0 8px 20px rgba(196, 30, 58, 0.15);
-  --shadow-accent-heavy: 0 12px 35px rgba(196, 30, 58, 0.2);
+  --shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12); /* Del cliente */
+  --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.2); /* Del cliente */
+  --shadow-accent: 0 8px 20px rgba(138, 43, 226, 0.15); /* Del cliente */
+  --shadow-accent-heavy: 0 12px 30px rgba(138, 43, 226, 0.15); /* Del cliente */
   
-  /* Transiciones naturales */
+  /* Transiciones */
   --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.4s ease-in-out; /* Del cliente */
   --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
@@ -42,10 +42,8 @@
   background-attachment: fixed;
   min-height: 100vh;
   position: relative;
-  padding-bottom: 2rem;
 }
 
-/* Overlay para mejor legibilidad */
 .admin-dashboard::before {
   content: '';
   position: absolute;
@@ -94,10 +92,11 @@
   transition: var(--transition-normal);
 }
 
+/* LOGO CORREGIDO - MÁS PEQUEÑO */
 .admin-logo {
-  height: 45px !important;
+  height: 40px !important;
   width: auto !important;
-  max-height: 45px;
+  max-height: 40px;
   object-fit: contain;
   transition: var(--transition-bounce);
 }
@@ -106,7 +105,7 @@
   transform: scale(1.05) rotate(-2deg);
 }
 
-/* Navegación Desktop */
+/* Navegación Desktop - LETRAS EN VIOLETA, NO BLANCO */
 .admin-navbar-nav {
   display: flex;
   gap: 1rem;
@@ -117,7 +116,7 @@
 .admin-nav-btn {
   background: none;
   border: none;
-  color: var(--color-navbar-text);
+  color: var(--color-accent) !important;
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -133,10 +132,11 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-decoration: none !important;
 }
 
 .admin-nav-btn:hover {
-  color: var(--color-accent);
+  color: var(--color-accent-hover) !important;
   transform: translateY(-2px);
   background: var(--color-accent-light);
 }
@@ -158,7 +158,7 @@
 }
 
 .admin-nav-btn.active {
-  color: var(--color-accent);
+  color: var(--color-accent) !important;
   font-weight: 700;
 }
 
@@ -186,7 +186,7 @@
 .logout-btn:hover {
   background: var(--color-accent-hover);
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 12px rgba(196, 30, 58, 0.3);
+  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
 }
 
 /* ===== NAVEGACIÓN MOBILE ===== */
@@ -211,12 +211,13 @@
   text-align: center;
   min-width: 70px;
   transition: var(--transition-normal);
-  color: var(--color-text);
+  color: var(--color-text) !important;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-decoration: none !important;
 }
 
 .mobile-nav-btn:hover {
@@ -226,7 +227,7 @@
 
 .mobile-nav-btn.active {
   background: var(--color-accent);
-  color: white;
+  color: white !important;
   transform: scale(1.05);
 }
 
@@ -274,6 +275,49 @@
   font-weight: 600;
 }
 
+/* ===== BIENVENIDO ADMINISTRADOR - CORREGIDO ===== */
+.admin-welcome-card {
+  border-left: 5px solid var(--color-accent) !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+  border: 2px solid var(--color-border) !important;
+  border-radius: 15px !important;
+  box-shadow: var(--shadow-medium) !important;
+  margin-bottom: 2rem !important;
+  margin-top: 1rem !important;
+  padding: 1.5rem !important;
+  backdrop-filter: blur(5px) !important;
+  transition: var(--transition-bounce) !important;
+}
+
+.admin-welcome-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: var(--shadow-accent-heavy) !important;
+  border-color: var(--color-accent) !important;
+}
+
+.admin-welcome-card h3 {
+  color: #000000 !important;
+  font-weight: 800 !important;
+  margin-bottom: 0.5rem !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1) !important;
+  font-size: 1.5rem !important;
+}
+
+.admin-welcome-card p {
+  color: #495057 !important;
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 0 !important;
+  opacity: 0.9 !important;
+}
+
+.admin-welcome-icon {
+  font-size: 2rem !important;
+  color: var(--color-accent) !important;
+  margin-right: 1rem !important;
+}
+
 /* ===== CONTENIDO PRINCIPAL ===== */
 .admin-content {
   padding: 1.5rem 0;
@@ -284,11 +328,12 @@
   text-align: center;
   margin-bottom: 2rem;
   padding: 1.5rem 1rem;
-  background: var(--color-white);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%) !important;
   border-radius: 12px;
   border: 2px solid var(--color-border);
   box-shadow: var(--shadow-medium);
   transition: var(--transition-bounce);
+  backdrop-filter: blur(5px) !important;
 }
 
 .admin-header:hover {
@@ -298,14 +343,16 @@
 }
 
 .admin-header h1 {
-  color: var(--color-text);
+  color: var(--color-text) !important;
+  opacity: 1 !important;
   margin-bottom: 0.5rem;
   font-family: 'Montserrat', sans-serif;
   font-weight: 700;
 }
 
 .admin-header p {
-  color: var(--color-text-light);
+  color: var(--color-text-light) !important;
+  opacity: 1 !important;
   font-family: 'Inter', sans-serif;
   margin-bottom: 1.5rem;
 }
@@ -321,9 +368,10 @@
   transition: var(--transition-bounce);
   text-align: center;
   height: 100%;
-  background: var(--color-white);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%) !important;
   cursor: pointer;
   padding: 1rem;
+  backdrop-filter: blur(5px) !important;
 }
 
 .admin-stat-card:hover {
@@ -343,7 +391,8 @@
 .admin-stat-card h4,
 .admin-stat-card h5,
 .admin-stat-card h6 {
-  color: var(--color-text);
+  color: var(--color-text) !important;
+  opacity: 1 !important;
   font-weight: 700;
   font-family: 'Montserrat', sans-serif;
   margin-bottom: 0.25rem;
@@ -351,20 +400,22 @@
 }
 
 .admin-stat-card p {
-  color: var(--color-text-light);
+  color: var(--color-text-light) !important;
+  opacity: 1 !important;
   font-family: 'Inter', sans-serif;
   margin-bottom: 0;
 }
 
 /* ===== CONTENIDO DE PESTAÑAS ===== */
 .admin-tab-content {
-  background: var(--color-white);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%) !important;
   border-radius: 12px;
   padding: 1.5rem;
   border: 2px solid var(--color-border);
   box-shadow: var(--shadow-medium);
   animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   transition: var(--transition-normal);
+  backdrop-filter: blur(5px) !important;
 }
 
 .admin-tab-content:hover {
@@ -434,7 +485,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+  box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
   transition: var(--transition-bounce);
   opacity: 0;
   visibility: hidden;
@@ -452,7 +503,7 @@
 .scroll-to-top-btn:hover {
   background: var(--color-accent-hover);
   transform: scale(1.15) translateY(-5px);
-  box-shadow: 0 10px 30px rgba(196, 30, 58, 0.6);
+  box-shadow: 0 10px 30px rgba(138, 43, 226, 0.6);
 }
 
 .scroll-to-top-btn:active {
@@ -490,23 +541,6 @@
   }
 }
 
-/* Efecto de onda al hacer hover */
-.scroll-to-top-btn::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 50%;
-  background: transparent;
-  transition: var(--transition-normal);
-}
-
-.scroll-to-top-btn:hover::after {
-  box-shadow: 0 0 0 10px rgba(196, 30, 58, 0.2);
-}
-
 /* ===== ESTILOS PARA CALENDARIO Y COMPONENTES ===== */
 
 /* Badges - Cambiar primary a accent */
@@ -520,7 +554,7 @@
   background-color: var(--color-accent-hover) !important;
 }
 
-/* Botones en calendario - CORREGIDO: texto blanco */
+/* Botones en calendario */
 .btn-outline-primary {
   color: var(--color-accent);
   border-color: var(--color-accent);
@@ -544,7 +578,7 @@
   color: white !important;
 }
 
-/* Botón "Iniciar atención" - CORREGIDO: ahora con texto blanco */
+/* Botón "Iniciar atención" */
 .btn-info,
 .btn-outline-info {
   background-color: var(--color-accent) !important;
@@ -595,7 +629,7 @@
 .btn-warning,
 .bg-warning {
   background-color: var(--color-warning) !important;
-  color: #212529 !important; /* Texto oscuro para mejor contraste en amarillo */
+  color: #212529 !important;
 }
 
 .badge.bg-danger,
@@ -608,7 +642,7 @@
 .btn-outline-info.bg-info,
 .bg-info {
   background-color: var(--color-info) !important;
-  color: #212529 !important; /* Texto oscuro para mejor contraste en celeste */
+  color: #212529 !important;
 }
 
 /* ===== ESTILOS PARA CALENDARIO GOOGLE ===== */
@@ -688,7 +722,7 @@
 
 .agendar-btn:hover {
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 12px rgba(196, 30, 58, 0.3);
+  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
   color: white !important;
 }
 
@@ -730,7 +764,7 @@
   font-family: 'Montserrat', sans-serif;
 }
 
-/* Botones en current appointment - CORREGIDO: texto blanco */
+/* Botones en current appointment */
 .btn-info {
   background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover)) !important;
   border: none !important;
@@ -739,9 +773,9 @@
 }
 
 .btn-info:hover {
-  background: linear-gradient(to right, var(--color-accent-hover), #8a1225) !important;
+  background: linear-gradient(to right, var(--color-accent-hover), #6a15b1) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(196, 30, 58, 0.4);
+  box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
   color: white !important;
 }
 
@@ -752,7 +786,7 @@
 
 .btn-success:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
   color: white !important;
 }
 
@@ -768,13 +802,13 @@
 }
 
 .status-in-progress {
-  background-color: rgba(13, 202, 240, 0.2) !important;
+  background-color: rgba(23, 162, 184, 0.2) !important;
   border-left: 4px solid var(--color-info);
   animation: pulse-glow 2s infinite;
 }
 
 .status-completed {
-  background-color: rgba(25, 135, 84, 0.15) !important;
+  background-color: rgba(40, 167, 69, 0.15) !important;
   border-left: 4px solid var(--color-success);
 }
 
@@ -791,13 +825,13 @@
 /* Animación para turno en progreso */
 @keyframes pulse-glow {
   0% {
-    box-shadow: 0 0 5px rgba(13, 202, 240, 0.5);
+    box-shadow: 0 0 5px rgba(23, 162, 184, 0.5);
   }
   50% {
-    box-shadow: 0 0 15px rgba(13, 202, 240, 0.8);
+    box-shadow: 0 0 15px rgba(23, 162, 184, 0.8);
   }
   100% {
-    box-shadow: 0 0 5px rgba(13, 202, 240, 0.5);
+    box-shadow: 0 0 5px rgba(23, 162, 184, 0.5);
   }
 }
 
@@ -841,9 +875,9 @@
 
 .search-btn:hover,
 .confirm-btn:hover {
-  background: linear-gradient(to right, var(--color-accent-hover), #8a1225);
+  background: linear-gradient(to right, var(--color-accent-hover), #6a15b1);
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+  box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
   color: white !important;
 }
 
@@ -873,7 +907,7 @@
 
 .selected-user-card {
   border: 2px solid var(--color-accent);
-  background: linear-gradient(135deg, rgba(196, 30, 58, 0.05), rgba(160, 22, 44, 0.1));
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.05), rgba(122, 27, 209, 0.1));
 }
 
 /* Botón outline secondary */
@@ -888,22 +922,28 @@
   color: var(--color-accent);
 }
 
-/* ===== CORRECCIÓN ESPECÍFICA PARA EL BOTÓN "INICIAR ATENCIÓN" ===== */
-/* Esta regla asegura que el botón tenga texto blanco en todos los estados */
-button.btn-info,
-button[class*="btn-info"],
-.btn.btn-info,
-.btn-outline-info.btn,
-.btn-info.btn {
-  color: white !important;
+/* ===== AGREGAR FONTS DEL CLIENTE ===== */
+@font-face {
+  font-family: 'Engine';
+  src: url('../../assets/fonts/ENGINE.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-button.btn-info:hover,
-button[class*="btn-info"]:hover,
-.btn.btn-info:hover,
-.btn-outline-info.btn:hover,
-.btn-info.btn:hover {
-  color: white !important;
+/* Usar las mismas fuentes del cliente */
+.admin-header h1,
+.admin-stat-card h3,
+.admin-stat-card h4,
+.admin-stat-card h5,
+.admin-stat-card h6,
+.calendar-header,
+.current-appointment-card .card-header,
+.admin-welcome-card h3,
+.btn,
+.confirm-btn,
+.search-btn {
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
 }
 
 /* ===== RESPONSIVE BREAKPOINTS ===== */
@@ -915,7 +955,7 @@ button[class*="btn-info"]:hover,
   }
   
   .admin-logo {
-    height: 40px !important;
+    height: 35px !important;
   }
   
   .admin-nav-btn {
@@ -1311,7 +1351,7 @@ html {
 .form-control:focus,
 .form-select:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 0.25rem rgba(196, 30, 58, 0.25);
+  box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
   transform: translateY(-1px);
 }
 
@@ -1324,4 +1364,312 @@ html {
   100% {
     transform: rotate(360deg);
   }
+}
+/* ===== CAMBIAR SOLO LOS RECUADROS "DISPONIBLE" A VERDE ===== */
+
+/* Para los badges con clase .time-badge que tienen bg-danger o bg-secondary */
+.time-badge.bg-danger,
+.time-badge.bg-secondary,
+.time-badge[class*="bg-"] {
+    background-color: var(--color-success) !important; /* Verde #28a745 */
+    color: white !important;
+}
+
+/* Para los elementos que contienen el texto "Disponible" */
+span:contains("Disponible"),
+div:contains("Disponible"),
+td:contains("Disponible") {
+    background-color: var(--color-success) !important;
+    color: white !important;
+}
+
+/* Para las celdas de tiempo disponibles */
+.time-slot-empty {
+    background-color: rgba(40, 167, 69, 0.1) !important; /* Verde muy suave */
+    border: 1px solid rgba(40, 167, 69, 0.3) !important;
+}
+
+.time-slot-empty:hover {
+    background-color: rgba(40, 167, 69, 0.2) !important;
+    border-color: var(--color-success) !important;
+}
+/* ===== AJUSTES PARA DISPONIBLE Y TERMINADO ===== */
+
+/* 1. "DISPONIBLE" - Verde con letras NEGRAS */
+.time-badge.bg-danger,
+.time-badge.bg-secondary,
+.time-badge[class*="bg-"]:contains("Disponible"),
+span:contains("Disponible"),
+div:contains("Disponible"),
+td:contains("Disponible"),
+.badge:contains("Disponible") {
+    background-color: var(--color-success) !important; /* Verde #28a745 */
+    color: #000000 !important; /* Letras NEGRAS */
+    font-weight: 600 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 2. "TERMINADO" - Azul profesional */
+span:contains("Terminado"),
+div:contains("Terminado"),
+td:contains("Terminado"),
+.badge:contains("Terminado"),
+.status-completed:contains("Terminado") {
+    background-color: #0d6efd !important; /* Azul Bootstrap profesional */
+    color: white !important;
+    border: none !important;
+}
+
+/* 3. Para "Confirmado" mantiene su color violeta */
+.status-confirmed,
+.badge:contains("Confirmado"),
+div:contains("Confirmado") {
+    background-color: var(--color-accent-light) !important;
+    border-left: 4px solid var(--color-accent) !important;
+    color: var(--color-text) !important;
+}
+
+/* 4. Para "En Progreso" mantiene azul claro */
+.status-in-progress,
+.badge:contains("En Progreso"),
+div:contains("En Progreso") {
+    background-color: rgba(23, 162, 184, 0.2) !important;
+    border-left: 4px solid var(--color-info) !important;
+    color: var(--color-text) !important;
+}
+
+/* 5. Para "Pendiente" mantiene amarillo */
+.status-pending,
+.badge:contains("Pendiente"),
+div:contains("Pendiente") {
+    background-color: rgba(255, 193, 7, 0.15) !important;
+    border-left: 4px solid var(--color-warning) !important;
+    color: var(--color-text) !important;
+}
+/* ===== SOLUCIÓN ESPECÍFICA PARA "TERMINADO" ===== */
+
+/* Opción 1: Si tiene clase .bg-success */
+.badge.bg-success,
+.status-completed,
+[class*="completed"] {
+    background-color: #0d6efd !important; /* Azul */
+    color: white !important;
+    border: none !important;
+}
+
+/* Opción 2: Para cualquier elemento que contenga "Terminado" */
+*:contains("Terminado") {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+/* Opción 3: Fuerza el cambio para TODOS los estados completados */
+[class*="bg-"]:contains("Terminado"),
+[class*="status-"]:contains("Terminado") {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+/* ===== CAMBIAR LETRA DEL NOMBRE A NEGRO ===== */
+
+/* Para el nombre del cliente en las citas */
+.appointment-card .customer-name,
+.appointment-card strong,
+.appointment-card b,
+.appointment-card [class*="name"],
+.appointment-card [class*="nombre"],
+.current-appointment-card .customer-name,
+td strong,
+td b,
+.card-body strong,
+.card-body b {
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+/* Para asegurar que el texto principal sea negro */
+.appointment-content,
+.appointment-card,
+.time-slot-empty,
+.calendar-time-slot {
+    color: #000000 !important;
+}
+
+/* Excluir los badges (mantener sus colores) */
+.appointment-card .badge,
+.time-badge,
+.badge {
+    color: inherit !important; /* Mantiene el color del badge */
+}
+/* ===== TERMINADO CON ESTILO COMO CONFIRMADO PERO EN AZUL ===== */
+
+/* 1. Para "Terminado" - Mismo estilo que "Confirmado" pero azul */
+.status-completed,
+.badge:contains("Terminado"),
+div:contains("Terminado"),
+[class*="completed"] {
+    background-color: rgba(13, 110, 253, 0.1) !important; /* Azul muy suave */
+    border-left: 4px solid #0d6efd !important; /* Borde azul */
+    color: #000000 !important; /* Texto negro */
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+}
+
+/* 2. "Confirmado" mantiene su estilo violeta (como está) */
+.status-confirmed,
+.badge:contains("Confirmado") {
+    background-color: rgba(138, 43, 226, 0.1) !important; /* Violeta suave */
+    border-left: 4px solid #8a2be2 !important; /* Borde violeta */
+    color: #000000 !important; /* Texto negro */
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+}
+
+/* 3. Asegurar que los badges normales mantengan su estilo */
+.badge.bg-success:contains("Terminado") {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+    border-left: 4px solid #0d6efd !important;
+    color: #000000 !important;
+    border-radius: 4px !important;
+}
+/* ===== CAMBIO ESPECÍFICO PARA TERMINADO ===== */
+
+/* TERMINADO - Mismo estilo que CONFIRMADO pero en AZUL */
+.status-completed,
+.badge.bg-success,
+[class*="completed"] {
+    background-color: rgba(13, 110, 253, 0.08) !important; /* Azul suave - igual transparencia que Confirmado */
+    border-left: 4px solid #0d6efd !important; /* Azul #0d6efd */
+    color: #212529 !important; /* Texto negro - igual que Confirmado */
+    border-radius: 0 !important; /* Igual que Confirmado */
+    padding: 8px 12px !important; /* Igual que Confirmado */
+}
+
+/* CONFIRMADO - Mantiene su estilo violeta (NO TOCAR) */
+.status-confirmed {
+    background-color: var(--color-accent-light) !important; /* rgba(138, 43, 226, 0.08) */
+    border-left: 4px solid var(--color-accent) !important; /* #8a2be2 */
+    color: var(--color-text) !important; /* Texto negro */
+}
+
+/* DISPONIBLE - Mantiene su estilo verde (NO TOCAR) */
+.time-badge.bg-danger,
+.time-badge.bg-secondary,
+.time-badge[class*="bg-"] {
+    background-color: var(--color-success) !important; /* Verde #28a745 */
+    color: #000000 !important; /* Letras NEGRAS */
+    font-weight: 600 !important;
+}
+/* ===== TERMINADO CON AZUL MÁS FUERTE ===== */
+
+/* TERMINADO - Azul más fuerte, igual que Confirmado */
+.status-completed,
+.badge.bg-success,
+[class*="completed"] {
+    background-color: rgba(13, 110, 253, 0.15) !important; /* Azul MÁS FUERTE (15% en lugar de 8%) */
+    border-left: 4px solid #0d6efd !important; /* Azul #0d6efd */
+    color: #212529 !important; /* Texto negro */
+    border-radius: 0 !important;
+    padding: 8px 12px !important;
+}
+
+/* CONFIRMADO - Mantiene su violeta fuerte */
+.status-confirmed {
+    background-color: rgba(138, 43, 226, 0.15) !important; /* Violeta con 15% (más fuerte) */
+    border-left: 4px solid #8a2be2 !important; /* Violeta #8a2be2 */
+    color: #212529 !important; /* Texto negro */
+}
+/* ===== BIENVENIDO ADMINISTRADOR EN NEGRO ===== */
+
+.admin-welcome-card h3 {
+    color: #000000 !important; /* Texto NEGRO */
+    font-weight: 800 !important;
+    margin-bottom: 0.5rem !important;
+    font-family: 'Engine', 'Montserrat', sans-serif !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1) !important;
+    font-size: 1.5rem !important;
+    background: none !important; /* Elimina el gradiente si tenía */
+    -webkit-text-fill-color: #000000 !important; /* Asegura texto negro */
+}
+/* ===== BIENVENIDO ADMINISTRADOR EN NEGRO - SOLUCIÓN DEFINITIVA ===== */
+
+.admin-welcome-card h3 {
+    color: #000000 !important;
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: #000000 !important;
+    
+    text-shadow: none !important;
+}
+
+/* Si no funciona, prueba esto también: */
+h3.admin-title,
+.admin-title,
+.admin-welcome-card > h3 {
+    color: #000000 !important;
+    background: transparent !important;
+}
+/* ===== BIENVENIDO ADMINISTRADOR EN NEGRO - FORZAR ===== */
+
+/* Solución definitiva para texto negro */
+.admin-welcome-card h3 {
+    color: #000000 !important;
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: #000000 !important;
+   
+    text-shadow: none !important;
+    background-image: none !important;
+    background-color: transparent !important;
+}
+
+/* Eliminar cualquier efecto de gradiente */
+.admin-welcome-card h3::before,
+.admin-welcome-card h3::after {
+    display: none !important;
+}
+
+/* También aplica a cualquier h3 dentro del card */
+.admin-welcome-card > h3,
+.admin-welcome-card h3[class*="title"],
+.admin-welcome-card h3:first-child {
+    color: #000000 !important;
+    background: transparent !important;
+}
+
+/* Si hay una clase específica para el título */
+.admin-title,
+.welcome-title,
+.dashboard-title {
+    color: #000000 !important;
+    background: none !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+/* ===== BIENVENIDO ADMINISTRADOR EN NEGRO - CORRECCIÓN ===== */
+
+/* Para el h1 dentro de .admin-header */
+.admin-header h1 {
+    color: #000000 !important; /* NEGRO */
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: #000000 !important;
+    
+    text-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Para asegurar que sea negro en todos los estados */
+.admin-header h1:hover,
+.admin-header h1:focus,
+.admin-header h1:active {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* Si hay un gradiente aplicado, eliminarlo */
+.admin-header h1::before,
+.admin-header h1::after {
+    display: none !important;
 }
