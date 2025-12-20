@@ -12,7 +12,7 @@ import {
   Timestamp
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
-
+export { BARBERS, SERVICES, PAYMENT_METHODS };
 // Constantes de servicios ACTUALIZADOS
 const SERVICES = [
   { id: 1, name: 'Corte', price: 15500, duration: 15 },
@@ -33,14 +33,14 @@ const BARBERS = [
   {
     id: 'santi',
     name: 'Santiago',
-    image: '/src/images/Barbers/Santuu.jpg',
+    image: '/images/Barbers/Santuu.jpg',
     interval: 30, // minutos entre turnos
     description: 'Corte clásico y moderno'
   },
   {
     id: 'mili',
     name: 'Mili',
-    image: '/src/images/Barbers/Mili.JPG',
+    image: '/images/Barbers/Mili.JPG',
     interval: 45, // minutos entre turnos
     description: 'Coloración y estilismo'
   }

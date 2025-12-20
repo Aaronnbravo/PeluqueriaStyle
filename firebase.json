@@ -1,10 +1,4 @@
 {
-  "firestore": {
-    "database": "(default)",
-    "location": "southamerica-east1",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
   "hosting": {
     "public": "dist",
     "ignore": [
@@ -13,6 +7,10 @@
       "**/node_modules/**"
     ],
     "rewrites": [
+      {
+        "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|JPG|JPEG|GIF|PNG|SVG|WEBP)",
+        "destination": "/images/barbers/**"
+      },
       {
         "source": "**",
         "destination": "/index.html"
