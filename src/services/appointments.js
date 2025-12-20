@@ -215,45 +215,91 @@ export const getAllTimeSlots = (barber = null) => {
 // ========== FUNCIONES FIRESTORE PARA TURNOS ==========
 
 // Obtener todos los turnos desde Firestore (CON FILTRO POR BARBER)
+// VERSIÓN QUE NO NECESITA ÍNDICE - FUNCIONA AHORA MISMO
 export const getAppointments = async (barberId = null) => {
   try {
-    console.log('🔍 Obteniendo turnos de Firestore...', barberId ? `Filtro: barberId=${barberId}` : 'Sin filtro');
+    console.log('🔍 Obteniendo turnos (sin índice requerido)...');
     const appointmentsRef = collection(db, 'appointments');
     
-    // Crear query con filtro por barberId si se proporciona
-    let q;
-    if (barberId) {
-      q = query(
-        appointmentsRef, 
-        where('barberId', '==', barberId),
-        orderBy('createdAt', 'desc')
-      );
-    } else {
-      q = query(appointmentsRef, orderBy('createdAt', 'desc'));
-    }
+    // 1. OBTENER TODOS los turnos SIN filtros ni ordenamientos
+    const querySnapshot = await getDocs(appointmentsRef);
     
-    const querySnapshot = await getDocs(q);
+    console.log(`📄 Documentos encontrados: ${querySnapshot.size}`);
     
-    const appointments = [];
+    const allAppointments = [];
     querySnapshot.forEach((doc) => {
-      const appointmentData = doc.data();
+      const data = doc.data();
       
-      // IMPORTANTE: Normalizar la fecha a YYYY-MM-DD
-      const normalizedDate = getLocalDateString(appointmentData.date);
+      // Normalizar fecha
+      const normalizedDate = getLocalDateString(data.date);
       
-      appointments.push({
+      allAppointments.push({
         id: doc.id,
-        ...appointmentData,
-        date: normalizedDate, // Siempre en YYYY-MM-DD
-        dateDisplay: formatDateForDisplay(normalizedDate) // Para mostrar
+        ...data,
+        date: normalizedDate,
+        dateDisplay: formatDateForDisplay(normalizedDate),
+        // Asegurar tipos
+        total: Number(data.total) || 0,
+        duration: Number(data.duration) || 0
       });
     });
     
-    console.log(`✅ Total turnos obtenidos: ${appointments.length} ${barberId ? `para barberId=${barberId}` : ''}`);
-    return appointments;
+    console.log(`📊 TOTAL turnos en Firebase: ${allAppointments.length}`);
+    
+    // 2. Filtrar por barberId si es necesario
+    let filteredAppointments = allAppointments;
+    if (barberId) {
+      filteredAppointments = allAppointments.filter(apt => apt.barberId === barberId);
+      console.log(`👤 Turnos filtrados para ${barberId}: ${filteredAppointments.length}`);
+    }
+    
+    // 3. Ordenar manualmente por fecha (más recientes primero)
+    filteredAppointments.sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0);
+      const dateB = new Date(b.createdAt || 0);
+      return dateB - dateA;
+    });
+    
+    // 4. DEBUG: Mostrar algunos turnos
+    if (filteredAppointments.length > 0) {
+      console.log('📋 Ejemplo de turnos:');
+      filteredAppointments.slice(0, 5).forEach((apt, i) => {
+        console.log(`   ${i+1}. ${apt.clientName} - $${apt.total} - ${apt.status} - ${apt.date}`);
+      });
+    } else {
+      console.log('⚠️ No se encontraron turnos');
+    }
+    
+    return filteredAppointments;
   } catch (error) {
-    console.error('❌ Error obteniendo turnos:', error);
-    return [];
+    console.error('❌ Error FATAL en getAppointments:', error);
+    
+    // Intentar fallback más simple
+    try {
+      console.log('🔄 Intentando fallback simple...');
+      const appointmentsRef = collection(db, 'appointments');
+      const snapshot = await getDocs(appointmentsRef);
+      
+      const appointments = [];
+      snapshot.forEach(doc => {
+        appointments.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+      
+      console.log(`✅ Fallback: ${appointments.length} turnos`);
+      
+      // Filtrar si es necesario
+      if (barberId) {
+        return appointments.filter(apt => apt.barberId === barberId);
+      }
+      
+      return appointments;
+    } catch (fallbackError) {
+      console.error('❌ Fallback también falló:', fallbackError);
+      return [];
+    }
   }
 };
 
@@ -541,40 +587,64 @@ export const getAvailableTimeSlots = async (selectedDate, barber = null, selecte
 // Obtener estadísticas para el admin (CON FILTRO POR BARBER)
 export const getAdminStats = async (barberId = null) => {
   try {
+    console.log(`📊 getAdminStats para: ${barberId || 'todos'}`);
+    
     const allAppointments = await getAppointments(barberId);
+    console.log(`📋 Turnos recibidos: ${allAppointments.length}`);
+    
+    // DEBUG: Contar por estado
+    const statusCount = {};
+    allAppointments.forEach(apt => {
+      const status = apt.status || 'sin-estado';
+      statusCount[status] = (statusCount[status] || 0) + 1;
+    });
+    console.log('📈 Conteo por estado:', statusCount);
+    
     const today = getTodayDateString();
     
-    console.log(`📊 Hoy es: ${today}`, barberId ? `Filtro: barberId=${barberId}` : '');
+    // Turnos de hoy
+    const todayAppointments = allAppointments.filter(apt => apt.date === today);
     
-    const todayAppointments = allAppointments.filter(apt => {
-      return apt.date === today;
+    // **TURNOS QUE GENERAN GANANCIAS - INCLUYE confirmed**
+    const earnedAppointments = allAppointments.filter(apt => {
+      const isValidStatus = apt.status === 'confirmed' || apt.status === 'completed';
+      const hasTotal = Number(apt.total) > 0;
+      return isValidStatus && hasTotal;
     });
     
-    console.log(`📅 Turnos de hoy: ${todayAppointments.length}`);
+    console.log(`💰 Turnos con ganancias: ${earnedAppointments.length}`);
     
-    const totalEarnings = allAppointments.reduce((sum, apt) => sum + (apt.total || 0), 0);
+    // Calcular ganancias
+    const totalEarnings = earnedAppointments.reduce((sum, apt) => {
+      return sum + (Number(apt.total) || 0);
+    }, 0);
     
-    // Filtrar por mes actual
+    console.log(`💰 TOTAL ganancias: $${totalEarnings}`);
+    
+    // Ganancias mensuales
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     
-    const monthlyEarnings = allAppointments
+    const monthlyEarnings = earnedAppointments
       .filter(apt => {
+        if (!apt.date) return false;
         const aptDate = new Date(apt.date);
         return aptDate.getMonth() === currentMonth && 
                aptDate.getFullYear() === currentYear;
       })
-      .reduce((sum, apt) => sum + (apt.total || 0), 0);
+      .reduce((sum, apt) => sum + (Number(apt.total) || 0), 0);
+    
+    console.log(`📈 Ganancias mensuales: $${monthlyEarnings}`);
 
     return {
       totalAppointments: allAppointments.length,
       todayAppointments: todayAppointments.length,
       totalEarnings,
       monthlyEarnings,
-      barberId // Incluir en la respuesta para debugging
+      barberId
     };
   } catch (error) {
-    console.error('Error obteniendo estadísticas:', error);
+    console.error('❌ Error en getAdminStats:', error);
     return {
       totalAppointments: 0,
       todayAppointments: 0,
@@ -621,18 +691,50 @@ export const searchUsers = async (searchTerm) => {
 };
 
 // Crear turno manual para admin (ASIGNA BARBERID AUTOMÁTICAMENTE)
+// En appointments.js, modifica la función createAdminAppointment:
+
 export const createAdminAppointment = async (appointmentData) => {
   try {
     const formattedDate = getLocalDateString(appointmentData.date);
     
+    // **OBLIGAR que phone tenga valor SIEMPRE**
+    const safePhone = appointmentData.phone || 'Sin teléfono';
+    
+    // **OBLIGAR que paymentMethod tenga valor SIEMPRE**
+    const safePaymentMethod = appointmentData.paymentMethod || 'Transferencia Bancaria';
+    
+    // Crear objeto SIN spread operator para evitar undefined
     const appointmentToSave = {
-      ...appointmentData,
+      // Campos del cliente
+      clientName: appointmentData.clientName || '',
+      phone: safePhone, // ← ESTO ES CLAVE: siempre tiene valor
+      email: appointmentData.email || '',
+      
+      // Campos del turno
       date: formattedDate,
+      time: appointmentData.time || '',
+      services: appointmentData.services || [],
+      total: appointmentData.total || 0,
+      duration: appointmentData.duration || 0,
+      paymentMethod: safePaymentMethod, // ← MÉTODO DE PAGO SIEMPRE
+      notes: appointmentData.notes || '',
+      userId: appointmentData.userId || '',
+      
+      // Campos del peluquero
+      barberId: appointmentData.barberId || '',
+      barberName: appointmentData.barberName || 'Sin asignar',
+      
+      // Campos del sistema
       status: 'confirmed',
       createdAt: new Date().toISOString(),
       createdBy: 'admin',
-      timestamp: Timestamp.now()
+      timestamp: Timestamp.now(),
+      updatedAt: new Date().toISOString()
     };
+    
+    console.log('📝 Creando turno admin CON DATOS SEGUROS:', appointmentToSave);
+    console.log('📱 Phone garantizado:', appointmentToSave.phone);
+    console.log('💳 PaymentMethod garantizado:', appointmentToSave.paymentMethod);
     
     const appointmentsRef = collection(db, 'appointments');
     const docRef = await addDoc(appointmentsRef, appointmentToSave);
@@ -642,7 +744,8 @@ export const createAdminAppointment = async (appointmentData) => {
       ...appointmentToSave
     };
   } catch (error) {
-    console.error('Error creando turno admin:', error);
+    console.error('❌ Error FATAL creando turno admin:', error);
+    console.error('📊 Datos recibidos:', appointmentData);
     throw error;
   }
 };
