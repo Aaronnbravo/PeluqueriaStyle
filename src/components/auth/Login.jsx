@@ -152,7 +152,15 @@ function Login() {
                     </button>
                   </p>
                   
-                    
+                  {/* ENLACE NUEVO PARA RECUPERAR CONTRASEÑA */}
+                  <p className="login-link-text">
+                    <button 
+                      onClick={() => navigate('/forgot-password')}
+                      className="login-link"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  </p>
                 </div>
               </Card.Body>
             </Card>

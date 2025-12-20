@@ -5,6 +5,7 @@ import { useAuth } from './hooks/useAuth'
 import LandingPage from './components/LandingPage'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
+import ForgotPassword from './components/auth/ForgotPassword' // ← ¡IMPORTA ESTO!
 import ClientDashboard from './components/client/ClientDashboard'
 import AdminDashboard from './components/admin/AdminDashboard'
 import Header from './components/common/Header'
@@ -84,6 +85,16 @@ function App() {
                 <>
                   <Header />
                   <Register />
+                </>
+              </PublicRoute>
+            } />
+            
+            {/* ¡¡¡AGREGA ESTA RUTA!!! */}
+            <Route path="/forgot-password" element={
+              <PublicRoute>
+                <>
+                  <Header />
+                  <ForgotPassword />
                 </>
               </PublicRoute>
             } />

@@ -463,3 +463,103 @@ export const getAllClients = async () => {
     return []
   }
 }
+
+// Agrega esta función en users.js (justo después de las funciones existentes)
+
+// Recuperar contraseña - Verificar documento y usuario
+export const verifyUserForPasswordRecovery = async (username, document) => {
+  try {
+    console.log('🔍 Verificando usuario para recuperación:', { username, document });
+    
+    const usersRef = collection(db, 'Users');
+    
+    // Buscar por username
+    let userQuery = query(usersRef, where('username', '==', username));
+    let querySnapshot = await getDocs(userQuery);
+    
+    // Si no encuentra por username, buscar por documento
+    if (querySnapshot.empty) {
+      userQuery = query(usersRef, where('document', '==', document));
+      querySnapshot = await getDocs(userQuery);
+      
+      if (querySnapshot.empty) {
+        console.log('❌ No se encontró usuario (ni por username ni documento)');
+        return {
+          success: false,
+          error: 'Usuario o documento no encontrado'
+        };
+      }
+      
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data();
+      
+      // Verificar que el documento coincida
+      if (userData.document !== document) {
+        return {
+          success: false,
+          error: 'Documento no coincide'
+        };
+      }
+    } else {
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data();
+      
+      // Verificar que el documento coincida
+      if (userData.document !== document) {
+        return {
+          success: false,
+          error: 'Documento no coincide con el usuario'
+        };
+      }
+    }
+    
+    const userDoc = querySnapshot.docs[0];
+    const userData = userDoc.data();
+    
+    console.log('✅ Usuario verificado correctamente:', userData.username);
+    
+    return {
+      success: true,
+      userId: userDoc.id,
+      username: userData.username,
+      email: userData.email || '',
+      message: 'Usuario verificado exitosamente'
+    };
+    
+  } catch (error) {
+    console.error('❌ Error en verificación:', error);
+    return {
+      success: false,
+      error: error.message || 'Error en la verificación'
+    };
+  }
+};
+
+// Actualizar contraseña de usuario
+export const updateUserPassword = async (userId, newPassword) => {
+  try {
+    console.log('🔐 Actualizando contraseña para usuario ID:', userId);
+    
+    const userRef = doc(db, 'Users', userId);
+    
+    // Actualizar solo la contraseña en Firestore
+    await updateDoc(userRef, {
+      password: newPassword, // En una app real, deberías encriptar esto
+      updatedAt: new Date().toISOString()
+    });
+    
+    console.log('✅ Contraseña actualizada exitosamente');
+    
+    return {
+      success: true,
+      message: 'Contraseña actualizada exitosamente'
+    };
+    
+  } catch (error) {
+    console.error('❌ Error actualizando contraseña:', error);
+    return {
+      success: false,
+      error: error.message || 'Error al actualizar contraseña'
+    };
+  }
+};
