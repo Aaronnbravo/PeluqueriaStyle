@@ -1,4 +1,5 @@
-import React from 'react'
+
+import React, { useState } from 'react' // Añade useState
 import { Navbar, Nav, Container, Button } from 'react-bootstrap'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
@@ -9,6 +10,7 @@ function Header() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const [expanded, setExpanded] = useState(false) // Añade este estado
 
   // Ocultar header en admin
   if (location.pathname.startsWith('/admin')) {
@@ -18,9 +20,12 @@ function Header() {
   const handleLogout = () => {
     logout()
     navigate('/login')
+    setExpanded(false) // Cierra el menú
   }
 
   const scrollToSection = (sectionId) => {
+    setExpanded(false) // Cierra el menú al hacer clic
+    
     if (window.location.pathname === '/') {
       const element = document.getElementById(sectionId)
       if (element) {
@@ -51,13 +56,25 @@ function Header() {
     }
   }
 
+  const handleReservarTurno = () => {
+    setExpanded(false) // Cierra el menú antes de navegar
+    navigate('/login')
+  }
+
   return (
-    <Navbar expand="lg" fixed="top" className="navbar">
+    <Navbar 
+      expand="lg" 
+      fixed="top" 
+      className="navbar"
+      expanded={expanded}
+      onToggle={(isOpen) => setExpanded(isOpen)}
+    >
       <Container>
         <Navbar.Brand
           href="#inicio"
           onClick={(e) => {
             e.preventDefault()
+            setExpanded(false) // Cierra el menú
             if (window.location.pathname !== '/') {
               navigate('/')
             } else {
@@ -131,6 +148,7 @@ function Header() {
                     className="social-icon"
                     target="_blank"
                     rel="noreferrer"
+                    onClick={() => setExpanded(false)} // Cierra el menú
                   >
                     <i className="fab fa-instagram"></i>
                   </a>
@@ -138,7 +156,7 @@ function Header() {
 
                 <Button
                   className="btn-reservar-turno"
-                  onClick={() => navigate('/login')}
+                  onClick={handleReservarTurno} // Usa la nueva función
                 >
                   RESERVAR TURNO
                 </Button>

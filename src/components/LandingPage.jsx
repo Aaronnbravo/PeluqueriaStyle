@@ -18,7 +18,7 @@ function LandingPage() {
   const navigate = useNavigate()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
-  
+
   const images = [corte1, corte2, corte3, corte4, corte5, corte6]
 
   // Detectar cambios en el tamaño de la pantalla
@@ -69,49 +69,49 @@ function LandingPage() {
 
   return (
     <div className="landing-page">
-     {/* HERO SECTION */}
-<section id="inicio" className="hero-area">
-  <Container>
-    <Row className={`align-items-center hero-row ${isMobile ? 'mobile-hero' : ''}`}>
-      <Col lg={6} className="hero-content">
-        <h1 className={`hero-main-title animate-fade-up ${isMobile ? 'mobile-title' : ''}`}>
-          <span className="piso-text">PISO</span>{' '}
-          <span className="style-text">STYLE</span>
-        </h1>
-        <h2 className={`hero-subtitle animate-fade-up animate-delay-1 ${isMobile ? 'mobile-subtitle' : ''}`}>
-          Barber Shop
-        </h2>
-        <p className={`hero-description animate-fade-up animate-delay-2 ${isMobile ? 'mobile-description' : ''}`}>
-          Más que un corte, una experiencia
-        </p>
-        <div className={`hero-buttons animate-fade-up animate-delay-2 ${isMobile ? 'mobile-buttons' : ''}`}>
-          <button
-            className="btn-primary-custom"
-            onClick={() => navigate('/login')}
-          >
-            {isMobile ? 'RESERVAR' : 'RESERVA AHORA'}
-          </button>
-          <button
-            className="btn-outline-custom"
-            onClick={() => scrollToSection('servicios')}
-          >
-            {isMobile ? 'SERVICIOS' : 'VER SERVICIOS'}
-          </button>
-        </div>
-      </Col>
+      {/* HERO SECTION */}
+      <section id="inicio" className="hero-area">
+        <Container>
+          <Row className={`align-items-center hero-row ${isMobile ? 'mobile-hero' : ''}`}>
+            <Col lg={6} className="hero-content">
+              <h1 className={`hero-main-title animate-fade-up ${isMobile ? 'mobile-title' : ''}`}>
+                <span className="piso-text">PISO</span>{' '}
+                <span className="style-text">STYLE</span>
+              </h1>
+              <h2 className={`hero-subtitle animate-fade-up animate-delay-1 ${isMobile ? 'mobile-subtitle' : ''}`}>
+                Barber Shop
+              </h2>
+              <p className={`hero-description animate-fade-up animate-delay-2 ${isMobile ? 'mobile-description' : ''}`}>
+                Más que un corte, una experiencia
+              </p>
+              <div className={`hero-buttons animate-fade-up animate-delay-2 ${isMobile ? 'mobile-buttons' : ''}`}>
+                <button
+                  className="btn-primary-custom"
+                  onClick={() => navigate('/login')}
+                >
+                  {isMobile ? 'RESERVAR' : 'RESERVA AHORA'}
+                </button>
+                <button
+                  className="btn-outline-custom"
+                  onClick={() => scrollToSection('servicios')}
+                >
+                  {isMobile ? 'SERVICIOS' : 'VER SERVICIOS'}
+                </button>
+              </div>
+            </Col>
 
-      <Col lg={6} className="hero-image">
-        <div className={`hero-image-container animate-fade-right ${isMobile ? 'mobile-hero-image' : ''}`}>
-          <img
-            src={heroImage}
-            alt="PisoStyle Peluquería - Barber Shop"
-            className="hero-real-image"
-          />
-        </div>
-      </Col>
-    </Row>
-  </Container>
-</section>
+            <Col lg={6} className="hero-image">
+              <div className={`hero-image-container animate-fade-right ${isMobile ? 'mobile-hero-image' : ''}`}>
+                <img
+                  src={heroImage}
+                  alt="PisoStyle Peluquería - Barber Shop"
+                  className="hero-real-image"
+                />
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
 
       {/* QUIÉNES SOMOS */}
       <section id="sobre-nosotros" className="about-section">
@@ -271,7 +271,7 @@ function LandingPage() {
 
                     <div className="contact-item">
                       <h5>TELÉFONO:</h5>
-                      <p>+54 9 2233 54-0664</p>
+                      <p>+54 9 2233-540664</p>
                     </div>
 
                     <div className="contact-item">
@@ -282,7 +282,7 @@ function LandingPage() {
                     <div className="contact-item">
                       <h5>FORMAS DE PAGO:</h5>
                       <p>Transferencia <br />
-                         Efectivo</p>
+                        Efectivo</p>
                     </div>
                   </div>
                 </Col>
@@ -293,10 +293,14 @@ function LandingPage() {
                     {/* Mapa de Google Maps */}
                     <div className={`map-container ${isMobile ? 'mobile-map' : ''}`}>
                       <iframe
-                        src="https://www.google.com/maps/place/Piso+Style+Barber+Shop/@-37.9932285,-57.555819,17z/data=!3m1!4b1!4m6!3m5!1s0x9584dd6aeb3030c7:0xed3c3c83467650d1!8m2!3d-37.9932328!4d-57.5532387!16s%2Fg%2F11vhxj6775?entry=ttu&g_ep=EgoyMDI1MTIwOS4wIKXMDSoASAFQAw%3D%3D"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3144.106384563234!2d-57.555819!3d-37.9932285!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9584dd6aeb3030c7%3A0xed3c3c83467650d1!2sPiso%20Style%20Barber%20Shop!5e0!3m2!1ses!2sar!4v1700000000000&theme=dark"
                         width="100%"
                         height={isMobile ? "200" : "300"}
-                        style={{ border: 0, borderRadius: '8px' }}
+                        style={{
+                          border: 0,
+                          borderRadius: '8px',
+                          filter: 'invert(90%) hue-rotate(180deg) contrast(90%)' // Efecto oscuro adicional
+                        }}
                         allowFullScreen=""
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
@@ -328,9 +332,9 @@ function LandingPage() {
         <Container>
           <Row className={`align-items-center ${isMobile ? 'mobile-footer-row' : ''}`}>
             <Col md={6} className={isMobile ? 'text-center mb-3' : ''}>
-              <img 
+              <img
                 src={logo}
-                alt="Ian Castillo" 
+                alt="Ian Castillo"
                 className={`logo-imagen ${isMobile ? 'mobile-logo' : ''}`}
               />
               <p className={`footer-text ${isMobile ? 'mobile-footer-text' : ''}`}>
@@ -339,7 +343,7 @@ function LandingPage() {
             </Col>
             <Col md={6} className={`text-md-end ${isMobile ? 'text-center' : ''}`}>
               <p className={`footer-copyright ${isMobile ? 'mobile-footer-copyright' : ''}`}>
-                Since 2023 pisostylebarbershop. Todos los derechos reservados.
+                Since 2023 PisoStyleBarbershop. Todos los derechos reservados.
               </p>
             </Col>
           </Row>
