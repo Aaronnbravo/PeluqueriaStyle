@@ -63,10 +63,9 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
     setLoading(true)
     try {
       const foundUsers = await searchUsers(searchTerm)
-      // **FILTRAR USUARIOS SIN PHONE**
       const usersWithPhone = Array.isArray(foundUsers) ? foundUsers.map(user => ({
         ...user,
-        phone: user.phone || 'Sin teléfono' // <<< VALOR POR DEFECTO
+        phone: user.phone || 'Sin teléfono'
       })) : []
       setUsers(usersWithPhone)
     } catch (error) {
@@ -78,10 +77,9 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
   }
 
   const handleUserSelect = (user) => {
-    // **ASEGURAR QUE USER TENGA PHONE**
     setSelectedUser({
       ...user,
-      phone: user.phone || 'Sin teléfono' // <<< VALOR POR DEFECTO
+      phone: user.phone || 'Sin teléfono'
     })
     setStep(2)
   }
@@ -114,63 +112,43 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
     return selectedServices.reduce((sum, service) => sum + (service.duration || 0), 0)
   }
 
- const handleSubmit = async () => {
-  if (!selectedUser || selectedServices.length === 0 || !selectedSlot || !selectedDate || !selectedBarber) {
-    showAlert('Por favor completa todos los campos', 'danger')
-    return
-  }
-
-  // **PREPARAR DATOS DE MANERA SEGURA**
-  const appointmentData = {
-    clientName: `${selectedUser.firstName} ${selectedUser.lastName}`.trim(),
-    
-    // **FORZAR phone con valor SEGURO**
-    phone: (selectedUser.phone && selectedUser.phone !== 'Sin teléfono') 
-      ? selectedUser.phone 
-      : 'Sin teléfono',
-    
-    email: selectedUser.email || '',
-    date: selectedDate,
-    time: selectedSlot,
-    services: selectedServices,
-    total: calculateTotal(),
-    duration: calculateDuration(),
-    
-    // **FORZAR paymentMethod con valor SEGURO**
-    paymentMethod: paymentMethod || 'Transferencia Bancaria',
-    
-    notes: notes || '',
-    userId: selectedUser.id || '',
-    barberId: selectedBarber.id || '',
-    barberName: selectedBarber.name || 'Sin asignar'
-  };
-
-  // **VERIFICAR ANTES DE ENVIAR**
-  console.log('🔍 VERIFICANDO DATOS ANTES DE ENVIAR:');
-  console.log('📱 Phone:', appointmentData.phone);
-  console.log('💳 PaymentMethod:', appointmentData.paymentMethod);
-  console.log('📋 Datos completos:', appointmentData);
-
-  // **VERIFICAR QUE NADA SEA undefined**
-  Object.keys(appointmentData).forEach(key => {
-    if (appointmentData[key] === undefined) {
-      console.error(`❌ ERROR: ${key} es undefined!`);
-      appointmentData[key] = ''; // Convertir a string vacío
+  const handleSubmit = async () => {
+    if (!selectedUser || selectedServices.length === 0 || !selectedSlot || !selectedDate || !selectedBarber) {
+      showAlert('Por favor completa todos los campos', 'danger')
+      return
     }
-  });
 
-  try {
-    await createAdminAppointment(appointmentData)
-    showAlert(`✅ Turno agendado exitosamente con ${selectedBarber.name}`, 'success')
-    setTimeout(() => {
-      resetForm()
-      onHide()
-    }, 2000)
-  } catch (error) {
-    console.error('❌ Error al agendar:', error)
-    showAlert(`❌ Error al agendar el turno: ${error.message}`, 'danger')
+    const appointmentData = {
+      clientName: `${selectedUser.firstName} ${selectedUser.lastName}`.trim(),
+      phone: (selectedUser.phone && selectedUser.phone !== 'Sin teléfono') 
+        ? selectedUser.phone 
+        : 'Sin teléfono',
+      email: selectedUser.email || '',
+      date: selectedDate,
+      time: selectedSlot,
+      services: selectedServices,
+      total: calculateTotal(),
+      duration: calculateDuration(),
+      paymentMethod: paymentMethod || 'Transferencia Bancaria',
+      notes: notes || '',
+      userId: selectedUser.id || '',
+      barberId: selectedBarber.id || '',
+      barberName: selectedBarber.name || 'Sin asignar'
+    };
+
+    try {
+      await createAdminAppointment(appointmentData)
+      showAlert(`✅ Turno agendado exitosamente con ${selectedBarber.name}`, 'success')
+      setTimeout(() => {
+        resetForm()
+        onHide()
+      }, 2000)
+    } catch (error) {
+      console.error('❌ Error al agendar:', error)
+      showAlert(`❌ Error al agendar el turno: ${error.message}`, 'danger')
+    }
   }
-}
+
   const resetForm = () => {
     setStep(1)
     setSearchTerm('')
@@ -208,7 +186,6 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
           </Alert>
         )}
 
-        {/* Paso 1: Buscar Cliente */}
         {step === 1 && (
           <div>
             <Form.Group className="mb-3">
@@ -265,7 +242,6 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
                                 <small className="text-muted">
                                   <i className="fas fa-user me-1"></i> <strong>Usuario:</strong> {user.username} • 
                                   <i className="fas fa-id-card me-1"></i> <strong>Documento:</strong> {user.document}
-                                  {/* **NO MOSTRAR PHONE SI NO TIENE** */}
                                   {user.phone && user.phone !== 'Sin teléfono' && (
                                     <>
                                       • <i className="fas fa-phone me-1"></i> {user.phone}
@@ -276,7 +252,11 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
                             </div>
                           </Col>
                           <Col xs="auto">
-                            <Button variant="outline-primary" size="sm">
+                            <Button 
+                              variant="outline-primary" 
+                              size="sm"
+                              className="seleccionar-btn"
+                            >
                               Seleccionar <i className="fas fa-chevron-right ms-1"></i>
                             </Button>
                           </Col>
@@ -297,17 +277,20 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
           </div>
         )}
 
-        {/* Paso 2: Seleccionar Servicios y Horario */}
         {step === 2 && selectedUser && (
           <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h5>Servicios y Horario</h5>
-              <Button variant="outline-secondary" size="sm" onClick={() => setStep(1)}>
+              <Button 
+                variant="outline-secondary" 
+                size="sm" 
+                onClick={() => setStep(1)}
+                className="volver-btn"
+              >
                 <i className="fas fa-arrow-left me-1"></i> Volver a buscar
               </Button>
             </div>
 
-            {/* Información del cliente seleccionado */}
             <Card className="mb-3 selected-user-card">
               <Card.Body>
                 <div className="d-flex align-items-center">
@@ -321,7 +304,6 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
                     <small className="text-muted">
                       <i className="fas fa-user me-1"></i> {selectedUser.username} • 
                       <i className="fas fa-id-card me-1"></i> {selectedUser.document}
-                      {/* **NO MOSTRAR PHONE SI NO TIENE** */}
                       {selectedUser.phone && selectedUser.phone !== 'Sin teléfono' && (
                         <>
                           • <i className="fas fa-phone me-1"></i> {selectedUser.phone}
@@ -338,22 +320,25 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
               </Card.Body>
             </Card>
 
-            {/* Selección de peluquero */}
+            {/* BOTONES DE PELUQUERO - CON CLASES CSS */}
             <Form.Group className="mb-4">
               <Form.Label className="h6">Seleccionar Peluquero</Form.Label>
               <div className="d-flex gap-3">
-                {barbers.map(barber => (
-                  <Button
-                    key={barber.id}
-                    variant={selectedBarber?.id === barber.id ? "primary" : "outline-secondary"}
-                    onClick={() => handleBarberChange(barber)}
-                    className="flex-grow-1"
-                  >
-                    {barber.name}
-                    <br />
-                    <small>{barber.description}</small>
-                  </Button>
-                ))}
+                {barbers.map(barber => {
+                  const isSelected = selectedBarber?.id === barber.id;
+                  return (
+                    <Button
+                      key={barber.id}
+                      variant={isSelected ? "primary" : "outline-secondary"}
+                      onClick={() => handleBarberChange(barber)}
+                      className={`peluquero-btn ${isSelected ? 'active' : ''}`}
+                    >
+                      {barber.name}
+                      <br />
+                      <small>{barber.description}</small>
+                    </Button>
+                  );
+                })}
               </div>
               {selectedBarber && (
                 <div className="mt-2">
@@ -364,7 +349,6 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
               )}
             </Form.Group>
 
-            {/* Selección de servicios */}
             <Form.Group className="mb-4">
               <Form.Label className="h6">Seleccionar Servicios</Form.Label>
               <Row>
@@ -407,7 +391,6 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
               </Row>
             </Form.Group>
 
-            {/* Resumen de servicios seleccionados */}
             {selectedServices.length > 0 && (
               <Card className="mb-3 summary-card">
                 <Card.Header className="bg-light">
@@ -451,7 +434,6 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
               </Card>
             )}
 
-            {/* Selección de horario */}
             <Form.Group className="mb-3">
               <Form.Label className="h6">Seleccionar Horario</Form.Label>
               <Form.Select 
@@ -482,7 +464,6 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
               )}
             </Form.Group>
 
-            {/* Selección de método de pago */}
             <Form.Group className="mb-3">
               <Form.Label className="h6">Método de Pago</Form.Label>
               <Form.Select 
@@ -493,7 +474,6 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
               </Form.Select>
             </Form.Group>
 
-            {/* Notas adicionales */}
             <Form.Group className="mb-4">
               <Form.Label className="h6">Notas adicionales (opcional)</Form.Label>
               <Form.Control
@@ -505,7 +485,6 @@ function ManualAppointment({ show, onHide, selectedDate, selectedTime }) {
               />
             </Form.Group>
 
-            {/* Botón de confirmación */}
             <div className="text-center">
               <Button 
                 variant="danger" 

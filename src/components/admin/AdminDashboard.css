@@ -1673,3 +1673,320 @@ h3.admin-title,
 .admin-header h1::after {
     display: none !important;
 }
+/* ===== CORRECCIÓN PARA EL BOTÓN "AGREGAR CLIENTE" EN EL MODAL ===== */
+
+/* Botón de búsqueda en ManualAppointment */
+.search-btn {
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover)) !important;
+  border: none !important;
+  color: white !important;
+  transition: var(--transition-bounce) !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-weight: 600 !important;
+  padding: 0.5rem 1.5rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.search-btn:hover {
+  background: linear-gradient(to right, var(--color-accent-hover), #6a15b1) !important;
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4) !important;
+  color: white !important;
+}
+
+.search-btn:active {
+  transform: translateY(-1px) scale(1.02) !important;
+  box-shadow: 0 2px 10px rgba(138, 43, 226, 0.3) !important;
+  transition: all 0.1s ease !important;
+}
+
+.search-btn:disabled {
+  opacity: 0.6 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+/* Botón de confirmación en ManualAppointment */
+.confirm-btn {
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover)) !important;
+  border: none !important;
+  color: white !important;
+  transition: var(--transition-bounce) !important;
+  font-family: 'Engine', 'Montserrat', sans-serif !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 2rem !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  width: 100% !important;
+  margin-top: 1rem !important;
+}
+
+.confirm-btn:hover {
+  background: linear-gradient(to right, var(--color-accent-hover), #6a15b1) !important;
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 6px 25px rgba(138, 43, 226, 0.5) !important;
+  color: white !important;
+}
+
+.confirm-btn:active {
+  transform: translateY(-1px) scale(1.01) !important;
+  box-shadow: 0 2px 15px rgba(138, 43, 226, 0.4) !important;
+  transition: all 0.1s ease !important;
+}
+
+.confirm-btn:disabled {
+  opacity: 0.6 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  background: linear-gradient(to right, #cccccc, #999999) !important;
+}
+
+/* Botones de peluquero en ManualAppointment */
+.btn[class*="peluquero"],
+.btn[class*="barber"],
+.btn[class*="seleccionar"] {
+  background: linear-gradient(to right, rgba(138, 43, 226, 0.1), rgba(138, 43, 226, 0.2)) !important;
+  border: 2px solid var(--color-accent) !important;
+  color: var(--color-accent) !important;
+  transition: var(--transition-normal) !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 600 !important;
+  padding: 0.75rem !important;
+  border-radius: 8px !important;
+}
+
+.btn[class*="peluquero"]:hover,
+.btn[class*="barber"]:hover,
+.btn[class*="seleccionar"]:hover {
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover)) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3) !important;
+}
+
+/* Estado activo para peluquero seleccionado */
+.btn[class*="peluquero"].active,
+.btn[class*="barber"].active {
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover)) !important;
+  border-color: var(--color-accent) !important;
+  color: white !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 20px rgba(138, 43, 226, 0.4) !important;
+}
+
+/* Botones generales en el modal */
+.modal-footer .btn,
+.modal-body .btn {
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 600 !important;
+  transition: var(--transition-normal) !important;
+}
+
+/* Botón Volver en ManualAppointment */
+.btn-outline-secondary {
+  border: 2px solid var(--color-border) !important;
+  color: var(--color-text) !important;
+  background: transparent !important;
+  transition: var(--transition-normal) !important;
+}
+
+.btn-outline-secondary:hover {
+  border-color: var(--color-accent) !important;
+  color: var(--color-accent) !important;
+  background: rgba(138, 43, 226, 0.05) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Botón Seleccionar en la lista de usuarios */
+.user-card .btn-outline-primary {
+  border: 2px solid var(--color-accent) !important;
+  color: var(--color-accent) !important;
+  background: transparent !important;
+  transition: var(--transition-normal) !important;
+}
+
+.user-card .btn-outline-primary:hover {
+  background: var(--color-accent) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 10px rgba(138, 43, 226, 0.3) !important;
+}
+
+/* ===== CORRECCIÓN ESPECÍFICA PARA EL BOTÓN "BUSCAR" ===== */
+
+/* Asegurar que el botón Buscar sea visible */
+button.btn.search-btn,
+button[class*="search-btn"] {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%) !important;
+  color: white !important;
+  border: none !important;
+  min-width: 100px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+}
+
+/* Cuando está deshabilitado */
+button.btn.search-btn:disabled {
+  background: linear-gradient(135deg, #cccccc 0%, #999999 100%) !important;
+  color: #666666 !important;
+  cursor: not-allowed !important;
+  opacity: 0.7 !important;
+}
+
+/* Spinner dentro del botón */
+.search-btn .spinner-border {
+  width: 1rem !important;
+  height: 1rem !important;
+  border-width: 2px !important;
+}
+
+/* ===== CORRECCIÓN PARA EL TEXTO "BIENVENIDO" EN NEGRO ===== */
+.admin-header h1 {
+  color: #000000 !important;
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: #000000 !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* ===== MEJORAS PARA VISIBILIDAD DE BOTONES EN EL MODAL ===== */
+
+/* Asegurar contraste en todos los botones */
+.modal-content .btn {
+  border: 2px solid transparent !important;
+}
+
+.modal-content .btn:not(.search-btn):not(.confirm-btn):not(.btn-primary):not(.btn-danger) {
+  border: 2px solid var(--color-border) !important;
+}
+
+/* Contraste para botones en modo oscuro/light */
+@media (prefers-color-scheme: dark) {
+  .search-btn,
+  .confirm-btn {
+    box-shadow: 0 4px 15px rgba(138, 43, 226, 0.5) !important;
+  }
+  
+  .search-btn:hover,
+  .confirm-btn:hover {
+    box-shadow: 0 6px 25px rgba(138, 43, 226, 0.7) !important;
+  }
+}
+
+/* ===== RESPONSIVE PARA BOTONES EN MODAL ===== */
+@media (max-width: 768px) {
+  .search-btn {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+    min-width: 80px !important;
+  }
+  
+  .confirm-btn {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 1rem !important;
+  }
+  
+  .btn[class*="peluquero"],
+  .btn[class*="barber"] {
+    padding: 0.5rem !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .search-btn {
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.8rem !important;
+    min-width: 70px !important;
+  }
+  
+  .confirm-btn {
+    padding: 0.6rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .search-btn i,
+  .confirm-btn i {
+    font-size: 0.9rem !important;
+  }
+}
+
+/* ===== SOLUCIÓN DE EMERGENCIA PARA BOTONES INVISIBLES ===== */
+
+/* Forzar visibilidad de TODOS los botones en el modal */
+.modal-content .btn,
+.modal-body .btn,
+.modal-footer .btn {
+    visibility: visible !important;
+    opacity: 1 !important;
+    background-color: white !important;
+    color: #8a2be2 !important;
+    border: 2px solid #8a2be2 !important;
+}
+
+/* Botón seleccionado */
+.modal-content .btn-primary,
+.modal-body .btn-primary,
+.modal-footer .btn-primary {
+    background: linear-gradient(to right, #8a2be2, #b95ec7) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Botón no seleccionado (outline) */
+.modal-content .btn-outline-secondary,
+.modal-body .btn-outline-secondary,
+.modal-footer .btn-outline-secondary {
+    background: white !important;
+    color: #8a2be2 !important;
+    border: 2px solid #8a2be2 !important;
+}
+
+/* Botones de peluquero específicos */
+.barber-btn,
+.peluquero-btn,
+[class*="barber"],
+[class*="peluquero"] {
+    background: white !important;
+    color: #8a2be2 !important;
+    border: 2px solid #8a2be2 !important;
+    font-weight: 600 !important;
+}
+
+.barber-btn.active,
+.peluquero-btn.active,
+[class*="barber"].active,
+[class*="peluquero"].active {
+    background: linear-gradient(to right, #8a2be2, #b95ec7) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Forzar que el texto sea visible */
+.barber-btn small,
+.peluquero-btn small,
+[class*="barber"] small,
+[class*="peluquero"] small {
+    color: inherit !important;
+    opacity: 0.9 !important;
+}
+
+/* Botón Buscar y Confirmar */
+.search-btn,
+.confirm-btn {
+    background: linear-gradient(to right, #8a2be2, #b95ec7) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600 !important;
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Badge, Form, Alert, Modal, Row, Col } from 'react-bootstrap';
-import { getAppointments, updateAppointmentStatus, deleteAppointment, getBarbers } from '../../services/appointments';
+import { getAppointments, updateAppointmentStatus, deleteAppointment } from '../../services/appointments';
 
 function AppointmentManager() {
   const [appointments, setAppointments] = useState([]);
@@ -15,6 +15,7 @@ function AppointmentManager() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsAppointment, setDetailsAppointment] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' o 'desc'
 
   useEffect(() => {
     loadAppointments();
@@ -26,13 +27,21 @@ function AppointmentManager() {
       const allAppointments = await getAppointments();
       console.log('📊 Todos los turnos cargados:', allAppointments.length);
       
-      // Verificar datos de peluquero en cada turno
-      allAppointments.forEach(apt => {
-        console.log(`👤 ${apt.clientName}: barberId=${apt.barberId}, barberName=${apt.barberName}, barber=${apt.barber?.name}`);
+      // Ordenar por fecha (más reciente primero por defecto)
+      const sortedAppointments = allAppointments.sort((a, b) => {
+        // Crear objetos Date para comparación
+        const dateA = parseDateForSorting(a.date);
+        const dateB = parseDateForSorting(b.date);
+        
+        if (sortOrder === 'desc') {
+          return dateB - dateA; // Más reciente primero
+        } else {
+          return dateA - dateB; // Más antiguo primero
+        }
       });
       
-      setAppointments(allAppointments);
-      setFilteredAppointments(allAppointments);
+      setAppointments(sortedAppointments);
+      setFilteredAppointments(sortedAppointments);
     } catch (error) {
       console.error('Error cargando turnos:', error);
     } finally {
@@ -40,9 +49,44 @@ function AppointmentManager() {
     }
   };
 
+  // Función para parsear fechas para ordenamiento
+  const parseDateForSorting = (dateStr) => {
+    if (!dateStr) return new Date(0);
+    
+    try {
+      // Si es YYYY-MM-DD
+      if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day);
+      }
+      
+      // Si es DD/MM/YYYY
+      if (typeof dateStr === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+        const [day, month, year] = dateStr.split('/').map(Number);
+        return new Date(year, month - 1, day);
+      }
+      
+      // Si ya es un objeto Date
+      if (dateStr instanceof Date) {
+        return dateStr;
+      }
+      
+      // Intentar parsear como fecha en cualquier formato
+      const parsedDate = new Date(dateStr);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
+      }
+      
+      return new Date(0);
+    } catch (error) {
+      console.error('Error parseando fecha:', error, dateStr);
+      return new Date(0);
+    }
+  };
+
   useEffect(() => {
     filterAppointments();
-  }, [searchTerm, statusFilter, dateFilter, appointments]);
+  }, [searchTerm, statusFilter, dateFilter, appointments, sortOrder]);
 
   const filterAppointments = () => {
     let filtered = [...appointments];
@@ -64,7 +108,6 @@ function AppointmentManager() {
 
     // Filtrar por fecha
     if (dateFilter) {
-      // Normalizar fecha para comparación
       const filterDate = dateFormatForComparison(dateFilter);
       filtered = filtered.filter(apt => {
         const aptDate = dateFormatForComparison(apt.date);
@@ -72,10 +115,30 @@ function AppointmentManager() {
       });
     }
 
+    // Ordenar según la preferencia actual
+    filtered.sort((a, b) => {
+      const dateA = parseDateForSorting(a.date);
+      const dateB = parseDateForSorting(b.date);
+      
+      // Si las fechas son iguales, ordenar por hora
+      if (dateA.getTime() === dateB.getTime()) {
+        return a.time?.localeCompare(b.time) || 0;
+      }
+      
+      if (sortOrder === 'desc') {
+        return dateB - dateA;
+      } else {
+        return dateA - dateB;
+      }
+    });
+
     setFilteredAppointments(filtered);
   };
 
-  // Función para formatear fecha para comparación (similar a AdminCalendar)
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
+  };
+
   const dateFormatForComparison = (dateStr) => {
     if (!dateStr) return '';
     
@@ -93,36 +156,25 @@ function AppointmentManager() {
     return dateStr;
   };
 
-  // Función para mostrar nombre del peluquero (CORREGIDA)
   const getBarberDisplay = (appointment) => {
-    console.log('🔍 Obteniendo peluquero para:', appointment.clientName, appointment);
-    
-    // 1. Si tiene barberName explícito
     if (appointment.barberName) {
-      console.log('✅ Usando barberName:', appointment.barberName);
       return `Con: ${appointment.barberName}`;
     }
     
-    // 2. Si tiene objeto barber con nombre
     if (appointment.barber && appointment.barber.name) {
-      console.log('✅ Usando barber.name:', appointment.barber.name);
       return `Con: ${appointment.barber.name}`;
     }
     
-    // 3. Si tiene barberId, mapear a nombre
     if (appointment.barberId) {
       const barberName = appointment.barberId === 'mili' ? 'Mili' : 
                         appointment.barberId === 'santi' ? 'Santiago' : 
                         appointment.barberId;
-      console.log('✅ Usando barberId mapeado:', barberName);
       return `Con: ${barberName}`;
     }
     
-    console.log('⚠️ Sin información de peluquero');
     return 'Sin asignar';
   };
 
-  // Función para obtener color según estado
   const getStatusVariant = (status) => {
     switch (status) {
       case 'pending': return 'warning';
@@ -134,7 +186,6 @@ function AppointmentManager() {
     }
   };
 
-  // Función para obtener texto del estado
   const getStatusText = (status) => {
     switch (status) {
       case 'pending': return 'Pendiente';
@@ -232,11 +283,40 @@ function AppointmentManager() {
     }
   };
 
+  // Función para formatear fecha corta (solo día/mes)
+  const formatDateShort = (dateString) => {
+    if (!dateString) return '';
+    
+    try {
+      const date = parseDateForSorting(dateString);
+      return date.toLocaleDateString('es-ES', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
+
   return (
     <div>
       <Card className="mb-4">
         <Card.Header>
-          <h5><i className="fas fa-calendar-alt"></i> Gestión de Turnos</h5>
+          <div className="d-flex justify-content-between align-items-center">
+            <h5><i className="fas fa-calendar-alt"></i> Gestión de Turnos</h5>
+            <div className="d-flex align-items-center gap-2">
+              <Button 
+                variant="outline-primary" 
+                size="sm"
+                onClick={toggleSortOrder}
+                title={`Ordenar por fecha ${sortOrder === 'desc' ? '(Más antiguos primero)' : '(Más recientes primero)'}`}
+              >
+                <i className={`fas fa-sort-amount-${sortOrder === 'desc' ? 'down' : 'up'}`}></i>
+                {sortOrder === 'desc' ? ' Recientes primero' : ' Antiguos primero'}
+              </Button>
+            </div>
+          </div>
         </Card.Header>
         <Card.Body>
           {/* Filtros */}
@@ -280,14 +360,28 @@ function AppointmentManager() {
             </Col>
             <Col md={2} className="d-flex align-items-end">
               <Button
-                variant="outline-secondary"
+                variant="outline-primary"
                 onClick={loadAppointments}
                 title="Actualizar"
+                className="w-100"
               >
-                <i className="fas fa-sync-alt"></i>
+                <i className="fas fa-sync-alt"></i> Actualizar
               </Button>
             </Col>
           </Row>
+
+          {/* Indicador de ordenamiento */}
+          <Alert variant="info" className="mb-3">
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <i className={`fas fa-sort-amount-${sortOrder === 'desc' ? 'down' : 'up'} me-2`}></i>
+                Ordenado por fecha: <strong>{sortOrder === 'desc' ? 'Más recientes primero' : 'Más antiguos primero'}</strong>
+              </div>
+              <small className="text-muted">
+                Mostrando {filteredAppointments.length} de {appointments.length} turnos
+              </small>
+            </div>
+          </Alert>
 
           {/* Tabla de turnos */}
           {loading ? (
@@ -302,7 +396,20 @@ function AppointmentManager() {
               <Table hover>
                 <thead>
                   <tr>
-                    <th>Fecha</th>
+                    <th>
+                      <div className="d-flex align-items-center gap-1">
+                        Fecha
+                        <Button 
+                          variant="link" 
+                          size="sm" 
+                          className="p-0" 
+                          onClick={toggleSortOrder}
+                          title="Cambiar orden"
+                        >
+                          <i className={`fas fa-sort-${sortOrder === 'desc' ? 'down' : 'up'}`}></i>
+                        </Button>
+                      </div>
+                    </th>
                     <th>Hora</th>
                     <th>Cliente</th>
                     <th>Peluquero</th>
@@ -317,7 +424,11 @@ function AppointmentManager() {
                     <tr key={appointment.id}>
                       <td>
                         <div>
-                          {formatDate(appointment.date)}
+                          <strong>{formatDateShort(appointment.date)}</strong>
+                          <br />
+                          <small className="text-muted">
+                            {formatDate(appointment.date)}
+                          </small>
                         </div>
                       </td>
                       <td>
@@ -391,9 +502,14 @@ function AppointmentManager() {
           )}
         </Card.Body>
         <Card.Footer>
-          <small className="text-muted">
-            Mostrando {filteredAppointments.length} de {appointments.length} turnos
-          </small>
+          <div className="d-flex justify-content-between align-items-center">
+            <small className="text-muted">
+              Mostrando {filteredAppointments.length} de {appointments.length} turnos
+            </small>
+            <small className="text-muted">
+              Orden: {sortOrder === 'desc' ? 'Más recientes primero' : 'Más antiguos primero'}
+            </small>
+          </div>
         </Card.Footer>
       </Card>
 
