@@ -32,7 +32,7 @@ const PAYMENT_METHODS = [
 const BARBERS = [
   {
     id: 'santi',
-    name: 'Santiago',
+    name: 'Santuu',
     image: '/images/Barbers/Santuu.jpg',
     interval: 30, // minutos entre turnos
     description: 'Corte clásico y moderno'
