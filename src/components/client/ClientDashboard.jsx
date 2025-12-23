@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import AppointmentCalendar from './AppointmentCalendar'
 import AppointmentForm from './AppointmentForm'
 import { useAuth } from '../../hooks/useAuth'
-import { getAppointments, cancelAppointment } from '../../services/appointments'
+import { getAppointments, cancelAppointment, generateCalendarLinks } from '../../services/appointments'
 import './ClientDashboard.css'
 
 function ClientDashboard() {
@@ -19,50 +19,64 @@ function ClientDashboard() {
   const servicesRef = useRef(null)
   const confirmationAlertRef = useRef(null)
 
-  // useEffect corregido
+  // useEffect corregido para buscar turnos existentes
   useEffect(() => {
-    if (!user || authLoading) return
+    if (!user || authLoading) return;
 
     const checkExistingAppointment = async () => {
-      setLoadingAppointments(true)
+      setLoadingAppointments(true);
       try {
-        const appointments = await getAppointments()
-        const userName = user.username || user.firstName || user.name || user.email
+        const appointments = await getAppointments();
+        const userName = user.username || user.firstName || user.name || user.email;
         
         // DEBUG: Ver todos los turnos del usuario
-        console.log('🔍 Turnos encontrados en Firestore:', appointments);
+        console.log('🔍 Buscando turnos para usuario:', userName);
+        console.log('📊 Todos los turnos en Firestore:', appointments.length);
         
-        const userAppointment = appointments.find(apt => {
-          const appointmentName = apt.clientName || ''
+        // Buscar turnos del usuario en CUALQUIER estado (no solo 'confirmed')
+        const userAppointments = appointments.filter(apt => {
+          const appointmentName = apt.clientName || '';
+          const userEmail = user.email || '';
+          const aptEmail = apt.email || '';
           
-          // DEBUG: Ver cada comparación
-          console.log(`Comparando: 
-            Usuario: ${userName}
-            Turno: ${appointmentName}
-            Email: ${apt.email} vs ${user.email}
-            Fecha: ${apt.date}
-            Fecha display: ${apt.dateDisplay}
-          `);
+          // Verificar coincidencia por nombre o email
+          const nameMatch = appointmentName.includes(userName) || 
+                           userName.includes(appointmentName);
+          const emailMatch = aptEmail && userEmail && 
+                            aptEmail.toLowerCase() === userEmail.toLowerCase();
           
-          return (
-            (appointmentName.includes(userName) || 
-             userName.includes(appointmentName) ||
-             apt.email === user.email) && 
-            apt.status === 'confirmed'
-          )
-        })
+          return (nameMatch || emailMatch) && 
+                 apt.status !== 'cancelled' && 
+                 apt.status !== 'completed';
+        });
         
-        console.log('✅ Turno encontrado para el usuario:', userAppointment);
-        setExistingAppointment(userAppointment || null)
+        console.log('✅ Turnos encontrados para el usuario:', userAppointments.length);
+        
+        if (userAppointments.length > 0) {
+          // Ordenar por fecha (más reciente primero)
+          userAppointments.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateB - dateA;
+          });
+          
+          // Tomar el turno más reciente
+          setExistingAppointment(userAppointments[0]);
+          console.log('🎯 Turno más reciente encontrado:', userAppointments[0]);
+        } else {
+          setExistingAppointment(null);
+          console.log('❌ No se encontraron turnos activos para el usuario');
+        }
       } catch (error) {
-        console.error('Error al cargar turnos:', error)
+        console.error('Error al cargar turnos:', error);
+        setExistingAppointment(null);
       } finally {
-        setLoadingAppointments(false)
+        setLoadingAppointments(false);
       }
-    }
+    };
 
-    checkExistingAppointment()
-  }, [user, authLoading])
+    checkExistingAppointment();
+  }, [user, authLoading]);
 
   // Función para hacer scroll a la confirmación
   const scrollToConfirmation = () => {
@@ -218,6 +232,24 @@ function ClientDashboard() {
     }
   };
 
+  // Función para agregar a Google Calendar
+  const handleAddToGoogleCalendar = () => {
+    if (!existingAppointment) return;
+    
+    try {
+      // Generar enlaces de calendario
+      const calendarLinks = generateCalendarLinks(existingAppointment);
+      if (calendarLinks.google && calendarLinks.google !== '#') {
+        window.open(calendarLinks.google, '_blank');
+      } else {
+        alert('No se pudo generar el enlace de Google Calendar. Por favor, intenta más tarde.');
+      }
+    } catch (error) {
+      console.error('Error al generar enlace de Google Calendar:', error);
+      alert('Error al generar el enlace de Google Calendar.');
+    }
+  };
+
   // Mostrar loading mientras se carga la autenticación
   if (authLoading) {
     return (
@@ -279,37 +311,84 @@ function ClientDashboard() {
           <p className="mt-2 small text-muted">Verificando tus turnos...</p>
         </div>
       ) : existingAppointment && (
-        <Alert variant="warning" className="existing-appointment-alert mb-4">
+        <Alert variant={existingAppointment.status === 'pending' ? 'info' : 'warning'} className="existing-appointment-alert mb-4">
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-start">
             <div className="flex-grow-1 mb-3 mb-md-0">
-              <h5 className="mb-3">
-                <i className="fa-solid fa-calendar-check me-2"></i>
-                ¡Ya tienes un turno agendado!
-              </h5>
-              <Row>
-                <Col md={6}>
-                  <p className="mb-2">
-                    <strong>Fecha:</strong> {formatAppointmentDate(existingAppointment.date)}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Hora:</strong> {existingAppointment.time}
-                  </p>
-                  {existingAppointment.barber && (
-                    <p className="mb-2">
-                      <strong>Peluquero:</strong> {existingAppointment.barber.name}
-                    </p>
-                  )}
-                </Col>
-                <Col md={6}>
-                  <p className="mb-2">
-                    <strong>Servicios:</strong> {existingAppointment.services.map(s => s.name).join(', ')}
-                  </p>
-                  <p className="mb-0">
-                    <strong>Total:</strong> ${existingAppointment.total}
-                  </p>
-                </Col>
-              </Row>
+              {existingAppointment.status === 'pending' ? (
+                <>
+                  <h5 className="mb-3">
+                    <i className="fa-solid fa-clock me-2"></i>
+                    ⏳ Tu turno está siendo reservado...
+                  </h5>
+                  <Alert variant="info" className="mb-3">
+                    <i className="fa-solid fa-info-circle me-2"></i>
+                    <strong>Estado:</strong> El local está verificando si has hecho la seña.
+                    <br />
+                    <small>Recibirás confirmación por WhatsApp una vez verificado el pago.</small>
+                  </Alert>
+                </>
+              ) : (
+                <h5 className="mb-3">
+                  <i className="fa-solid fa-calendar-check me-2"></i>
+                  ¡Ya tienes un turno agendado!
+                </h5>
+              )}
+              
+              {/* Información del turno en grid */}
+              <div className="appointment-details-grid mb-3">
+                <div className="appointment-detail-item">
+                  <strong>Fecha:</strong>
+                  <span>{formatAppointmentDate(existingAppointment.date)}</span>
+                </div>
+                
+                <div className="appointment-detail-item">
+                  <strong>Hora:</strong>
+                  <span>{existingAppointment.time}</span>
+                </div>
+                
+                {existingAppointment.barber && (
+                  <div className="appointment-detail-item">
+                    <strong>Peluquero:</strong>
+                    <span>{existingAppointment.barber.name}</span>
+                  </div>
+                )}
+                
+                <div className="appointment-detail-item">
+                  <strong>Servicios:</strong>
+                  <span>{existingAppointment.services.map(s => s.name).join(', ')}</span>
+                </div>
+                
+                <div className="appointment-detail-item">
+                  <strong>Total:</strong>
+                  <span>${existingAppointment.total?.toLocaleString('es-AR')}</span>
+                </div>
+                
+                {existingAppointment.status === 'pending' && existingAppointment.depositAmount > 0 && (
+                  <div className="appointment-detail-item">
+                    <strong>Seña requerida:</strong>
+                    <span className="text-warning">
+                      ${existingAppointment.depositAmount?.toLocaleString('es-AR')}
+                      <small className="d-block">(50% del total)</small>
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Opción para agregar a Google Calendar */}
+              <div className="mt-3">
+                <Button 
+                  variant="outline-primary" 
+                  size="sm"
+                  onClick={handleAddToGoogleCalendar}
+                  className="btn-calendar me-2 mb-2"
+                >
+                  <i className="fa-brands fa-google me-2"></i>
+                  Agregar a Google Calendar
+                </Button>
+              </div>
             </div>
+            
+            {/* Botones de acción */}
             <div className="appointment-actions">
               <Button 
                 variant="outline-danger" 

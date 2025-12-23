@@ -156,6 +156,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
     }, 100);
   };
 
+ // En AppointmentForm.jsx, función confirmAppointment
   const confirmAppointment = async () => {
   setLoading(true);
   setShowConfirmation(false);
@@ -169,6 +170,11 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
     console.log('📅 Fecha formateada:', formattedDate);
     console.log('⏰ Hora:', selectedTime);
     console.log('👤 Cliente:', user?.firstName || user?.name || 'Cliente');
+
+    // VERIFICACIÓN CRÍTICA: Asegurarse que la fecha sea válida
+    if (!formattedDate || !/^\d{2}\/\d{2}\/\d{4}$/.test(formattedDate)) {
+      throw new Error('Fecha inválida. Por favor selecciona una fecha válida.');
+    }
 
     const servicesWithAdjustedPrice = selectedServices.map(service => ({
       ...service,
@@ -188,6 +194,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
       notes: notes,
       barber: selectedBarber,
       barberId: selectedBarber?.id,
+      barberName: selectedBarber?.name || 'Sin asignar', // AÑADIR ESTO
       confirmationNumber: 'CONF-' + Date.now().toString().slice(-6)
     };
 
@@ -204,7 +211,9 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
       date: appointmentData.date,
       time: appointmentData.time,
       total: appointmentData.total,
-      services: appointmentData.services.length
+      services: appointmentData.services.length,
+      barberId: appointmentData.barberId,
+      barberName: appointmentData.barberName
     });
     
     const newAppointment = await createAppointmentWithNotifications(appointmentData);
@@ -224,7 +233,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
     // Mensaje de error más específico
     let errorMessage = 'Error al agendar el turno: ' + (err.message || 'Error desconocido');
     
-    if (err.message.includes('Invalid time value') || err.message.includes('fecha')) {
+    if (err.message.includes('Invalid time value') || err.message.includes('fecha') || err.message.includes('Invalid date')) {
       errorMessage = 'Error con la fecha u hora seleccionada. Por favor, verifica e intenta nuevamente.';
     }
     

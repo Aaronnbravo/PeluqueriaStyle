@@ -1,8 +1,8 @@
-import { 
-  collection, 
-  getDocs, 
-  query, 
-  where, 
+import {
+  collection,
+  getDocs,
+  query,
+  where,
   addDoc,
   onSnapshot,
   deleteDoc,
@@ -59,22 +59,36 @@ export const BANK_TRANSFER_INFO = {
 // ========== FUNCIONES AUXILIARES DE FECHA CORREGIDAS ==========
 
 // Función para convertir cualquier fecha a YYYY-MM-DD sin problemas de zona horaria
+
 export const getLocalDateString = (dateInput) => {
-  if (!dateInput) return '';
-  
+  if (!dateInput) {
+    console.warn('⚠️ getLocalDateString: Input vacío');
+    return '';
+  }
+
   // Si ya es string YYYY-MM-DD, devolverlo
   if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
     return dateInput;
   }
-  
+
   // Si es string DD/MM/YYYY (como viene del cliente)
   if (typeof dateInput === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateInput)) {
     const [day, month, year] = dateInput.split('/');
+    // Validar que los componentes sean números válidos
+    const dayNum = parseInt(day, 10);
+    const monthNum = parseInt(month, 10);
+    const yearNum = parseInt(year, 10);
+
+    if (dayNum < 1 || dayNum > 31 || monthNum < 1 || monthNum > 12 || yearNum < 2000) {
+      console.error('❌ Fecha inválida en formato DD/MM/YYYY:', dateInput);
+      return '';
+    }
+
     const result = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     console.log('🔄 DD/MM/YYYY -> YYYY-MM-DD:', dateInput, '->', result);
     return result;
   }
-  
+
   // Si es un Date object
   let date;
   if (dateInput instanceof Date) {
@@ -83,31 +97,31 @@ export const getLocalDateString = (dateInput) => {
     // Intentar parsear como Date
     date = new Date(dateInput);
   }
-  
+
   // Verificar que la fecha sea válida
   if (isNaN(date.getTime())) {
     console.error('❌ Fecha inválida en getLocalDateString:', dateInput);
     return '';
   }
-  
+
   // Obtener componentes locales (NO usar UTC)
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  
+
   const result = `${year}-${month}-${day}`;
+  console.log('📅 Date -> YYYY-MM-DD:', dateInput, '->', result);
   return result;
 };
-
 // Función para convertir de YYYY-MM-DD a DD/MM/YYYY (para mostrar)
 export const formatDateForDisplay = (dateString) => {
   if (!dateString) return '';
-  
+
   // Si ya está en DD/MM/YYYY, devolverlo
   if (typeof dateString === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
     return dateString;
   }
-  
+
   // Si está en YYYY-MM-DD, convertir
   if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
     const [year, month, day] = dateString.split('-').map(Number);
@@ -115,7 +129,7 @@ export const formatDateForDisplay = (dateString) => {
     console.log('🔄 YYYY-MM-DD -> DD/MM/YYYY:', dateString, '->', result);
     return result;
   }
-  
+
   // Para cualquier otro formato
   try {
     const date = new Date(dateString);
@@ -143,10 +157,10 @@ export const getTodayDateString = () => {
 // Función para verificar si un horario ya pasó - VERSIÓN CORREGIDA
 export const isTimeInPast = (dateString, time) => {
   if (!dateString || !time) return false;
-  
+
   const now = new Date();
   const today = getTodayDateString();
-  
+
   // Convertir dateString a YYYY-MM-DD para comparación
   let normalizedDate;
   if (typeof dateString === 'string') {
@@ -159,24 +173,24 @@ export const isTimeInPast = (dateString, time) => {
       normalizedDate = dateString;
     }
   }
-  
+
   if (!normalizedDate) return false;
-  
+
   // Si la fecha es anterior a hoy, está en el pasado
   if (normalizedDate < today) return true;
-  
+
   // Si es hoy, verificar la hora
   if (normalizedDate === today) {
     const nowHours = now.getHours();
     const nowMinutes = now.getMinutes();
     const nowTime = nowHours * 60 + nowMinutes;
-    
+
     const [slotHours, slotMinutes] = time.split(':').map(Number);
     const slotTime = slotHours * 60 + slotMinutes;
-    
+
     return slotTime < nowTime;
   }
-  
+
   return false;
 };
 
@@ -185,7 +199,7 @@ export const parseDateTime = (dateStr, timeStr) => {
   try {
     // dateStr puede estar en DD/MM/YYYY o YYYY-MM-DD
     let day, month, year;
-    
+
     if (dateStr.includes('/')) {
       // DD/MM/YYYY
       [day, month, year] = dateStr.split('/').map(Number);
@@ -195,17 +209,17 @@ export const parseDateTime = (dateStr, timeStr) => {
     } else {
       throw new Error('Formato de fecha no reconocido');
     }
-    
+
     // timeStr debe estar en HH:MM
     const [hours, minutes] = timeStr.split(':').map(Number);
-    
+
     // Crear fecha local (evitar problemas de zona horaria)
     const date = new Date(year, month - 1, day, hours, minutes, 0, 0);
-    
+
     if (isNaN(date.getTime())) {
       throw new Error('Fecha/hora inválida');
     }
-    
+
     return date;
   } catch (error) {
     console.error('❌ Error en parseDateTime:', error, 'date:', dateStr, 'time:', timeStr);
@@ -218,10 +232,10 @@ export const parseDateTime = (dateStr, timeStr) => {
 export const scheduleClientReminder = (appointment) => {
   try {
     const { clientName, date, time, phone } = appointment;
-    
+
     // Usar la nueva función parseDateTime
     const appointmentDateTime = parseDateTime(date, time);
-    
+
     if (!appointmentDateTime) {
       console.error('❌ No se pudo crear la fecha del turno');
       return {
@@ -231,19 +245,19 @@ export const scheduleClientReminder = (appointment) => {
         message: ''
       };
     }
-    
+
     // Recordatorio 2 horas antes
     const reminderDateTime = new Date(appointmentDateTime.getTime() - (2 * 60 * 60 * 1000));
-    
+
     // Formatear fecha para el mensaje
     const formattedDate = formatDateForDisplay(date);
-    
-    const reminderMessage = `⏰ *Recordatorio - Ian Castillo BarberShop* ⏰
+
+    const reminderMessage = `⏰ *Recordatorio - Piso Style BarberShop* ⏰
 
 Hola ${clientName}! Te recordamos que tenés un turno:
 
 📅 *Cuándo:* ${formattedDate} a las ${time}
-📍 *Dónde:* Güiraldes 4700, Cerrito Sur, Mar del Plata
+📍 *Dónde:* Jujuy 1442,Mar del Plata, Mar del Plata
 
 💡 *Recomendaciones:*
 • Presentate 10 minutos antes
@@ -255,7 +269,7 @@ Hola ${clientName}! Te recordamos que tenés un turno:
     console.log('⏰ Recordatorio programado para:', reminderDateTime);
     console.log('📱 Cliente:', clientName);
     console.log('📅 Turno:', formattedDate, time);
-    
+
     return {
       scheduled: true,
       reminderTime: reminderDateTime,
@@ -273,7 +287,7 @@ Hola ${clientName}! Te recordamos que tenés un turno:
   }
 };
 
-// Función para generar enlaces de calendario - CORREGIDA
+// En services/appointments.js, mejorar la función generateCalendarLinks
 export const generateCalendarLinks = (appointment) => {
   try {
     const { clientName, date, time, services, barber } = appointment;
@@ -314,23 +328,25 @@ export const generateCalendarLinks = (appointment) => {
     const serviceNames = services.map(s => s.name).join(', ');
     const total = appointment.total || 0;
     const formattedDate = formatDateForDisplay(date);
+    const barberName = barber?.name || appointment.barberName || 'No asignado';
     
-    const description = `Turno en Ian Castillo BarberShop%0A%0A` +
+    const description = `Turno en Piso Style BarberShop%0A%0A` +
       `Cliente: ${clientName}%0A` +
-      `Peluquero: ${barber?.name || 'No asignado'}%0A` +
+      `Peluquero: ${barberName}%0A` +
       `Servicios: ${serviceNames}%0A` +
       `Fecha: ${formattedDate}%0A` +
       `Hora: ${time}%0A` +
       `Duración: ${duration} minutos%0A` +
-      `Total: $${total}%0A%0A` +
-      `Recordá presentarte 10 minutos antes.`;
+      `Total: $${total}%0A` +
+      (appointment.status === 'pending' ? `Estado: ⏳ PENDIENTE (Esperando confirmación de seña)%0A` : '') +
+      `%0ARecordá presentarte 10 minutos antes.`;
     
     // URL para Google Calendar
     const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-      `&text=Turno en Ian Castillo BarberShop` +
+      `&text=Turno en Piso Style BarberShop` +
       `&dates=${startTimeGoogle}/${endTimeGoogle}` +
       `&details=${description}` +
-      `&location=Güiraldes 4700, Cerrito Sur, Mar del Plata` +
+      `&location=Jujuy 1442, Mar del Plata` +
       `&trp=false`;
     
     // URL para Apple Calendar (ics file)
@@ -351,13 +367,13 @@ export const generateCalendarLinks = (appointment) => {
         'VERSION:2.0',
         'CALSCALE:GREGORIAN',
         'BEGIN:VEVENT',
-        `SUMMARY:Turno en Ian Castillo BarberShop`,
+        `SUMMARY:Turno en Piso Style BarberShop`,
         `DTSTART:${formatDateForICS(appointmentDate)}`,
         `DTEND:${formatDateForICS(endDate)}`,
         `DESCRIPTION:${description.replace(/%0A/g, '\\n').replace(/&/g, 'and')}`,
-        `LOCATION:Güiraldes 4700, Cerrito Sur, Mar del Plata`,
+        `LOCATION:Jujuy 1442,Mar del Plata`,
         'BEGIN:VALARM',
-        'TRIGGER:-PT2H',
+        'TRIGGER:-PT2H', // 2 horas antes
         'ACTION:DISPLAY',
         'DESCRIPTION:Recordatorio de turno',
         'END:VALARM',
@@ -371,12 +387,11 @@ export const generateCalendarLinks = (appointment) => {
     const appleCalendarUrl = `data:text/calendar;charset=utf-8,${encodeURIComponent(createIcsContent())}`;
     
     console.log('📅 Enlaces de calendario generados exitosamente');
-    console.log('📱 Google Calendar:', googleCalendarUrl.substring(0, 100) + '...');
     
     return {
       google: googleCalendarUrl,
       apple: appleCalendarUrl,
-      description: `Recordatorio 2 horas antes del turno con ${barber?.name || 'el peluquero'}`,
+      description: `Recordatorio 2 horas antes del turno con ${barberName}`,
       error: false
     };
   } catch (error) {
@@ -389,19 +404,18 @@ export const generateCalendarLinks = (appointment) => {
     };
   }
 };
-
 export const sendImmediateConfirmation = (appointment, includeTransferInfo = true) => {
   try {
     const { clientName, date, time, confirmationNumber, barber, services, total } = appointment;
     const barberInfo = barber ? `💇 *Con:* ${barber.name}\n` : '';
-    
+
     // Formatear fecha para mostrar
     const formattedDate = formatDateForDisplay(date);
-    
+
     // Calcular señal (50% de servicios con precio)
     const paidServices = services.filter(s => s.price > 0);
     const depositAmount = Math.round(paidServices.reduce((sum, s) => sum + s.price, 0) * 0.5);
-    
+
     let transferInfo = '';
     if (includeTransferInfo && depositAmount > 0) {
       transferInfo = `
@@ -417,10 +431,10 @@ export const sendImmediateConfirmation = (appointment, includeTransferInfo = tru
 
 ⏳ *Tu turno está en estado PENDIENTE hasta que se confirme el pago.*`;
     }
-    
+
     const serviceNames = services.map(s => s.name).join(', ');
-    
-    const confirmationMessage = `✅ *Turno Agendado - Ian Castillo BarberShop* ✅
+
+    const confirmationMessage = `✅ *Turno Agendado - Piso Style BarberShop* ✅
 
 Hola ${clientName}! Tu turno ha sido agendado:
 
@@ -430,7 +444,7 @@ ${barberInfo}🆔 *N° de confirmación:* ${confirmationNumber}
 💰 *Total:* $${total}
 📊 *Estado:* ⏳ PENDIENTE DE CONFIRMACIÓN${transferInfo}
 
-📍 *Dirección:* Güiraldes 4700, Cerrito Sur, Mar del Plata
+📍 *Dirección:* Jujuy 1442, Mar del Plata
 
 💡 *Recordá:*
 • Presentate 10 minutos antes
@@ -440,9 +454,9 @@ ${barberInfo}🆔 *N° de confirmación:* ${confirmationNumber}
 ¡Te esperamos! ✂️`;
 
     console.log('✅ Confirmación generada exitosamente');
-    
+
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(confirmationMessage)}`;
-    
+
     return {
       message: confirmationMessage,
       whatsappUrl: whatsappUrl,
@@ -465,30 +479,37 @@ export const createAppointmentWithNotifications = async (appointmentData) => {
   try {
     console.log('📝 Creando turno con datos:', appointmentData);
     
+    // VALIDAR LA FECHA ANTES DE CONTINUAR
+    const dateValidation = validateAndFormatDate(appointmentData.date);
+    if (!dateValidation.isValid) {
+      throw new Error(`Fecha inválida: ${dateValidation.error}`);
+    }
+    
+    const formattedDate = dateValidation.formatted;
+    
+    console.log('📅 Fecha validada:', {
+      original: appointmentData.date,
+      formatted: formattedDate,
+      valid: dateValidation.isValid
+    });
+    
     // Calcular señal (50% del total, solo de servicios con precio)
     const paidServices = appointmentData.services.filter(service => service.price > 0);
     const depositAmount = Math.round(paidServices.reduce((sum, service) => sum + service.price, 0) * 0.5);
     
-    // Asegurar que la fecha esté en formato DD/MM/YYYY
-    let formattedDate;
-    if (typeof appointmentData.date === 'string') {
-      if (appointmentData.date.includes('/')) {
-        formattedDate = appointmentData.date; // Ya está en DD/MM/YYYY
-      } else {
-        // Convertir a DD/MM/YYYY si viene en otro formato
-        formattedDate = formatDateForDisplay(appointmentData.date);
-      }
-    } else {
-      formattedDate = formatDateForDisplay(appointmentData.date);
-    }
+    // Generar enlaces de calendario ANTES de crear el turno
+    const tempAppointmentForCalendar = {
+      ...appointmentData,
+      date: formattedDate,
+      duration: appointmentData.duration || 30
+    };
     
-    console.log('📅 Fecha recibida:', appointmentData.date);
-    console.log('📅 Fecha formateada:', formattedDate);
-    console.log('⏰ Hora:', appointmentData.time);
+    const calendarLinks = generateCalendarLinks(tempAppointmentForCalendar);
     
     const formattedAppointmentData = {
       ...appointmentData,
-      date: formattedDate, // Guardar en DD/MM/YYYY
+      date: formattedDate, // Usar la fecha validada
+      dateDisplay: formattedDate, // Agregar para mostrar
       confirmationNumber: 'CONF-' + Date.now().toString().slice(-6),
       // Campos para la señal
       depositAmount: depositAmount,
@@ -499,9 +520,13 @@ export const createAppointmentWithNotifications = async (appointmentData) => {
       totalWithDeposit: appointmentData.total,
       // Estado inicial: pending (no confirmed)
       status: 'pending',
+      // Asegurar que barberName esté presente
+      barberName: appointmentData.barber?.name || appointmentData.barberName || 'Sin asignar',
       // Campos de timestamp
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      // Timestamp de Firestore
+      timestamp: Timestamp.now()
     };
     
     console.log('💰 Señal calculada:', depositAmount);
@@ -511,7 +536,9 @@ export const createAppointmentWithNotifications = async (appointmentData) => {
       date: formattedAppointmentData.date,
       time: formattedAppointmentData.time,
       total: formattedAppointmentData.total,
-      status: formattedAppointmentData.status
+      status: formattedAppointmentData.status,
+      barberId: formattedAppointmentData.barberId,
+      barberName: formattedAppointmentData.barberName
     });
     
     // Crear el turno en Firestore con estado pending
@@ -539,16 +566,13 @@ export const createAppointmentWithNotifications = async (appointmentData) => {
     // Enviar confirmación CON INFO DE TRANSFERENCIA al cliente
     const confirmation = sendImmediateConfirmation(newAppointment, true);
     
-    // Generar enlaces de calendario
-    const calendarLinks = generateCalendarLinks(newAppointment);
-    
     return {
       ...newAppointment,
       notifications: {
         adminNotified: true,
         clientReminder: reminder,
         clientConfirmation: confirmation,
-        calendarLinks: calendarLinks
+        calendarLinks: calendarLinks // Incluir los enlaces de calendario
       },
       depositAmount: depositAmount
     };
@@ -558,7 +582,6 @@ export const createAppointmentWithNotifications = async (appointmentData) => {
     throw new Error(`Error al agendar el turno: ${error.message}`);
   }
 };
-
 // ========== FUNCIONES PARA PELUQUEROS ==========
 
 // Obtener todos los peluqueros
@@ -574,7 +597,7 @@ export const getBarberById = (id) => {
 // Generar horarios según el intervalo del peluquero
 export const getAllTimeSlots = (barber = null) => {
   const slots = [];
-  
+
   let interval;
   if (barber?.id === 'mili') {
     interval = 45;
@@ -583,29 +606,29 @@ export const getAllTimeSlots = (barber = null) => {
   } else {
     interval = 30;
   }
-  
+
   const startHour = 10;
   const endHour = 20;
-  
+
   let currentHour = startHour;
   let currentMinute = 0;
-  
+
   while (currentHour < endHour || (currentHour === endHour && currentMinute === 0)) {
     const time = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
     slots.push(time);
-    
+
     currentMinute += interval;
-    
+
     if (currentMinute >= 60) {
       currentHour += Math.floor(currentMinute / 60);
       currentMinute = currentMinute % 60;
     }
-    
+
     if (currentHour > endHour || (currentHour === endHour && currentMinute > 0)) {
       break;
     }
   }
-  
+
   return slots;
 };
 
@@ -616,12 +639,12 @@ export const getAppointments = async (barberId = null) => {
   try {
     const appointmentsRef = collection(db, 'appointments');
     const querySnapshot = await getDocs(appointmentsRef);
-    
+
     const allAppointments = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       const normalizedDate = getLocalDateString(data.date);
-      
+
       allAppointments.push({
         id: doc.id,
         ...data,
@@ -631,26 +654,26 @@ export const getAppointments = async (barberId = null) => {
         duration: Number(data.duration) || 0
       });
     });
-    
+
     let filteredAppointments = allAppointments;
     if (barberId) {
       filteredAppointments = allAppointments.filter(apt => apt.barberId === barberId);
     }
-    
+
     filteredAppointments.sort((a, b) => {
       const dateA = new Date(a.createdAt || 0);
       const dateB = new Date(b.createdAt || 0);
       return dateB - dateA;
     });
-    
+
     return filteredAppointments;
   } catch (error) {
     console.error('❌ Error en getAppointments:', error);
-    
+
     try {
       const appointmentsRef = collection(db, 'appointments');
       const snapshot = await getDocs(appointmentsRef);
-      
+
       const appointments = [];
       snapshot.forEach(doc => {
         appointments.push({
@@ -658,11 +681,11 @@ export const getAppointments = async (barberId = null) => {
           ...doc.data()
         });
       });
-      
+
       if (barberId) {
         return appointments.filter(apt => apt.barberId === barberId);
       }
-      
+
       return appointments;
     } catch (fallbackError) {
       console.error('❌ Fallback también falló:', fallbackError);
@@ -675,7 +698,7 @@ export const getAppointments = async (barberId = null) => {
 export const createAppointment = async (appointmentData) => {
   try {
     const formattedDate = getLocalDateString(appointmentData.date);
-    
+
     const appointmentToSave = {
       ...appointmentData,
       date: formattedDate,
@@ -683,10 +706,10 @@ export const createAppointment = async (appointmentData) => {
       createdAt: new Date().toISOString(),
       timestamp: Timestamp.now()
     };
-    
+
     const appointmentsRef = collection(db, 'appointments');
     const docRef = await addDoc(appointmentsRef, appointmentToSave);
-    
+
     return {
       id: docRef.id,
       ...appointmentToSave
@@ -701,22 +724,22 @@ export const createAppointment = async (appointmentData) => {
 export const getAppointmentsByDate = async (date, barberId = null) => {
   try {
     const searchDate = getLocalDateString(date);
-    
+
     const appointmentsRef = collection(db, 'appointments');
-    
+
     let q;
     if (barberId) {
       q = query(
-        appointmentsRef, 
+        appointmentsRef,
         where('date', '==', searchDate),
         where('barberId', '==', barberId)
       );
     } else {
       q = query(appointmentsRef, where('date', '==', searchDate));
     }
-    
+
     const querySnapshot = await getDocs(q);
-    
+
     const appointments = [];
     querySnapshot.forEach((doc) => {
       appointments.push({
@@ -725,7 +748,7 @@ export const getAppointmentsByDate = async (date, barberId = null) => {
         date: searchDate
       });
     });
-    
+
     return appointments;
   } catch (error) {
     console.error('❌ Error obteniendo turnos por fecha:', error);
@@ -736,24 +759,24 @@ export const getAppointmentsByDate = async (date, barberId = null) => {
 // Escuchar cambios en tiempo real de los turnos
 export const listenToAppointments = (callback, barberId = null) => {
   const appointmentsRef = collection(db, 'appointments');
-  
+
   let q;
   if (barberId) {
     q = query(
-      appointmentsRef, 
+      appointmentsRef,
       where('barberId', '==', barberId),
       orderBy('createdAt', 'desc')
     );
   } else {
     q = query(appointmentsRef, orderBy('createdAt', 'desc'));
   }
-  
+
   return onSnapshot(q, (snapshot) => {
     const appointments = [];
     snapshot.forEach((doc) => {
       const appointmentData = doc.data();
       const normalizedDate = getLocalDateString(appointmentData.date);
-      
+
       appointments.push({
         id: doc.id,
         ...appointmentData,
@@ -768,18 +791,18 @@ export const listenToAppointments = (callback, barberId = null) => {
 export const listenToAppointmentsByDate = (date, callback, barberId = null) => {
   const searchDate = getLocalDateString(date);
   const appointmentsRef = collection(db, 'appointments');
-  
+
   let q;
   if (barberId) {
     q = query(
-      appointmentsRef, 
+      appointmentsRef,
       where('date', '==', searchDate),
       where('barberId', '==', barberId)
     );
   } else {
     q = query(appointmentsRef, where('date', '==', searchDate));
   }
-  
+
   return onSnapshot(q, (snapshot) => {
     const appointments = [];
     snapshot.forEach((doc) => {
@@ -846,71 +869,71 @@ export const getAvailableTimeSlots = async (selectedDate, barber = null, selecte
     } else {
       interval = barber?.interval || 30;
     }
-    
+
     const baseSlots = getAllTimeSlots(barber);
     const searchDate = getLocalDateString(selectedDate);
-    
+
     const existingAppointments = await getAppointmentsByDate(searchDate, barber?.id);
     const totalDuration = selectedServices.reduce((sum, service) => sum + service.duration, 0);
-    
+
     const bookedTimes = [];
     existingAppointments.forEach(apt => {
       const aptTime = apt.time;
       const [aptHour, aptMinute] = aptTime.split(':').map(Number);
       const aptDuration = apt.duration || interval;
-      
+
       bookedTimes.push(aptTime);
-      
+
       const slotsNeeded = Math.ceil(aptDuration / interval) - 1;
-      
+
       for (let i = 1; i <= slotsNeeded; i++) {
         const totalMinutes = aptHour * 60 + aptMinute + (interval * i);
         const newHour = Math.floor(totalMinutes / 60);
         const newMinute = totalMinutes % 60;
         const newTime = `${newHour.toString().padStart(2, '0')}:${newMinute.toString().padStart(2, '0')}`;
-        
+
         if (newHour >= 10 && newHour <= 20 && !(newHour === 20 && newMinute > 0)) {
           bookedTimes.push(newTime);
         }
       }
     });
-    
+
     const availableSlots = baseSlots.filter(slot => {
       if (bookedTimes.includes(slot)) {
         return false;
       }
-      
+
       if (isTimeInPast(searchDate, slot)) {
         return false;
       }
-      
+
       if (selectedServices.length > 0 && totalDuration > interval) {
         const slotsNeeded = Math.ceil(totalDuration / interval);
         const [startHour, startMinute] = slot.split(':').map(Number);
-        
+
         for (let i = 0; i < slotsNeeded; i++) {
           const totalMinutes = startHour * 60 + startMinute + (interval * i);
           const checkHour = Math.floor(totalMinutes / 60);
           const checkMinute = totalMinutes % 60;
           const checkTime = `${checkHour.toString().padStart(2, '0')}:${checkMinute.toString().padStart(2, '0')}`;
-          
+
           if (checkHour < 10 || checkHour > 20 || (checkHour === 20 && checkMinute > 0)) {
             return false;
           }
-          
+
           if (!baseSlots.includes(checkTime)) {
             return false;
           }
-          
+
           if (bookedTimes.includes(checkTime)) {
             return false;
           }
         }
       }
-      
+
       return true;
     });
-    
+
     return availableSlots;
   } catch (error) {
     console.error('❌ Error obteniendo horarios disponibles:', error);
@@ -922,29 +945,29 @@ export const getAvailableTimeSlots = async (selectedDate, barber = null, selecte
 export const getAdminStats = async (barberId = null) => {
   try {
     const allAppointments = await getAppointments(barberId);
-    
+
     const today = getTodayDateString();
     const todayAppointments = allAppointments.filter(apt => apt.date === today);
-    
+
     const earnedAppointments = allAppointments.filter(apt => {
       const isValidStatus = apt.status === 'confirmed' || apt.status === 'completed';
       const hasTotal = Number(apt.total) > 0;
       return isValidStatus && hasTotal;
     });
-    
+
     const totalEarnings = earnedAppointments.reduce((sum, apt) => {
       return sum + (Number(apt.total) || 0);
     }, 0);
-    
+
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-    
+
     const monthlyEarnings = earnedAppointments
       .filter(apt => {
         if (!apt.date) return false;
         const aptDate = new Date(apt.date);
-        return aptDate.getMonth() === currentMonth && 
-               aptDate.getFullYear() === currentYear;
+        return aptDate.getMonth() === currentMonth &&
+          aptDate.getFullYear() === currentYear;
       })
       .reduce((sum, apt) => sum + (Number(apt.total) || 0), 0);
 
@@ -977,7 +1000,7 @@ export const searchUsers = async (searchTerm) => {
       where('type', '==', 'client')
     );
     const usersSnapshot = await getDocs(usersQuery);
-    
+
     const users = [];
     usersSnapshot.forEach(doc => {
       const userData = doc.data();
@@ -985,7 +1008,7 @@ export const searchUsers = async (searchTerm) => {
         id: doc.id,
         ...userData
       };
-      
+
       const searchLower = searchTerm.toLowerCase();
       if (
         user.username?.toLowerCase().includes(searchLower) ||
@@ -994,7 +1017,7 @@ export const searchUsers = async (searchTerm) => {
         users.push(user);
       }
     });
-    
+
     return users;
   } catch (error) {
     console.error('Error buscando usuarios:', error);
@@ -1006,15 +1029,15 @@ export const searchUsers = async (searchTerm) => {
 export const createAdminAppointment = async (appointmentData) => {
   try {
     const formattedDate = getLocalDateString(appointmentData.date);
-    
+
     const safePhone = appointmentData.phone || 'Sin teléfono';
     const safePaymentMethod = appointmentData.paymentMethod || 'Transferencia Bancaria';
-    
+
     const appointmentToSave = {
       clientName: appointmentData.clientName || '',
       phone: safePhone,
       email: appointmentData.email || '',
-      
+
       date: formattedDate,
       time: appointmentData.time || '',
       services: appointmentData.services || [],
@@ -1023,20 +1046,20 @@ export const createAdminAppointment = async (appointmentData) => {
       paymentMethod: safePaymentMethod,
       notes: appointmentData.notes || '',
       userId: appointmentData.userId || '',
-      
+
       barberId: appointmentData.barberId || '',
       barberName: appointmentData.barberName || 'Sin asignar',
-      
+
       status: 'confirmed',
       createdAt: new Date().toISOString(),
       createdBy: 'admin',
       timestamp: Timestamp.now(),
       updatedAt: new Date().toISOString()
     };
-    
+
     const appointmentsRef = collection(db, 'appointments');
     const docRef = await addDoc(appointmentsRef, appointmentToSave);
-    
+
     return {
       id: docRef.id,
       ...appointmentToSave
@@ -1056,10 +1079,10 @@ const ADMIN_PHONE = '2233540664';
 export const sendAdminWhatsAppNotification = (appointment) => {
   try {
     const barberInfo = appointment.barber ? `💇 *Peluquero:* ${appointment.barber.name}\n` : '';
-    
+
     const paidServices = appointment.services.filter(s => s.price > 0);
     const consultServices = appointment.services.filter(s => s.price === 0);
-    
+
     let servicesList = '';
     if (paidServices.length > 0) {
       servicesList += paidServices.map(s => `• ${s.name} - $${s.price}`).join('\n');
@@ -1068,10 +1091,10 @@ export const sendAdminWhatsAppNotification = (appointment) => {
       if (servicesList) servicesList += '\n';
       servicesList += consultServices.map(s => `• ${s.name} - (Consultar precio)`).join('\n');
     }
-    
+
     const depositAmount = Math.round(paidServices.reduce((sum, s) => sum + s.price, 0) * 0.5);
-    
-    const depositInfo = depositAmount > 0 ? 
+
+    const depositInfo = depositAmount > 0 ?
       `\n💰 *SEÑA REQUERIDA:* $${depositAmount} (50%)
    📋 *Estado:* ❌ PENDIENTE DE PAGO
    💳 *Método:* Transferencia Bancaria
@@ -1080,13 +1103,12 @@ export const sendAdminWhatsAppNotification = (appointment) => {
       • Titular: santiago martin tejada
       • Entidad: naranja digital
       
-   📱 *Enviar comprobante por WhatsApp al:* ${ADMIN_PHONE}` : 
+   📱 *Enviar comprobante por WhatsApp al:* ${ADMIN_PHONE}` :
       '\n💰 *SEÑA:* No requiere (servicios a consultar)';
-    
+
     const message = `📅 *NUEVO TURNO SOLICITADO* 📅
 
 👤 *Cliente:* ${appointment.clientName}
-📞 *Teléfono:* ${appointment.phone}
 ${barberInfo}📅 *Fecha:* ${formatDateForDisplay(appointment.date)} a las ${appointment.time}
 ⏰ *Hora:* ${appointment.time}
 
@@ -1100,20 +1122,106 @@ ${depositInfo}
 
 📝 *Notas:* ${appointment.notes || 'Ninguna'}
 
-🆔 *ID de turno:* ${appointment.confirmationNumber}
 📊 *Estado:* ⏳ PENDIENTE DE CONFIRMACIÓN
 
 ⚠️ *El turno se confirmará cuando se reciba la seña*`;
 
     const whatsappUrl = `https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(message)}`;
-    
+
     console.log('🔗 URL de WhatsApp generada:', whatsappUrl);
     window.open(whatsappUrl, '_blank');
-    
+
     return true;
   } catch (error) {
     console.error('❌ Error enviando WhatsApp al admin:', error);
     return false;
+  }
+};
+
+// Agregar esta función en services/appointments.js
+export const validateAndFormatDate = (dateString) => {
+  if (!dateString) {
+    console.error('❌ validateAndFormatDate: Input vacío');
+    return { isValid: false, error: 'Fecha vacía', formatted: '' };
+  }
+  
+  // Si ya está en DD/MM/YYYY
+  if (typeof dateString === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
+    const [day, month, year] = dateString.split('/').map(Number);
+    
+    // Validación básica
+    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 2023) {
+      return { 
+        isValid: false, 
+        error: `Fecha inválida: ${dateString}`,
+        formatted: '' 
+      };
+    }
+    
+    // Verificar si la fecha es válida
+    const date = new Date(year, month - 1, day);
+    if (isNaN(date.getTime())) {
+      return { 
+        isValid: false, 
+        error: `Fecha no válida: ${dateString}`,
+        formatted: '' 
+      };
+    }
+    
+    return { 
+      isValid: true, 
+      error: null, 
+      formatted: dateString,
+      dateObject: date
+    };
+  }
+  
+  // Si está en YYYY-MM-DD, convertir a DD/MM/YYYY
+  if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    const [year, month, day] = dateString.split('-').map(Number);
+    const formatted = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+    
+    const date = new Date(year, month - 1, day);
+    if (isNaN(date.getTime())) {
+      return { 
+        isValid: false, 
+        error: `Fecha no válida: ${dateString}`,
+        formatted: '' 
+      };
+    }
+    
+    return { 
+      isValid: true, 
+      error: null, 
+      formatted: formatted,
+      dateObject: date
+    };
+  }
+  
+  // Intentar parsear como Date
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      throw new Error('Fecha inválida');
+    }
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const formatted = `${day}/${month}/${year}`;
+    
+    return { 
+      isValid: true, 
+      error: null, 
+      formatted: formatted,
+      dateObject: date
+    };
+  } catch (error) {
+    return { 
+      isValid: false, 
+      error: `No se pudo parsear la fecha: ${dateString} - ${error.message}`,
+      formatted: '' 
+    };
   }
 };
 

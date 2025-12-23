@@ -2784,3 +2784,264 @@ body {
   border-bottom: none;
   margin-bottom: 0;
 }
+/* Agregar al final de ClientDashboard.css */
+
+/* Estilos para botones de recordatorio */
+.btn-outline-primary.btn-calendar {
+  border: 2px solid #4285f4 !important;
+  color: #4285f4 !important;
+  background: white !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-outline-primary.btn-calendar:hover {
+  background: #4285f4 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3) !important;
+}
+
+.btn-outline-info.btn-whatsapp {
+  border: 2px solid #25D366 !important;
+  color: #25D366 !important;
+  background: white !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-outline-info.btn-whatsapp:hover {
+  background: #25D366 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3) !important;
+}
+
+/* Estilos específicos para estado pendiente */
+.existing-appointment-alert.alert-info {
+  border-left: 5px solid #0dcaf0 !important;
+  background: linear-gradient(135deg, #e7f9ff 0%, #d1f2ff 100%) !important;
+}
+
+.existing-appointment-alert.alert-info h5 {
+  color: #0c5460 !important;
+}
+
+/* Mejorar visualización de información del turno */
+.appointment-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.appointment-detail-item {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 3px solid #8a2be2;
+}
+
+.appointment-detail-item strong {
+  color: #495057;
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.appointment-detail-item span {
+  color: #8a2be2;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Responsive para botones */
+@media (max-width: 768px) {
+  .appointment-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .appointment-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}/* ===== ESTILOS PARA EL NUEVO DISEÑO DEL TURNO EXISTENTE ===== */
+
+/* Estilos para botón de Google Calendar */
+.btn-calendar {
+  border: 2px solid #4285f4 !important;
+  color: #4285f4 !important;
+  background: white !important;
+  transition: all 0.3s ease !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.btn-calendar:hover {
+  background: #4285f4 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3) !important;
+}
+
+/* Estilos específicos para estado pendiente */
+.existing-appointment-alert.alert-info {
+  border-left: 5px solid #0dcaf0 !important;
+  background: linear-gradient(135deg, rgba(13, 202, 240, 0.05) 0%, rgba(13, 202, 240, 0.02) 100%) !important;
+  border: 2px solid #0dcaf0 !important;
+}
+
+.existing-appointment-alert.alert-info h5 {
+  color: #0c5460 !important;
+}
+
+.existing-appointment-alert.alert-info .alert-info {
+  background: rgba(13, 202, 240, 0.1) !important;
+  border-color: rgba(13, 202, 240, 0.3) !important;
+  color: #055160 !important;
+}
+
+/* Grid de detalles del turno */
+.appointment-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.appointment-detail-item {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 3px solid #8a2be2;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.appointment-detail-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(138, 43, 226, 0.1);
+}
+
+.appointment-detail-item strong {
+  color: #495057;
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.appointment-detail-item span {
+  color: #8a2be2;
+  font-weight: 700;
+  font-size: 1rem;
+  display: block;
+  line-height: 1.3;
+}
+
+.appointment-detail-item span.text-warning {
+  color: #ffc107 !important;
+}
+
+.appointment-detail-item small {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Responsive para la grid */
+@media (max-width: 768px) {
+  .appointment-details-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .appointment-detail-item {
+    padding: 0.6rem;
+  }
+  
+  .appointment-detail-item strong {
+    font-size: 0.8rem;
+  }
+  
+  .appointment-detail-item span {
+    font-size: 0.9rem;
+  }
+}
+
+/* Mejoras para los botones de acción */
+.appointment-actions {
+  min-width: 150px;
+  margin-top: 1rem !important;
+}
+
+.appointment-actions .btn {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  font-family: 'Montserrat', sans-serif !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+  padding: 0.5rem 1rem !important;
+  border: 2px solid !important;
+}
+
+.appointment-actions .btn-outline-danger {
+  background: white !important;
+  border-color: #8a2be2 !important;
+  color: #8a2be2 !important;
+}
+
+.appointment-actions .btn-outline-danger:hover {
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
+  border-color: #8a2be2 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.25) !important;
+}
+
+.appointment-actions .btn-outline-primary {
+  background: white !important;
+  border-color: #8a2be2 !important;
+  color: #8a2be2 !important;
+}
+
+.appointment-actions .btn-outline-primary:hover {
+  background: linear-gradient(135deg, #8a2be2 0%, #b95ec7 100%) !important;
+  border-color: #8a2be2 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(138, 43, 226, 0.25) !important;
+}
+
+/* Responsive para los botones de acción */
+@media (max-width: 768px) {
+  .appointment-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1.5rem !important;
+  }
+  
+  .appointment-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .appointment-actions .btn.me-2 {
+    margin-right: 0 !important;
+  }
+}
+
+/* Ajustes para el botón de Google Calendar en móvil */
+@media (max-width: 576px) {
+  .btn-calendar {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
