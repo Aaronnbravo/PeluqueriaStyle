@@ -48,7 +48,7 @@ const BARBERS = [
 
 // Información de transferencia bancaria
 export const BANK_TRANSFER_INFO = {
-  alias: 'PISO.STYLE',
+  alias: 'TURNO.STYLE',
   accountHolder: 'santiago martin tejada',
   bank: 'naranja digital',
   amountPercentage: 50
@@ -423,7 +423,7 @@ export const sendImmediateConfirmation = (appointment, includeTransferInfo = tru
 💰 *SEÑA REQUERIDA (50%):* $${depositAmount}
 
 📝 *Para confirmar tu turno, realiza la transferencia a:*
-   • *Alias:* PISO.STYLE
+   • *Alias:* TURNO.STYLE
    • *Titular:* santiago martin tejada
    • *Entidad:* naranja digital
 
@@ -1099,7 +1099,7 @@ export const sendAdminWhatsAppNotification = (appointment) => {
    📋 *Estado:* ❌ PENDIENTE DE PAGO
    💳 *Método:* Transferencia Bancaria
    📝 *Datos para transferencia:*
-      • Alias: PISO.STYLE
+      • Alias: TURNO.STYLE
       • Titular: santiago martin tejada
       • Entidad: naranja digital
       
@@ -1109,6 +1109,7 @@ export const sendAdminWhatsAppNotification = (appointment) => {
     const message = `📅 *NUEVO TURNO SOLICITADO* 📅
 
 👤 *Cliente:* ${appointment.clientName}
+
 ${barberInfo}📅 *Fecha:* ${formatDateForDisplay(appointment.date)} a las ${appointment.time}
 ⏰ *Hora:* ${appointment.time}
 
