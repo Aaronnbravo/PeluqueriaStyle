@@ -41,7 +41,7 @@ function InstallPrompt() {
         <Modal.Title>📱 Instalar App</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p>¿Quieres instalar Ian Castillo App para acceso rápido?</p>
+        <p>¿Quieres instalar Piso Style App para acceso rápido?</p>
         <p><small>Podrás acceder desde tu pantalla principal como una app nativa.</small></p>
       </Modal.Body>
       <Modal.Footer>

@@ -197,7 +197,7 @@ function AdminDashboard() {
             <div className="admin-navbar-brand">
               <img 
                 src={logo}
-                alt="Ian Castillo" 
+                alt="Piso Style" 
                 className="admin-logo"
               />
               {!isMobile && (
@@ -451,7 +451,7 @@ function AdminDashboard() {
             <Col md={6} className="mb-2 mb-md-0">
               <img 
                 src={logo}
-                alt="Ian Castillo" 
+                alt="Piso Style" 
                 className="admin-footer-logo"
                 style={{ height: isMobile ? '50px' : '80px' }}
               />
@@ -461,7 +461,7 @@ function AdminDashboard() {
             </Col>
             <Col md={6} className="text-center text-md-end">
               <p className={`admin-footer-copyright ${isMobile ? 'small' : ''}`}>
-                © 2023 Castillo BarberShop. Todos los derechos reservados.
+                © 2023 Piso Style BarberShop. Todos los derechos reservados.
               </p>
             </Col>
           </Row>
