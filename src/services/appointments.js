@@ -56,32 +56,41 @@ export const BANK_TRANSFER_INFO = {
 
 // ========== FUNCIONES AUXILIARES DE FECHA ==========
 
+// ========== FUNCIONES AUXILIARES DE FECHA CORREGIDAS ==========
+
 // Función para convertir cualquier fecha a YYYY-MM-DD sin problemas de zona horaria
 export const getLocalDateString = (dateInput) => {
   if (!dateInput) return '';
   
+  // Si ya es string YYYY-MM-DD, devolverlo
   if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
     return dateInput;
   }
   
+  // Si es string DD/MM/YYYY (como viene del cliente)
   if (typeof dateInput === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateInput)) {
     const [day, month, year] = dateInput.split('/');
-    const result = `${year}-${month}-${day}`;
+    const result = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    console.log('🔄 DD/MM/YYYY -> YYYY-MM-DD:', dateInput, '->', result);
     return result;
   }
   
+  // Si es un Date object
   let date;
   if (dateInput instanceof Date) {
     date = dateInput;
   } else {
+    // Intentar parsear como Date
     date = new Date(dateInput);
   }
   
+  // Verificar que la fecha sea válida
   if (isNaN(date.getTime())) {
     console.error('❌ Fecha inválida en getLocalDateString:', dateInput);
     return '';
   }
   
+  // Obtener componentes locales (NO usar UTC)
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -94,21 +103,28 @@ export const getLocalDateString = (dateInput) => {
 export const formatDateForDisplay = (dateString) => {
   if (!dateString) return '';
   
+  // Si ya está en DD/MM/YYYY, devolverlo
   if (typeof dateString === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
     return dateString;
   }
   
+  // Si está en YYYY-MM-DD, convertir
   if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
     const [year, month, day] = dateString.split('-').map(Number);
-    return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+    const result = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+    console.log('🔄 YYYY-MM-DD -> DD/MM/YYYY:', dateString, '->', result);
+    return result;
   }
   
+  // Para cualquier otro formato
   try {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    const result = `${day}/${month}/${year}`;
+    console.log('📅 Date -> DD/MM/YYYY:', dateString, '->', result);
+    return result;
   } catch (error) {
     console.error('Error en formatDateForDisplay:', error);
     return dateString;
@@ -124,16 +140,33 @@ export const getTodayDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
-// Función para verificar si un horario ya pasó
+// Función para verificar si un horario ya pasó - VERSIÓN CORREGIDA
 export const isTimeInPast = (dateString, time) => {
   if (!dateString || !time) return false;
   
   const now = new Date();
   const today = getTodayDateString();
   
-  if (dateString < today) return true;
+  // Convertir dateString a YYYY-MM-DD para comparación
+  let normalizedDate;
+  if (typeof dateString === 'string') {
+    if (dateString.includes('/')) {
+      // DD/MM/YYYY -> YYYY-MM-DD
+      const [day, month, year] = dateString.split('/').map(Number);
+      normalizedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    } else if (dateString.includes('-')) {
+      // Ya está en YYYY-MM-DD
+      normalizedDate = dateString;
+    }
+  }
   
-  if (dateString === today) {
+  if (!normalizedDate) return false;
+  
+  // Si la fecha es anterior a hoy, está en el pasado
+  if (normalizedDate < today) return true;
+  
+  // Si es hoy, verificar la hora
+  if (normalizedDate === today) {
     const nowHours = now.getHours();
     const nowMinutes = now.getMinutes();
     const nowTime = nowHours * 60 + nowMinutes;
@@ -145,6 +178,385 @@ export const isTimeInPast = (dateString, time) => {
   }
   
   return false;
+};
+
+// Función para parsear fecha y hora - NUEVA FUNCIÓN
+export const parseDateTime = (dateStr, timeStr) => {
+  try {
+    // dateStr puede estar en DD/MM/YYYY o YYYY-MM-DD
+    let day, month, year;
+    
+    if (dateStr.includes('/')) {
+      // DD/MM/YYYY
+      [day, month, year] = dateStr.split('/').map(Number);
+    } else if (dateStr.includes('-')) {
+      // YYYY-MM-DD
+      [year, month, day] = dateStr.split('-').map(Number);
+    } else {
+      throw new Error('Formato de fecha no reconocido');
+    }
+    
+    // timeStr debe estar en HH:MM
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    
+    // Crear fecha local (evitar problemas de zona horaria)
+    const date = new Date(year, month - 1, day, hours, minutes, 0, 0);
+    
+    if (isNaN(date.getTime())) {
+      throw new Error('Fecha/hora inválida');
+    }
+    
+    return date;
+  } catch (error) {
+    console.error('❌ Error en parseDateTime:', error, 'date:', dateStr, 'time:', timeStr);
+    return null;
+  }
+};
+
+// ========== SERVICIO DE NOTIFICACIONES - CORREGIDO ==========
+
+export const scheduleClientReminder = (appointment) => {
+  try {
+    const { clientName, date, time, phone } = appointment;
+    
+    // Usar la nueva función parseDateTime
+    const appointmentDateTime = parseDateTime(date, time);
+    
+    if (!appointmentDateTime) {
+      console.error('❌ No se pudo crear la fecha del turno');
+      return {
+        scheduled: false,
+        error: 'Fecha/hora inválida',
+        clientPhone: phone,
+        message: ''
+      };
+    }
+    
+    // Recordatorio 2 horas antes
+    const reminderDateTime = new Date(appointmentDateTime.getTime() - (2 * 60 * 60 * 1000));
+    
+    // Formatear fecha para el mensaje
+    const formattedDate = formatDateForDisplay(date);
+    
+    const reminderMessage = `⏰ *Recordatorio - Ian Castillo BarberShop* ⏰
+
+Hola ${clientName}! Te recordamos que tenés un turno:
+
+📅 *Cuándo:* ${formattedDate} a las ${time}
+📍 *Dónde:* Güiraldes 4700, Cerrito Sur, Mar del Plata
+
+💡 *Recomendaciones:*
+• Presentate 10 minutos antes
+• Traé puntualidad para mejor atención
+• Cancelaciones con 12h de anticipación
+
+¡Te esperamos! ✂️`;
+
+    console.log('⏰ Recordatorio programado para:', reminderDateTime);
+    console.log('📱 Cliente:', clientName);
+    console.log('📅 Turno:', formattedDate, time);
+    
+    return {
+      scheduled: true,
+      reminderTime: reminderDateTime,
+      clientPhone: phone,
+      message: reminderMessage
+    };
+  } catch (error) {
+    console.error('❌ Error en scheduleClientReminder:', error);
+    return {
+      scheduled: false,
+      error: error.message,
+      clientPhone: appointment.phone,
+      message: ''
+    };
+  }
+};
+
+// Función para generar enlaces de calendario - CORREGIDA
+export const generateCalendarLinks = (appointment) => {
+  try {
+    const { clientName, date, time, services, barber } = appointment;
+    
+    // Usar parseDateTime para obtener fecha correcta
+    const appointmentDate = parseDateTime(date, time);
+    
+    if (!appointmentDate) {
+      console.error('❌ No se pudo generar enlaces de calendario: fecha inválida');
+      return {
+        google: '#',
+        apple: '#',
+        description: 'Error: fecha/hora inválida',
+        error: true
+      };
+    }
+    
+    // Calcular fecha de fin (añadir duración)
+    const duration = appointment.duration || 30; // minutos por defecto
+    const endDate = new Date(appointmentDate.getTime() + duration * 60000);
+    
+    // Formatear para Google Calendar (YYYYMMDDTHHMMSSZ)
+    const formatForGoogle = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+    };
+    
+    const startTimeGoogle = formatForGoogle(appointmentDate);
+    const endTimeGoogle = formatForGoogle(endDate);
+    
+    // Crear descripción
+    const serviceNames = services.map(s => s.name).join(', ');
+    const total = appointment.total || 0;
+    const formattedDate = formatDateForDisplay(date);
+    
+    const description = `Turno en Ian Castillo BarberShop%0A%0A` +
+      `Cliente: ${clientName}%0A` +
+      `Peluquero: ${barber?.name || 'No asignado'}%0A` +
+      `Servicios: ${serviceNames}%0A` +
+      `Fecha: ${formattedDate}%0A` +
+      `Hora: ${time}%0A` +
+      `Duración: ${duration} minutos%0A` +
+      `Total: $${total}%0A%0A` +
+      `Recordá presentarte 10 minutos antes.`;
+    
+    // URL para Google Calendar
+    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+      `&text=Turno en Ian Castillo BarberShop` +
+      `&dates=${startTimeGoogle}/${endTimeGoogle}` +
+      `&details=${description}` +
+      `&location=Güiraldes 4700, Cerrito Sur, Mar del Plata` +
+      `&trp=false`;
+    
+    // URL para Apple Calendar (ics file)
+    const createIcsContent = () => {
+      const formatDateForICS = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        
+        return `${year}${month}${day}T${hours}${minutes}${seconds}`;
+      };
+      
+      const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'CALSCALE:GREGORIAN',
+        'BEGIN:VEVENT',
+        `SUMMARY:Turno en Ian Castillo BarberShop`,
+        `DTSTART:${formatDateForICS(appointmentDate)}`,
+        `DTEND:${formatDateForICS(endDate)}`,
+        `DESCRIPTION:${description.replace(/%0A/g, '\\n').replace(/&/g, 'and')}`,
+        `LOCATION:Güiraldes 4700, Cerrito Sur, Mar del Plata`,
+        'BEGIN:VALARM',
+        'TRIGGER:-PT2H',
+        'ACTION:DISPLAY',
+        'DESCRIPTION:Recordatorio de turno',
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+      
+      return icsContent;
+    };
+    
+    const appleCalendarUrl = `data:text/calendar;charset=utf-8,${encodeURIComponent(createIcsContent())}`;
+    
+    console.log('📅 Enlaces de calendario generados exitosamente');
+    console.log('📱 Google Calendar:', googleCalendarUrl.substring(0, 100) + '...');
+    
+    return {
+      google: googleCalendarUrl,
+      apple: appleCalendarUrl,
+      description: `Recordatorio 2 horas antes del turno con ${barber?.name || 'el peluquero'}`,
+      error: false
+    };
+  } catch (error) {
+    console.error('❌ Error en generateCalendarLinks:', error);
+    return {
+      google: '#',
+      apple: '#',
+      description: 'Error al generar enlaces de calendario',
+      error: true
+    };
+  }
+};
+
+export const sendImmediateConfirmation = (appointment, includeTransferInfo = true) => {
+  try {
+    const { clientName, date, time, confirmationNumber, barber, services, total } = appointment;
+    const barberInfo = barber ? `💇 *Con:* ${barber.name}\n` : '';
+    
+    // Formatear fecha para mostrar
+    const formattedDate = formatDateForDisplay(date);
+    
+    // Calcular señal (50% de servicios con precio)
+    const paidServices = services.filter(s => s.price > 0);
+    const depositAmount = Math.round(paidServices.reduce((sum, s) => sum + s.price, 0) * 0.5);
+    
+    let transferInfo = '';
+    if (includeTransferInfo && depositAmount > 0) {
+      transferInfo = `
+      
+💰 *SEÑA REQUERIDA (50%):* $${depositAmount}
+
+📝 *Para confirmar tu turno, realiza la transferencia a:*
+   • *Alias:* PISO.STYLE
+   • *Titular:* santiago martin tejada
+   • *Entidad:* naranja digital
+
+📱 *Envía el comprobante por WhatsApp al:* 2233540664
+
+⏳ *Tu turno está en estado PENDIENTE hasta que se confirme el pago.*`;
+    }
+    
+    const serviceNames = services.map(s => s.name).join(', ');
+    
+    const confirmationMessage = `✅ *Turno Agendado - Ian Castillo BarberShop* ✅
+
+Hola ${clientName}! Tu turno ha sido agendado:
+
+📅 *Fecha:* ${formattedDate} a las ${time}
+${barberInfo}🆔 *N° de confirmación:* ${confirmationNumber}
+💇 *Servicios:* ${serviceNames}
+💰 *Total:* $${total}
+📊 *Estado:* ⏳ PENDIENTE DE CONFIRMACIÓN${transferInfo}
+
+📍 *Dirección:* Güiraldes 4700, Cerrito Sur, Mar del Plata
+
+💡 *Recordá:*
+• Presentate 10 minutos antes
+• Cancelación con 12h de anticipación
+• Traé puntualidad para mejor atención
+
+¡Te esperamos! ✂️`;
+
+    console.log('✅ Confirmación generada exitosamente');
+    
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(confirmationMessage)}`;
+    
+    return {
+      message: confirmationMessage,
+      whatsappUrl: whatsappUrl,
+      depositAmount: depositAmount,
+      formattedDate: formattedDate
+    };
+  } catch (error) {
+    console.error('❌ Error en sendImmediateConfirmation:', error);
+    return {
+      message: 'Error generando confirmación',
+      whatsappUrl: '#',
+      depositAmount: 0,
+      formattedDate: date
+    };
+  }
+};
+
+// Función para crear turno - CORREGIDA
+export const createAppointmentWithNotifications = async (appointmentData) => {
+  try {
+    console.log('📝 Creando turno con datos:', appointmentData);
+    
+    // Calcular señal (50% del total, solo de servicios con precio)
+    const paidServices = appointmentData.services.filter(service => service.price > 0);
+    const depositAmount = Math.round(paidServices.reduce((sum, service) => sum + service.price, 0) * 0.5);
+    
+    // Asegurar que la fecha esté en formato DD/MM/YYYY
+    let formattedDate;
+    if (typeof appointmentData.date === 'string') {
+      if (appointmentData.date.includes('/')) {
+        formattedDate = appointmentData.date; // Ya está en DD/MM/YYYY
+      } else {
+        // Convertir a DD/MM/YYYY si viene en otro formato
+        formattedDate = formatDateForDisplay(appointmentData.date);
+      }
+    } else {
+      formattedDate = formatDateForDisplay(appointmentData.date);
+    }
+    
+    console.log('📅 Fecha recibida:', appointmentData.date);
+    console.log('📅 Fecha formateada:', formattedDate);
+    console.log('⏰ Hora:', appointmentData.time);
+    
+    const formattedAppointmentData = {
+      ...appointmentData,
+      date: formattedDate, // Guardar en DD/MM/YYYY
+      confirmationNumber: 'CONF-' + Date.now().toString().slice(-6),
+      // Campos para la señal
+      depositAmount: depositAmount,
+      depositStatus: 'pending',
+      depositRequired: depositAmount > 0,
+      depositPaymentMethod: 'transferencia',
+      depositPaidAt: null,
+      totalWithDeposit: appointmentData.total,
+      // Estado inicial: pending (no confirmed)
+      status: 'pending',
+      // Campos de timestamp
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    console.log('💰 Señal calculada:', depositAmount);
+    console.log('📊 Estado inicial del turno:', formattedAppointmentData.status);
+    console.log('📋 Datos finales del turno:', {
+      clientName: formattedAppointmentData.clientName,
+      date: formattedAppointmentData.date,
+      time: formattedAppointmentData.time,
+      total: formattedAppointmentData.total,
+      status: formattedAppointmentData.status
+    });
+    
+    // Crear el turno en Firestore con estado pending
+    const newAppointment = await createAppointment(formattedAppointmentData);
+    
+    console.log('✅ Turno creado en Firestore:', newAppointment.id);
+    
+    // Enviar WhatsApp al ADMIN con info de señal
+    setTimeout(() => {
+      try {
+        const sent = sendAdminWhatsAppNotification(newAppointment);
+        if (sent) {
+          console.log('✅ WhatsApp enviado al admin exitosamente');
+        } else {
+          console.log('❌ Error enviando WhatsApp al admin');
+        }
+      } catch (whatsappError) {
+        console.error('❌ Error en WhatsApp al admin:', whatsappError);
+      }
+    }, 1000);
+    
+    // Programar recordatorio
+    const reminder = scheduleClientReminder(newAppointment);
+    
+    // Enviar confirmación CON INFO DE TRANSFERENCIA al cliente
+    const confirmation = sendImmediateConfirmation(newAppointment, true);
+    
+    // Generar enlaces de calendario
+    const calendarLinks = generateCalendarLinks(newAppointment);
+    
+    return {
+      ...newAppointment,
+      notifications: {
+        adminNotified: true,
+        clientReminder: reminder,
+        clientConfirmation: confirmation,
+        calendarLinks: calendarLinks
+      },
+      depositAmount: depositAmount
+    };
+  } catch (error) {
+    console.error('❌ Error FATAL en creación de turno con notificaciones:', error);
+    console.error('📊 Datos que causaron el error:', appointmentData);
+    throw new Error(`Error al agendar el turno: ${error.message}`);
+  }
 };
 
 // ========== FUNCIONES PARA PELUQUEROS ==========
@@ -640,81 +1052,6 @@ export const createAdminAppointment = async (appointmentData) => {
 const ADMIN_PHONE = '2233540664';
 
 // Función para generar enlaces de recordatorio de calendario
-export const generateCalendarLinks = (appointment) => {
-  const { clientName, date, time, services, barber } = appointment;
-  
-  // Convertir fecha DD/MM/YYYY a Date object
-  const [day, month, year] = date.split('/').map(Number);
-  const [hours, minutes] = time.split(':').map(Number);
-  
-  // Crear fecha del turno
-  const appointmentDate = new Date(year, month - 1, day, hours, minutes);
-  
-  // Crear fecha del recordatorio (2 horas antes)
-  const reminderDate = new Date(appointmentDate);
-  reminderDate.setHours(reminderDate.getHours() - 2);
-  
-  // Formatear fechas para URLs
-  const formatForGoogle = (date) => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  };
-  
-  const startTimeGoogle = formatForGoogle(appointmentDate);
-  const endTimeGoogle = formatForGoogle(new Date(appointmentDate.getTime() + (appointment.duration || 30) * 60000));
-  
-  // Crear descripción
-  const serviceNames = services.map(s => s.name).join(', ');
-  const description = `Turno confirmado en Piso Style BarberShop%0A%0A` +
-    `Cliente: ${clientName}%0A` +
-    `Peluquero: ${barber?.name || 'No asignado'}%0A` +
-    `Servicios: ${serviceNames}%0A` +
-    `Duración: ${appointment.duration} minutos%0A` +
-    `Total: $${appointment.total}%0A%0A` +
-    `Recordá presentarte 10 minutos antes.`;
-  
-  // URL para Google Calendar
-  const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-    `&text=Turno en Piso Style BarberShop` +
-    `&dates=${startTimeGoogle}/${endTimeGoogle}` +
-    `&details=${description}` +
-    `&location=Jujuy 1442, Mar del Plata` +
-    `&trp=false&sprop=&sprop=name:`;
-  
-  // URL para Apple Calendar (ics file)
-  const createIcsContent = () => {
-    const formatDateForICS = (date) => {
-      return date.toISOString().replace(/[-:]/g, '').split('.')[0];
-    };
-    
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'BEGIN:VEVENT',
-      `DTSTART:${formatDateForICS(appointmentDate)}`,
-      `DTEND:${formatDateForICS(new Date(appointmentDate.getTime() + (appointment.duration || 30) * 60000))}`,
-      `SUMMARY:Turno en Piso Style BarberShop`,
-      `DESCRIPTION:${description.replace(/%0A/g, '\\n')}`,
-      `LOCATION:Jujuy 1442, Mar del Plata`,
-      'BEGIN:VALARM',
-      `TRIGGER:-PT2H`,
-      'ACTION:DISPLAY',
-      'DESCRIPTION:Recordatorio de turno',
-      'END:VALARM',
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\n');
-    
-    return encodeURIComponent(icsContent);
-  };
-  
-  const appleCalendarUrl = `data:text/calendar;charset=utf8,${createIcsContent()}`;
-  
-  return {
-    google: googleCalendarUrl,
-    apple: appleCalendarUrl,
-    description: `Recordatorio 2 horas antes del turno con ${barber?.name || 'el peluquero'}`
-  };
-};
 
 export const sendAdminWhatsAppNotification = (appointment) => {
   try {
@@ -780,164 +1117,11 @@ ${depositInfo}
   }
 };
 
-export const scheduleClientReminder = (appointment) => {
-  const { clientName, date, time, phone } = appointment;
-  
-  const [year, month, day] = date.split('-').map(Number);
-  const appointmentDateTime = new Date(year, month - 1, day);
-  
-  const [hours, minutes] = time.split(':').map(Number);
-  appointmentDateTime.setHours(hours, minutes, 0, 0);
-  
-  const reminderDateTime = new Date(appointmentDateTime.getTime() - (2 * 60 * 60 * 1000));
-  
-  const reminderMessage = `⏰ *Recordatorio - Piso Style BarberShop* ⏰
 
-Hola ${clientName}! Te recordamos que tenés un turno:
 
-📅 *Cuándo:* ${formatDateForDisplay(date)} a las ${time}
-📍 *Dónde:* Jujuy 1442, Mar del Plata
 
-💡 *Recomendaciones:*
-• Presentate 10 minutos antes
-• Traé puntualidad para mejor atención
-• Cancelaciones con 12h de anticipación
 
-¡Te esperamos! ✂️`;
 
-  console.log('⏰ Recordatorio programado para:', reminderDateTime);
-  
-  return {
-    scheduled: true,
-    reminderTime: reminderDateTime,
-    clientPhone: phone,
-    message: reminderMessage
-  };
-};
-
-export const sendImmediateConfirmation = (appointment, includeTransferInfo = true) => {
-  const { clientName, date, time, confirmationNumber, barber, services, total } = appointment;
-  const barberInfo = barber ? `💇 *Con:* ${barber.name}\n` : '';
-  
-  // Calcular señal (50% de servicios con precio)
-  const paidServices = services.filter(s => s.price > 0);
-  const depositAmount = Math.round(paidServices.reduce((sum, s) => sum + s.price, 0) * 0.5);
-  
-  let transferInfo = '';
-  if (includeTransferInfo && depositAmount > 0) {
-    transferInfo = `
-    
-💰 *SEÑA REQUERIDA (50%):* $${depositAmount}
-
-📝 *Para confirmar tu turno, realiza la transferencia a:*
-   • *Alias:* PISO.STYLE
-   • *Titular:* santiago martin tejada
-   • *Entidad:* naranja digital
-
-📱 *Envía el comprobante por WhatsApp al:* ${ADMIN_PHONE}
-
-⏳ *Tu turno está en estado PENDIENTE hasta que se confirme el pago.*`;
-  }
-  
-  const serviceNames = services.map(s => s.name).join(', ');
-  
-  const confirmationMessage = `✅ *Turno Agendado - Piso Style BarberShop* ✅
-
-Hola ${clientName}! Tu turno ha sido agendado:
-
-📅 *Fecha:* ${formatDateForDisplay(date)} a las ${time}
-${barberInfo}🆔 *N° de confirmación:* ${confirmationNumber}
-💇 *Servicios:* ${serviceNames}
-💰 *Total:* $${total}
-📊 *Estado:* ⏳ PENDIENTE DE CONFIRMACIÓN${transferInfo}
-
-📍 *Dirección:* Jujuy 1442, Mar del Plata
-
-💡 *Recordá:*
-• Presentate 10 minutos antes
-• Cancelación con 12h de anticipación
-• Traé puntualidad para mejor atención
-
-¡Te esperamos! ✂️`;
-
-  console.log('✅ Confirmación lista para enviar al cliente');
-  
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(confirmationMessage)}`;
-  
-  return {
-    message: confirmationMessage,
-    whatsappUrl: whatsappUrl,
-    depositAmount: depositAmount
-  };
-};
-
-// Función mejorada para crear turno con notificaciones
-export const createAppointmentWithNotifications = async (appointmentData) => {
-  try {
-    console.log('📝 Creando turno con datos:', appointmentData);
-    
-    // Calcular señal (50% del total, solo de servicios con precio)
-    const paidServices = appointmentData.services.filter(service => service.price > 0);
-    const depositAmount = Math.round(paidServices.reduce((sum, service) => sum + service.price, 0) * 0.5);
-    
-    const formattedAppointmentData = {
-      ...appointmentData,
-      date: getLocalDateString(appointmentData.date),
-      confirmationNumber: 'CONF-' + Date.now().toString().slice(-6),
-      // Campos para la señal
-      depositAmount: depositAmount,
-      depositStatus: 'pending',
-      depositRequired: depositAmount > 0,
-      depositPaymentMethod: 'transferencia',
-      depositPaidAt: null,
-      totalWithDeposit: appointmentData.total,
-      // Estado inicial: pending (no confirmed)
-      status: 'pending'
-    };
-    
-    console.log('💰 Señal calculada:', depositAmount);
-    console.log('📅 Fecha normalizada:', formattedAppointmentData.date);
-    console.log('📊 Estado inicial del turno:', formattedAppointmentData.status);
-    
-    // Crear el turno en Firestore con estado pending
-    const newAppointment = await createAppointment(formattedAppointmentData);
-    
-    console.log('✅ Turno creado en Firestore:', newAppointment);
-    
-    // Enviar WhatsApp al ADMIN con info de señal
-    setTimeout(() => {
-      const sent = sendAdminWhatsAppNotification(newAppointment);
-      if (sent) {
-        console.log('✅ WhatsApp enviado al admin exitosamente');
-      } else {
-        console.log('❌ Error enviando WhatsApp al admin');
-      }
-    }, 1000);
-    
-    // Programar recordatorio
-    const reminder = scheduleClientReminder(newAppointment);
-    
-    // Enviar confirmación CON INFO DE TRANSFERENCIA al cliente
-    const confirmation = sendImmediateConfirmation(newAppointment, true);
-    
-    // Generar enlaces de calendario
-    const calendarLinks = generateCalendarLinks(newAppointment);
-    
-    return {
-      ...newAppointment,
-      notifications: {
-        adminNotified: true,
-        clientReminder: reminder,
-        clientConfirmation: confirmation,
-        calendarLinks: calendarLinks
-      },
-      depositAmount: depositAmount
-    };
-  } catch (error) {
-    console.error('❌ Error en creación de turno con notificaciones:', error);
-    throw error;
-  }
-};
 
 // Funciones de compatibilidad
 export const createManualAppointment = createAppointment;

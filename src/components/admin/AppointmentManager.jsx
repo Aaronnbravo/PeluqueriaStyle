@@ -187,14 +187,15 @@ function AppointmentManager() {
   };
 
   const getStatusText = (status) => {
-    switch (status) {
-      case 'pending': return 'Pendiente';
-      case 'confirmed': return 'Confirmado';
-      case 'in_progress': return 'En Progreso';
-      case 'completed': return 'Terminado';
-      case 'cancelled': return 'Cancelado';
-      default: return 'Desconocido';
-    }
+  switch (status) {
+    case 'pending': return '⏳ Pendiente';
+    case 'confirmed': return '✅ Confirmado';
+    case 'in_progress': return '🔄 En Progreso';
+    case 'completed': return '🏁 Terminado';
+    case 'cancelled': return '❌ Cancelado';
+    default: return '❓ Desconocido';
+  }
+
   };
 
   const handleStatusChange = async (appointmentId, newStatus) => {

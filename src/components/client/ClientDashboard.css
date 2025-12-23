@@ -2652,3 +2652,135 @@ body {
 .deposit-info-alert .fa-money-bill-wave {
   color: #ffc107;
 }
+/* ===== ESTILOS PARA INFORMACIÓN DE TRANSFERENCIA ===== */
+
+/* Sección de transferencia en modal */
+.transfer-info-section {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.transfer-card {
+  border: 2px solid #ffc107;
+  background: #fff9e6;
+}
+
+.transfer-card .card-body {
+  padding: 1rem;
+}
+
+.transfer-detail {
+  padding: 0.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.transfer-detail:last-child {
+  border-bottom: none;
+}
+
+.transfer-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.transfer-value {
+  font-size: 1rem;
+}
+
+.transfer-reminder {
+  background: #e7f5ff;
+  border-left: 4px solid #0d6efd;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+/* Botones de calendario */
+.calendar-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.calendar-buttons .btn {
+  flex: 1;
+  min-width: 200px;
+  justify-content: center;
+}
+
+/* Estilos para el estado pendiente */
+.status-pending-badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Sección de depósito en resumen */
+.summary-deposit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  font-weight: 600;
+}
+
+/* Modal de información de transferencia */
+.modal-overlay .confirmation-modal .modal-header.bg-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%);
+}
+
+/* Responsive para transfer info */
+@media (max-width: 768px) {
+  .transfer-value {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+  
+  .transfer-value .btn {
+    align-self: flex-end;
+  }
+  
+  .calendar-buttons .btn {
+    min-width: 100%;
+  }
+}
+
+/* Estilos para el modal de turno agendado */
+.status-info {
+  text-align: center;
+  padding: 1rem;
+}
+
+.status-info .badge {
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+}
+
+.transfer-data {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.transfer-data p {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.transfer-data p:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}

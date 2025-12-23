@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Form, Button, Alert, ListGroup, Row, Col } from 'react-bootstrap';
-import { getServices, getPaymentMethods, createAppointmentWithNotifications } from '../../services/appointments';
+import { Card, Form, Button, Alert, ListGroup, Row, Col, Modal } from 'react-bootstrap';
+import { getServices, getPaymentMethods, createAppointmentWithNotifications, BANK_TRANSFER_INFO } from '../../services/appointments';
 import { useAuth } from '../../hooks/useAuth';
 
 function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, existingAppointment, onServiceSelected, selectedBarber }) {
@@ -13,42 +13,33 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showTransferInfo, setShowTransferInfo] = useState(false);
+  const [appointmentConfirmed, setAppointmentConfirmed] = useState(false);
+  const [createdAppointment, setCreatedAppointment] = useState(null);
 
   // Función para convertir fecha a DD/MM/YYYY
   const formatDateToDDMMYYYY = (dateString) => {
     if (!dateString) return '';
 
-    console.log('🔄 formatDateToDDMMYYYY input:', dateString, 'tipo:', typeof dateString);
-
-    // Si ya está en DD/MM/YYYY, dejarlo así
     if (typeof dateString === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
-      console.log('✅ Ya está en DD/MM/YYYY:', dateString);
       return dateString;
     }
 
-    // Si está en YYYY-MM-DD, convertir a DD/MM/YYYY
     if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
       const [year, month, day] = dateString.split('-');
-      const result = `${day}/${month}/${year}`;
-      console.log('🔄 YYYY-MM-DD -> DD/MM/YYYY:', dateString, '->', result);
-      return result;
+      return `${day}/${month}/${year}`;
     }
 
-    // Si es Date object o string con T, convertir a DD/MM/YYYY
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) {
-        console.error('❌ Fecha inválida:', dateString);
         return dateString;
       }
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
-      const result = `${day}/${month}/${year}`;
-      console.log('📅 Date -> DD/MM/YYYY:', dateString, '->', result);
-      return result;
+      return `${day}/${month}/${year}`;
     } catch (error) {
-      console.error('❌ Error convirtiendo fecha:', error);
       return dateString;
     }
   };
@@ -72,37 +63,42 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
   const { total, hasConsultServices } = calculateTotal();
   const totalDuration = selectedServices.reduce((sum, service) => sum + service.duration, 0);
 
+  // Calcular señal (50% de servicios con precio)
+  const calculateDeposit = () => {
+    const paidServices = selectedServices.filter(service => service.price > 0);
+    return Math.round(paidServices.reduce((sum, service) => sum + service.price, 0) * 0.5);
+  };
+
+  const depositAmount = calculateDeposit();
+
   const handleServiceToggle = (service) => {
-  setSelectedServices(prev => {
-    const isSelected = prev.find(s => s.id === service.id);
-    let newSelection;
-    
-    if (isSelected) {
-      newSelection = prev.filter(s => s.id !== service.id);
-    } else {
-      newSelection = [...prev, service];
-    }
-    
-    // Llamar al callback cuando se selecciona o deselecciona un servicio
-    if (onServiceSelected) {
-      onServiceSelected(newSelection);
-    }
-    
-    return newSelection;
-  });
-};
+    setSelectedServices(prev => {
+      const isSelected = prev.find(s => s.id === service.id);
+      let newSelection;
+      
+      if (isSelected) {
+        newSelection = prev.filter(s => s.id !== service.id);
+      } else {
+        newSelection = [...prev, service];
+      }
+      
+      if (onServiceSelected) {
+        onServiceSelected(newSelection);
+      }
+      
+      return newSelection;
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Validaciones adicionales
     if (!selectedBarber) {
       setError('Por favor selecciona un peluquero primero');
       return;
     }
 
-    // Si ya tiene turno, no permitir agendar otro
     if (existingAppointment) {
       setError('Ya tienes un turno agendado. Cancela o modifica tu turno existente primero.');
       return;
@@ -123,7 +119,6 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
       return;
     }
 
-    // Validar si solo se selecciona Pomada (compra)
     const hasProductOnly = selectedServices.length === 1 && 
       selectedServices[0].name.includes('Pomada') && 
       selectedServices[0].duration === 0;
@@ -134,7 +129,6 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
       }
     }
 
-    // Validar servicios "Consultar"
     if (hasConsultServices) {
       const consultServices = selectedServices.filter(s => s.price === 0);
       const serviceNames = consultServices.map(s => s.name).join(', ');
@@ -144,10 +138,13 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
       }
     }
 
-    // Mostrar confirmación
-    setShowConfirmation(true);
+    // Mostrar información de transferencia antes de confirmar
+    if (depositAmount > 0) {
+      setShowTransferInfo(true);
+    } else {
+      setShowConfirmation(true);
+    }
 
-    // Scroll automático al modal en móvil
     setTimeout(() => {
       const modal = document.querySelector('.confirmation-modal');
       if (modal && window.innerWidth < 768) {
@@ -160,68 +157,90 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
   };
 
   const confirmAppointment = async () => {
-    setLoading(true);
-    setShowConfirmation(false);
+  setLoading(true);
+  setShowConfirmation(false);
+  setShowTransferInfo(false);
 
-    try {
-      // CONVERTIR FECHA A DD/MM/YYYY ANTES DE ENVIAR
-      const formattedDate = formatDateToDDMMYYYY(selectedDate);
-      console.log('📅 Fecha convertida para enviar:', selectedDate, '->', formattedDate);
+  try {
+    // Asegurar que la fecha esté en formato DD/MM/YYYY
+    let formattedDate = formatDateToDDMMYYYY(selectedDate);
+    
+    console.log('📅 Fecha original:', selectedDate);
+    console.log('📅 Fecha formateada:', formattedDate);
+    console.log('⏰ Hora:', selectedTime);
+    console.log('👤 Cliente:', user?.firstName || user?.name || 'Cliente');
 
-      // Para servicios "Consultar", mantener precio como 0
-      const servicesWithAdjustedPrice = selectedServices.map(service => ({
-        ...service,
-        price: service.price === 0 ? 0 : service.price
-      }));
+    const servicesWithAdjustedPrice = selectedServices.map(service => ({
+      ...service,
+      price: service.price === 0 ? 0 : service.price
+    }));
 
-      const appointmentData = {
-        clientName: user.firstName || user.name || user.username || 'Cliente',
-        email: user.email || '',
-        phone: user.phone || '',
-        date: formattedDate,
-        time: selectedTime,
-        services: servicesWithAdjustedPrice,
-        total: total,
-        duration: totalDuration,
-        paymentMethod: paymentMethod,
-        notes: notes,
-        barber: selectedBarber,
-        barberId: selectedBarber?.id,
-        confirmationNumber: 'CONF-' + Date.now().toString().slice(-6)
-      };
+    const appointmentData = {
+      clientName: user.firstName || user.name || user.username || 'Cliente',
+      email: user.email || '',
+      phone: user.phone || '',
+      date: formattedDate, // DD/MM/YYYY
+      time: selectedTime,
+      services: servicesWithAdjustedPrice,
+      total: total,
+      duration: totalDuration,
+      paymentMethod: paymentMethod,
+      notes: notes,
+      barber: selectedBarber,
+      barberId: selectedBarber?.id,
+      confirmationNumber: 'CONF-' + Date.now().toString().slice(-6)
+    };
 
-      console.log('📝 Enviando datos del turno:', appointmentData);
+    if (hasConsultServices) {
+      const consultServices = selectedServices.filter(s => s.price === 0);
+      const serviceNames = consultServices.map(s => s.name).join(', ');
       
-      // Agregar nota sobre servicios a consultar
-      if (hasConsultServices) {
-        const consultServices = selectedServices.filter(s => s.price === 0);
-        const serviceNames = consultServices.map(s => s.name).join(', ');
-        
-        appointmentData.notes = (notes ? notes + '\n\n' : '') + 
-          `SERVICIOS A CONSULTAR PRECIO: ${serviceNames}`;
-      }
-      
-      // Usar la nueva función con notificaciones automáticas
-      const newAppointment = await createAppointmentWithNotifications(appointmentData);
-
-      console.log('✅ Turno creado exitosamente:', newAppointment);
-      
-      // Llamar al callback del padre
-      if (onAppointmentCreated) {
-        console.log('🔄 Llamando a onAppointmentCreated');
-        onAppointmentCreated(newAppointment);
-      } else {
-        console.error('❌ onAppointmentCreated no está definido');
-        setError('Error: No se pudo procesar la confirmación del turno');
-      }
-
-    } catch (err) {
-      console.error('❌ Error detallado al agendar turno:', err);
-      setError('Error al agendar el turno: ' + (err.message || 'Error desconocido'));
-    } finally {
-      setLoading(false);
+      appointmentData.notes = (notes ? notes + '\n\n' : '') + 
+        `SERVICIOS A CONSULTAR PRECIO: ${serviceNames}`;
     }
-  };
+    
+    console.log('📋 Datos del turno a enviar:', {
+      clientName: appointmentData.clientName,
+      date: appointmentData.date,
+      time: appointmentData.time,
+      total: appointmentData.total,
+      services: appointmentData.services.length
+    });
+    
+    const newAppointment = await createAppointmentWithNotifications(appointmentData);
+    
+    console.log('✅ Turno creado exitosamente:', newAppointment);
+    
+    setCreatedAppointment(newAppointment);
+    setAppointmentConfirmed(true);
+
+    if (onAppointmentCreated) {
+      onAppointmentCreated(newAppointment);
+    }
+
+  } catch (err) {
+    console.error('❌ Error detallado al agendar turno:', err);
+    
+    // Mensaje de error más específico
+    let errorMessage = 'Error al agendar el turno: ' + (err.message || 'Error desconocido');
+    
+    if (err.message.includes('Invalid time value') || err.message.includes('fecha')) {
+      errorMessage = 'Error con la fecha u hora seleccionada. Por favor, verifica e intenta nuevamente.';
+    }
+    
+    setError(errorMessage);
+    
+    // Scroll al error
+    setTimeout(() => {
+      const errorElement = document.querySelector('.alert-danger');
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getServiceIcon = (serviceName) => {
     const icons = {
@@ -251,6 +270,15 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
     return `$${price.toLocaleString('es-AR')}`;
   };
 
+  // Copiar texto al portapapeles
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('¡Copiado al portapapeles!');
+    }).catch(err => {
+      console.error('Error al copiar: ', err);
+    });
+  };
+
   return (
     <Card className="services-payment-card">
       <Card.Header>
@@ -264,7 +292,6 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
           </Alert>
         )}
 
-        {/* MOSTRAR MENSAJE SI NO HAY PELUQUERO SELECCIONADO */}
         {!selectedBarber && (
           <Alert variant="warning" className="mb-4">
             <i className="fa-solid fa-user-slash me-2"></i>
@@ -272,7 +299,6 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
           </Alert>
         )}
 
-        {/* MOSTRAR MENSAJE SI YA TIENE TURNO EXISTENTE */}
         {existingAppointment && (
           <Alert variant="warning" className="mb-4">
             <h6><i className="fa-solid fa-info-circle me-2"></i>Ya tienes un turno agendado</h6>
@@ -402,6 +428,14 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                       </span>
                     </ListGroup.Item>
                   ))}
+                  {depositAmount > 0 && (
+                    <ListGroup.Item className="summary-deposit">
+                      <span>Seña requerida (50%):</span>
+                      <span className="text-warning fw-bold">
+                        ${depositAmount.toLocaleString('es-AR')}
+                      </span>
+                    </ListGroup.Item>
+                  )}
                   <ListGroup.Item className="summary-total">
                     <span>Total:</span>
                     <span>
@@ -418,6 +452,12 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                     <span>{totalDuration} minutos</span>
                   </ListGroup.Item>
                 </ListGroup>
+                {depositAmount > 0 && (
+                  <Alert variant="warning" className="mt-3 mb-0">
+                    <i className="fa-solid fa-money-bill-wave me-2"></i>
+                    <strong>Seña requerida:</strong> Para confirmar tu turno necesitarás realizar una seña del 50% (${depositAmount.toLocaleString('es-AR')}) mediante transferencia bancaria.
+                  </Alert>
+                )}
               </Card.Body>
             </Card>
           )}
@@ -441,6 +481,12 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                 </button>
               ))}
             </div>
+            {paymentMethod === 'Transferencia Bancaria' && depositAmount > 0 && (
+              <Alert variant="info" className="mt-2">
+                <i className="fa-solid fa-info-circle me-2"></i>
+                Se te solicitará una seña del 50% mediante transferencia para confirmar el turno.
+              </Alert>
+            )}
           </div>
 
           {/* Notas adicionales */}
@@ -460,7 +506,147 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
             />
           </Form.Group>
 
-          {/* Modal de Confirmación Centrado y Mejorado */}
+          {/* Modal de Información de Transferencia */}
+          {showTransferInfo && (
+            <div className="modal-overlay">
+              <div className="confirmation-modal">
+                <div className="modal-header">
+                  <h5>
+                    <i className="fa-solid fa-money-bill-transfer me-2 text-warning"></i>
+                    Información de Transferencia
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowTransferInfo(false)}
+                    aria-label="Cerrar"
+                  >
+                    <i className="fa-solid fa-times"></i>
+                  </button>
+                </div>
+
+                <div className="modal-content">
+                  <div className="confirmation-details">
+                    <Alert variant="warning" className="mb-3">
+                      <h6><i className="fa-solid fa-exclamation-triangle me-2"></i>Seña Requerida</h6>
+                      <p className="mb-0">
+                        Para confirmar tu turno, necesitas realizar una seña del 50% (${depositAmount.toLocaleString('es-AR')}) mediante transferencia bancaria.
+                      </p>
+                    </Alert>
+
+                    <div className="transfer-info-section">
+                      <h6 className="mb-3">
+                        <i className="fa-solid fa-building-columns me-2"></i>
+                        Datos para la transferencia:
+                      </h6>
+                      
+                      <Card className="transfer-card">
+                        <Card.Body>
+                          <div className="transfer-detail mb-3">
+                            <div className="transfer-label">Alias:</div>
+                            <div className="transfer-value d-flex justify-content-between align-items-center">
+                              <strong>{BANK_TRANSFER_INFO.alias}</strong>
+                              <Button 
+                                variant="outline-primary" 
+                                size="sm"
+                                onClick={() => copyToClipboard(BANK_TRANSFER_INFO.alias)}
+                                title="Copiar alias"
+                              >
+                                <i className="fa-solid fa-copy"></i>
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="transfer-detail mb-3">
+                            <div className="transfer-label">Titular:</div>
+                            <div className="transfer-value d-flex justify-content-between align-items-center">
+                              <strong>{BANK_TRANSFER_INFO.accountHolder}</strong>
+                              <Button 
+                                variant="outline-primary" 
+                                size="sm"
+                                onClick={() => copyToClipboard(BANK_TRANSFER_INFO.accountHolder)}
+                                title="Copiar nombre"
+                              >
+                                <i className="fa-solid fa-copy"></i>
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="transfer-detail mb-3">
+                            <div className="transfer-label">Entidad:</div>
+                            <div className="transfer-value d-flex justify-content-between align-items-center">
+                              <strong>{BANK_TRANSFER_INFO.bank}</strong>
+                              <Button 
+                                variant="outline-primary" 
+                                size="sm"
+                                onClick={() => copyToClipboard(BANK_TRANSFER_INFO.bank)}
+                                title="Copiar entidad"
+                              >
+                                <i className="fa-solid fa-copy"></i>
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="transfer-detail mb-4">
+                            <div className="transfer-label">Monto a transferir:</div>
+                            <div className="transfer-value d-flex justify-content-between align-items-center">
+                              <strong className="text-warning">${depositAmount.toLocaleString('es-AR')}</strong>
+                              <Button 
+                                variant="outline-primary" 
+                                size="sm"
+                                onClick={() => copyToClipboard(depositAmount.toString())}
+                                title="Copiar monto"
+                              >
+                                <i className="fa-solid fa-copy"></i>
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <Alert variant="info" className="mb-0">
+                            <i className="fa-solid fa-whatsapp me-2"></i>
+                            <strong>Importante:</strong> Una vez realizada la transferencia, envía el comprobante por WhatsApp al <strong>2233540664</strong> para confirmar tu turno.
+                          </Alert>
+                        </Card.Body>
+                      </Card>
+                      
+                      <div className="mt-4">
+                        <Alert variant="success">
+                          <h6><i className="fa-solid fa-calendar-check me-2"></i>Estado del Turno</h6>
+                          <p className="mb-0">
+                            Tu turno quedará en estado <strong>PENDIENTE</strong> hasta que se confirme el pago de la seña. Una vez confirmado, el administrador cambiará el estado a <strong>CONFIRMADO</strong>.
+                          </p>
+                        </Alert>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="modal-footer">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowTransferInfo(false)}
+                    className="btn-modify"
+                  >
+                    <i className="fa-solid fa-pen me-2"></i>
+                    Modificar
+                  </Button>
+                  <Button
+                    variant="warning"
+                    onClick={() => {
+                      setShowTransferInfo(false);
+                      setShowConfirmation(true);
+                    }}
+                    className="btn-confirm"
+                  >
+                    <i className="fa-solid fa-check me-2"></i>
+                    Continuar con la Reserva
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal de Confirmación Final */}
           {showConfirmation && (
             <div className="modal-overlay">
               <div className="confirmation-modal">
@@ -567,15 +753,33 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
                       </div>
                     </div>
 
-                    {/* Método de Pago */}
+                    {/* Información de Pago */}
                     <div className="detail-section">
                       <div className="detail-section-title">
                         <i className="fa-solid fa-credit-card"></i>
-                        Método de Pago
+                        Información de Pago
                       </div>
                       <div className="detail-content">
-                        <i className="fa-solid fa-building-columns me-2"></i>
-                        {paymentMethod}
+                        <div className="payment-info">
+                          <div className="mb-2">
+                            <i className="fa-solid fa-building-columns me-2"></i>
+                            <strong>Método:</strong> {paymentMethod}
+                          </div>
+                          {depositAmount > 0 && (
+                            <>
+                              <div className="mb-2">
+                                <i className="fa-solid fa-money-bill-wave me-2"></i>
+                                <strong>Seña requerida:</strong> ${depositAmount.toLocaleString('es-AR')} (50%)
+                              </div>
+                              <div className="transfer-reminder">
+                                <small className="text-muted">
+                                  <i className="fa-solid fa-info-circle me-1"></i>
+                                  Recuerda realizar la transferencia para confirmar tu turno
+                                </small>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -660,6 +864,140 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
             </div>
           )}
 
+          {/* Modal de Turno Confirmado */}
+          {appointmentConfirmed && createdAppointment && (
+            <div className="modal-overlay">
+              <div className="confirmation-modal">
+                <div className="modal-header bg-warning">
+                  <h5 className="text-white">
+                    <i className="fa-solid fa-clock me-2"></i>
+                    Turno Agendado - Pendiente de Confirmación
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close btn-close-white"
+                    onClick={() => setAppointmentConfirmed(false)}
+                    aria-label="Cerrar"
+                  >
+                    <i className="fa-solid fa-times"></i>
+                  </button>
+                </div>
+
+                <div className="modal-content">
+                  <div className="confirmation-details">
+                    <Alert variant="success" className="mb-3">
+                      <h6><i className="fa-solid fa-check-circle me-2"></i>¡Turno Agendado Exitosamente!</h6>
+                      <p className="mb-0">Tu turno ha sido registrado en nuestro sistema.</p>
+                    </Alert>
+
+                    <div className="detail-section">
+                      <div className="detail-section-title">
+                        <i className="fa-solid fa-info-circle text-warning"></i>
+                        Estado Actual
+                      </div>
+                      <div className="detail-content">
+                        <div className="status-info">
+                          <span className="badge bg-warning">⏳ PENDIENTE</span>
+                          <p className="mt-2 mb-0">
+                            Tu turno está en estado <strong>PENDIENTE</strong> hasta que se confirme el pago de la seña.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="detail-section">
+                      <div className="detail-section-title">
+                        <i className="fa-solid fa-money-bill-transfer text-warning"></i>
+                        Próximo Paso
+                      </div>
+                      <div className="detail-content">
+                        <Alert variant="warning" className="mb-0">
+                          <h6><i className="fa-solid fa-exclamation-triangle me-2"></i>Realizar Transferencia</h6>
+                          <p>Para confirmar tu turno, realiza la transferencia de:</p>
+                          <div className="text-center my-3">
+                            <h3 className="text-danger">${depositAmount.toLocaleString('es-AR')}</h3>
+                          </div>
+                          <div className="transfer-data">
+                            <p><strong>Alias:</strong> {BANK_TRANSFER_INFO.alias}</p>
+                            <p><strong>Titular:</strong> {BANK_TRANSFER_INFO.accountHolder}</p>
+                            <p><strong>Entidad:</strong> {BANK_TRANSFER_INFO.bank}</p>
+                          </div>
+                          <hr />
+                          <p className="mb-2">
+                            <i className="fa-solid fa-whatsapp me-2 text-success"></i>
+                            <strong>Envía el comprobante al:</strong> 2233540664
+                          </p>
+                        </Alert>
+                      </div>
+                    </div>
+
+                    <div className="detail-section">
+                      <div className="detail-section-title">
+                        <i className="fa-solid fa-calendar-plus text-warning"></i>
+                        Recordatorios de Calendario
+                      </div>
+                      <div className="detail-content">
+                        <p className="mb-3">Agrega un recordatorio a tu calendario:</p>
+                        <div className="calendar-buttons">
+                          <Button
+                            variant="outline-primary"
+                            className="me-2 mb-2"
+                            onClick={() => window.open(createdAppointment.notifications?.calendarLinks?.google, '_blank')}
+                          >
+                            <i className="fa-brands fa-google me-2"></i>
+                            Google Calendar
+                          </Button>
+                          <Button
+                            variant="outline-secondary"
+                            className="mb-2"
+                            onClick={() => window.open(createdAppointment.notifications?.calendarLinks?.apple, '_blank')}
+                          >
+                            <i className="fa-brands fa-apple me-2"></i>
+                            Apple Calendar
+                          </Button>
+                        </div>
+                        <small className="text-muted">
+                          <i className="fa-solid fa-clock me-1"></i>
+                          Recordatorio programado 2 horas antes del turno
+                        </small>
+                      </div>
+                    </div>
+
+                    <div className="detail-section">
+                      <div className="detail-section-title">
+                        <i className="fa-solid fa-comment text-warning"></i>
+                        Comunicación
+                      </div>
+                      <div className="detail-content">
+                        <p>Recibirás un mensaje por WhatsApp cuando:</p>
+                        <ul className="mb-0">
+                          <li>Tu turno sea confirmado por el administrador</li>
+                          
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="modal-footer">
+                  <Button
+                    variant="warning"
+                    onClick={() => {
+                      setAppointmentConfirmed(false);
+                      if (onAppointmentCreated) {
+                        onAppointmentCreated(createdAppointment);
+                      }
+                    }}
+                    className="btn-continue"
+                  >
+                    <i className="fa-solid fa-check me-2"></i>
+                    Entendido
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <Button
             variant="success"
             type="submit"
@@ -685,7 +1023,7 @@ function AppointmentForm({ selectedDate, selectedTime, onAppointmentCreated, exi
             ) : (
               <>
                 <i className="fa-solid fa-calendar-check me-2"></i>
-                Confirmar Turno
+                Agendar Turno
               </>
             )}
           </Button>

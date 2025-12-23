@@ -68,7 +68,7 @@ function AdminCalendar() {
       
       // Mostrar cada turno en consola
       appointmentsForDate.forEach((apt, idx) => {
-        console.log(`   [${idx}] ${apt.clientName} - ${apt.time} - Peluquero: ${apt.barberId || apt.barber?.id}`);
+        console.log(`   [${idx}] ${apt.clientName} - ${apt.time} - Peluquero: ${apt.barberId || apt.barber?.id} - Estado: ${apt.status}`);
       });
       
       // Guardar los turnos
@@ -106,7 +106,7 @@ function AdminCalendar() {
   appointments.forEach(apt => {
     if (apt && apt.time) {
       bookedSlotsMap[apt.time] = apt;
-      console.log(`📌 Slot ${apt.time} ocupado por ${apt.clientName}`);
+      console.log(`📌 Slot ${apt.time} ocupado por ${apt.clientName} (Estado: ${apt.status})`);
     }
   });
 
@@ -116,16 +116,54 @@ function AdminCalendar() {
     setShowModal(true);
   };
 
-  // Cambiar estado del turno
+  // Cambiar estado del turno - MEJORADA
   const handleStatusChange = async (appointmentId, newStatus) => {
     try {
+      let confirmMessage = '';
+      
+      switch(newStatus) {
+        case 'confirmed':
+          confirmMessage = '¿Confirmar este turno? Esto significa que la seña ha sido verificada.';
+          break;
+        case 'cancelled':
+          confirmMessage = '¿Cancelar este turno? Esta acción no se puede deshacer fácilmente.';
+          break;
+        case 'in_progress':
+          confirmMessage = '¿Iniciar la atención de este turno?';
+          break;
+        case 'completed':
+          confirmMessage = '¿Marcar este turno como terminado?';
+          break;
+        default:
+          confirmMessage = `¿Cambiar el estado del turno a ${getStatusText(newStatus)}?`;
+      }
+      
+      if (!window.confirm(confirmMessage)) {
+        return;
+      }
+      
       const success = await updateAppointmentStatus(appointmentId, newStatus);
       if (success) {
+        // Mostrar mensaje de éxito
+        alert(`✅ Turno ${getStatusText(newStatus).toLowerCase()} exitosamente`);
+        
+        // Actualizar la lista
         setRefreshTrigger(prev => prev + 1);
         setShowModal(false);
+        
+        // Si se confirmó un turno pendiente, podemos enviar notificación al cliente
+        if (newStatus === 'confirmed') {
+          // Buscar el turno para obtener datos del cliente
+          const appointmentToConfirm = appointments.find(apt => apt.id === appointmentId);
+          if (appointmentToConfirm) {
+            console.log('📱 Turno confirmado, se podría enviar notificación a:', appointmentToConfirm.clientName);
+            // Aquí podrías agregar una función para enviar WhatsApp al cliente
+          }
+        }
       }
     } catch (error) {
       console.error('Error cambiando estado:', error);
+      alert('❌ Error al cambiar el estado del turno');
     }
   };
 
@@ -137,6 +175,19 @@ function AdminCalendar() {
       // Si ya es YYYY-MM-DD
       if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
         const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        
+        return date.toLocaleDateString('es-ES', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      
+      // Si es DD/MM/YYYY
+      if (typeof dateString === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
+        const [day, month, year] = dateString.split('/').map(Number);
         const date = new Date(year, month - 1, day);
         
         return date.toLocaleDateString('es-ES', {
@@ -178,12 +229,12 @@ function AdminCalendar() {
   // Obtener texto del estado
   const getStatusText = (status) => {
     switch (status) {
-      case 'pending': return 'Pendiente';
-      case 'confirmed': return 'Confirmado';
-      case 'in_progress': return 'En Progreso';
-      case 'completed': return 'Terminado';
-      case 'cancelled': return 'Cancelado';
-      default: return 'Desconocido';
+      case 'pending': return '⏳ Pendiente';
+      case 'confirmed': return '✅ Confirmado';
+      case 'in_progress': return '🔄 En Progreso';
+      case 'completed': return '🏁 Terminado';
+      case 'cancelled': return '❌ Cancelado';
+      default: return '❓ Desconocido';
     }
   };
 
@@ -255,6 +306,11 @@ function AdminCalendar() {
                   <div>
                     <i className="fas fa-info-circle me-2"></i>
                     <strong>{appointments.length}</strong> turnos para {currentBarberName} el {formatDateForDisplay(selectedDate)}
+                    <div className="mt-1 small">
+                      {appointments.filter(a => a.status === 'pending').length} ⏳ Pendientes • 
+                      {appointments.filter(a => a.status === 'confirmed').length} ✅ Confirmados • 
+                      {appointments.filter(a => a.status === 'in_progress').length} 🔄 En Progreso
+                    </div>
                   </div>
                   <Badge bg="primary">
                     {currentBarberName} (ID: {currentBarberId})
@@ -434,7 +490,40 @@ function AdminCalendar() {
                           >
                             <i className="fas fa-eye"></i>
                           </Button>
-                          {appointment.status === 'pending' || appointment.status === 'confirmed' ? (
+                          
+                          {/* Botón rápido para confirmar turnos pendientes */}
+                          {appointment.status === 'pending' && (
+                            <Button 
+                              variant="outline-success" 
+                              size="sm"
+                              onClick={() => {
+                                if (window.confirm(`¿Confirmar turno de ${appointment.clientName}?`)) {
+                                  handleStatusChange(appointment.id, 'confirmed');
+                                }
+                              }}
+                              title="Confirmar turno"
+                            >
+                              <i className="fas fa-check"></i>
+                            </Button>
+                          )}
+                          
+                          {/* Botón para cancelar */}
+                          {(appointment.status === 'pending' || appointment.status === 'confirmed') && (
+                            <Button 
+                              variant="outline-danger" 
+                              size="sm"
+                              onClick={() => {
+                                if (window.confirm(`¿Cancelar turno de ${appointment.clientName}?`)) {
+                                  handleStatusChange(appointment.id, 'cancelled');
+                                }
+                              }}
+                              title="Cancelar turno"
+                            >
+                              <i className="fas fa-times"></i>
+                            </Button>
+                          )}
+                          
+                          {appointment.status === 'confirmed' ? (
                             <Button 
                               variant="outline-info" 
                               size="sm"
@@ -444,6 +533,7 @@ function AdminCalendar() {
                               <i className="fas fa-play"></i>
                             </Button>
                           ) : null}
+                          
                           {appointment.status === 'in_progress' ? (
                             <Button 
                               variant="outline-success" 
@@ -479,7 +569,7 @@ function AdminCalendar() {
         </Card.Body>
       </Card>
 
-      {/* Modal de detalles */}
+      {/* Modal de detalles - ACTUALIZADO */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
@@ -512,40 +602,109 @@ function AdminCalendar() {
                   </div>
                 </Col>
                 <Col md={4} className="text-end">
-                  <div className="btn-group" role="group">
-                    {selectedAppointment.status === 'pending' || selectedAppointment.status === 'confirmed' ? (
+                  {/* Botones para cambiar estado */}
+                  <div className="btn-group-vertical" role="group" style={{ minWidth: '120px' }}>
+                    {/* Botón para confirmar turnos PENDIENTES */}
+                    {selectedAppointment.status === 'pending' && (
+                      <>
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => handleStatusChange(selectedAppointment.id, 'confirmed')}
+                          className="mb-2"
+                        >
+                          <i className="fas fa-check-circle me-1"></i>
+                          Confirmar Turno
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => {
+                            if (window.confirm(`¿Cancelar el turno de ${selectedAppointment.clientName}?`)) {
+                              handleStatusChange(selectedAppointment.id, 'cancelled');
+                            }
+                          }}
+                        >
+                          <i className="fas fa-times me-1"></i>
+                          Cancelar
+                        </Button>
+                      </>
+                    )}
+                    
+                    {/* Botón para iniciar turnos CONFIRMADOS */}
+                    {selectedAppointment.status === 'confirmed' && (
                       <Button
                         variant="info"
                         size="sm"
                         onClick={() => handleStatusChange(selectedAppointment.id, 'in_progress')}
                       >
                         <i className="fas fa-play me-1"></i>
-                        Iniciar
+                        Iniciar Atención
                       </Button>
-                    ) : null}
-                    {selectedAppointment.status === 'in_progress' ? (
+                    )}
+                    
+                    {/* Botón para terminar turnos EN PROGRESO */}
+                    {selectedAppointment.status === 'in_progress' && (
                       <Button
                         variant="success"
                         size="sm"
                         onClick={() => handleStatusChange(selectedAppointment.id, 'completed')}
                       >
                         <i className="fas fa-check me-1"></i>
-                        Terminar
+                        Terminar Atención
                       </Button>
-                    ) : null}
-                    {selectedAppointment.status === 'completed' ? (
+                    )}
+                    
+                    {/* Botón para reabrir turnos TERMINADOS */}
+                    {selectedAppointment.status === 'completed' && (
                       <Button
                         variant="warning"
                         size="sm"
                         onClick={() => handleStatusChange(selectedAppointment.id, 'confirmed')}
                       >
                         <i className="fas fa-undo me-1"></i>
-                        Reabrir
+                        Reabrir Turno
                       </Button>
-                    ) : null}
+                    )}
+                    
+                    {/* Botón para reactivar turnos CANCELADOS */}
+                    {selectedAppointment.status === 'cancelled' && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handleStatusChange(selectedAppointment.id, 'pending')}
+                      >
+                        <i className="fas fa-redo me-1"></i>
+                        Reactivar
+                      </Button>
+                    )}
                   </div>
                 </Col>
               </Row>
+              
+              {/* Información de señal para turnos pendientes */}
+              {selectedAppointment.status === 'pending' && selectedAppointment.depositAmount > 0 && (
+                <Alert variant="warning" className="mb-3">
+                  <h6>
+                    <i className="fas fa-money-bill-wave me-2"></i>
+                    Información de Seña
+                  </h6>
+                  <Row>
+                    <Col md={6}>
+                      <p className="mb-1"><strong>Monto requerido:</strong> ${selectedAppointment.depositAmount?.toLocaleString('es-AR') || '0'}</p>
+                      <p className="mb-1"><strong>Estado:</strong> {selectedAppointment.depositStatus === 'pending' ? '❌ PENDIENTE' : '✅ PAGADA'}</p>
+                    </Col>
+                    <Col md={6}>
+                      <p className="mb-1"><strong>Método:</strong> {selectedAppointment.depositPaymentMethod || 'Transferencia'}</p>
+                      <p className="mb-0"><strong>Pagado el:</strong> {selectedAppointment.depositPaidAt ? new Date(selectedAppointment.depositPaidAt).toLocaleDateString('es-ES') : 'No pagado'}</p>
+                    </Col>
+                  </Row>
+                  <hr />
+                  <p className="mb-0">
+                    <strong>Instrucción:</strong> Confirma el turno solo después de verificar el pago de la seña.
+                  </p>
+                </Alert>
+              )}
               
               <Row>
                 <Col md={6}>
@@ -570,7 +729,7 @@ function AdminCalendar() {
                         <li key={service.id} className="list-group-item d-flex justify-content-between align-items-center">
                           {service.name}
                           <Badge bg="primary" pill>
-                            ${service.price}
+                            ${service.price || 0}
                           </Badge>
                         </li>
                       ))}
@@ -589,6 +748,21 @@ function AdminCalendar() {
                   {selectedAppointment.notes || 'Ninguna'}</p>
                 </Col>
               </Row>
+              
+              {/* Información de creación */}
+              <div className="mt-3 pt-3 border-top">
+                <p className="text-muted small mb-0">
+                  <i className="fas fa-calendar-plus me-1"></i>
+                  Creado: {selectedAppointment.createdAt ? new Date(selectedAppointment.createdAt).toLocaleString('es-ES') : 'No disponible'}
+                  {selectedAppointment.updatedAt && selectedAppointment.updatedAt !== selectedAppointment.createdAt && (
+                    <>
+                      <br />
+                      <i className="fas fa-edit me-1"></i>
+                      Actualizado: {new Date(selectedAppointment.updatedAt).toLocaleString('es-ES')}
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
           )}
         </Modal.Body>
